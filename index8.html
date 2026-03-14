@@ -9,1231 +9,1272 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SX Network">
     <meta name="theme-color" content="#050a14">
-    <link rel="apple-touch-icon" id="apple-touch-icon">
     <title>SX - Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
     <style>
-        body { background-color: #050a14; color: white; overflow-x: hidden; font-family: 'Segoe UI', sans-serif; }
-        .sx-card { background: #112240; border-radius: 16px; border: 1px solid #1d2d50; }
-        .logo-s { color: #ff0000; font-weight: 900; font-size: 3.5rem; line-height: 1; }
-        .logo-x { color: #ffffff; font-weight: 900; font-size: 3.5rem; line-height: 1; }
-        .btn-vermelho { background-color: #ff0000 !important; transition: 0.3s; color: white; font-weight: 800; border: none; }
-        .capa-container { height: 280px; width: 100%; position: relative; background: #0a192f; overflow: hidden; border-bottom: 4px solid #ff0000; }
-        .capa-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .btn-editar-capa { position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 10; border: 1px solid #ff0000; }
-        .sidebar { transition: 0.3s; width: 280px; background: #0a192f; border-right: 1px solid #ff0000; height: 100vh; position: fixed; left: -280px; z-index: 100; display: flex; flex-direction: column; }
-        .sidebar.open { left: 0; }
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 1rem; scrollbar-width: thin; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 90; }
-        .overlay.active { display: block; }
-        .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; }
-        .hidden { display: none; }
-        .nav-rapida { display: flex; gap: 8px; overflow-x: auto; padding: 12px; scrollbar-width: none; background: #050a14; border-bottom: 1px solid #1d2d50; }
-        .nav-rapida::-webkit-scrollbar { display: none; }
-        .btn-nav-item { background: #112240; border: 1px solid #1d2d50; padding: 8px 16px; border-radius: 50px; white-space: nowrap; font-size: 13px; font-weight: 800; text-transform: uppercase; transition: 0.3s; cursor: pointer; }
-        .btn-nav-item:hover { border-color: #ff0000; color: #ff0000; }
-        .btn-curtir { transition: transform 0.2s; cursor: pointer; color: #ff0000; }
-        .btn-curtir:active { transform: scale(1.4); }
-        .num-curtidas { color: white !important; font-weight: bold; }
-        .comment-box { background: rgba(0,0,0,0.2); border: 1px solid #1d2d50; border-radius: 8px; color: white; }
-        .btn-upload-elegant { background: linear-gradient(45deg, #112240, #1d2d50); border: 1px solid #ff0000; color: #fff; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; transition: all 0.3s; }
-        #area-veiculos { display: none; }
-        .cls-header { background:#061427; padding:20px; text-align:center; font-size:22px; font-weight:bold; border-bottom: 2px solid #ff0000; }
-        .cls-container { max-width:900px; margin:auto; padding:20px; }
-        .cls-btn { background:#00aa00; color:white; border:none; padding:12px 22px; border-radius:8px; cursor:pointer; font-weight:bold; }
-        .cls-btn:hover { background:#00cc00; }
-        .cls-btn:disabled { background:#666; cursor:not-allowed; }
-        .cls-btn-novo { background:linear-gradient(45deg,#ff4444,#cc0000); margin-bottom:20px; }
-        .upload-btn-cls { background:linear-gradient(45deg,#00aa00,#00cc00); color:white; padding:12px 22px; border-radius:8px; cursor:pointer; display:inline-block; font-weight:bold; margin:10px 0; border:none; font-size:15px; transition:transform 0.2s; }
-        .upload-btn-cls:hover { transform:scale(1.05); }
-        .form-box-cls { background:#10264d; padding:25px; border-radius:12px; margin:20px 0; display:none; }
-        .cls-input, .cls-textarea, .cls-select { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; background:#1a3a6d; color:white; box-sizing:border-box; }
-        .cls-input::placeholder, .cls-textarea::placeholder { color:#ddd; }
-        .cls-input:focus, .cls-textarea:focus, .cls-select:focus { background:#2a4a8d; outline:none; }
-        .cls-label { color:white; font-weight:bold; margin:10px 0 5px 0; display:block; }
-        .preview-cls { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
-        .preview-cls img { width:100px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; transition:transform 0.3s; }
-        .preview-cls img:hover { transform:scale(1.5); }
-        .preview-cls video { width:100px; height:80px; object-fit:cover; border-radius:8px; }
-        .midia-grid-cls { display:flex; gap:10px; flex-wrap:wrap; margin-top:15px; }
-        .midia-grid-cls img { max-width:140px; height:110px; object-fit:cover; border-radius:8px; cursor:pointer; transition:transform 0.3s; }
-        .midia-grid-cls img:hover { transform:scale(1.2); }
-        .midia-grid-cls video { max-width:140px; height:110px; object-fit:cover; border-radius:8px; }
-        .cls-status { padding:12px; margin:12px 0; border-radius:8px; font-weight:bold; text-align:center; }
-        .cls-status-ok { background:#004400; } .cls-status-erro { background:#440000; }
-        .anuncio-cls { background:#10264d; padding:20px; border-radius:12px; margin:20px 0; }
-        .anuncio-cls h3 { margin:0 0 10px 0; }
-        .badge-publicado { background:#004400; color:#00ff88; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; display:inline-block; margin-bottom:8px; }
-        #area-vestir { display: none; width: 100%; background: #000; }
-        #pv-iframe { width: 100%; height: calc(100vh - 73px - 49px); border: none; display: block; }
-        .sx-card-cadastro { background: #112240; border-radius: 15px; border: 1px solid #1d2d50; }
-        .card-anuncio-nativo { background: linear-gradient(135deg, #1a0a2e, #0d1f3c); border-radius: 16px; border: 2px solid #ff0000; margin-bottom: 24px; overflow: hidden; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
-        #btn-flutuante-admin { display: none; position: fixed; bottom: 24px; right: 20px; background: linear-gradient(45deg, #ff0000, #8800cc); color: white; font-size: 13px; font-weight: 900; padding: 14px 18px; border-radius: 50px; box-shadow: 0 4px 20px rgba(255,0,0,0.5); cursor: pointer; z-index: 80; border: 2px solid rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; }
-        #btn-flutuante-admin:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(255,0,0,0.7); }
-        #area-lojas-look { display: none; }
-        .prof-card { background: #112240; border-radius: 15px; border: 1px solid #1d2d50; }
-        .marquee-container-lok { background: #0a192f; color: white; padding: 12px 0; overflow: hidden; white-space: nowrap; font-weight: bold; border-bottom: 2px solid #1d2d50; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .marquee-text-lok { display: inline-block; padding-left: 100%; animation: marquee-lok 50s linear infinite; font-size: 1.1rem; }
-        @keyframes marquee-lok { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
-        .s-red { color: #ff0000; }
-        .x-white { color: #ffffff; }
-        #caixa-cadastro-lok { transition: all 0.5s ease-in-out; }
-        .alerta-email { display:none; background:#4a0000; border:1px solid #ff0000; color:#ff6060; border-radius:8px; padding:12px 16px; margin-bottom:12px; font-size:14px; font-weight:bold; text-align:center; }
-        .alerta-email.visivel { display:block; }
-        .input-erro { border-color:#ff0000 !important; }
-        .post-card { background: #112240; border-radius: 16px; border: 1px solid #1d2d50; border-left: 4px solid #ff0000; margin-bottom: 24px; overflow: hidden; }
-        .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .post-card-texto { padding: 0 16px 12px 16px; color: #e5e7eb; font-size: 1rem; }
-        .post-card-footer { padding: 16px; border-top: 1px solid #1f2f4d; }
+        body{background:#050a14;color:white;overflow-x:hidden;font-family:'Segoe UI',sans-serif;}
+        .sx-card{background:#112240;border-radius:16px;border:1px solid #1d2d50;}
+        .logo-s{color:#ff0000;font-weight:900;font-size:3.5rem;line-height:1;}
+        .logo-x{color:#ffffff;font-weight:900;font-size:3.5rem;line-height:1;}
+        .btn-vermelho{background-color:#ff0000!important;transition:0.3s;color:white;font-weight:800;border:none;}
+        .capa-container{height:280px;width:100%;position:relative;background:#0a192f;overflow:hidden;border-bottom:4px solid #ff0000;}
+        .capa-img{width:100%;height:100%;object-fit:cover;display:block;}
+        .btn-editar-capa{position:absolute;bottom:15px;right:15px;background:rgba(0,0,0,0.8);color:white;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;z-index:10;border:1px solid #ff0000;}
+        .sidebar{transition:0.3s;width:280px;background:#0a192f;border-right:1px solid #ff0000;height:100vh;position:fixed;left:-280px;z-index:100;display:flex;flex-direction:column;}
+        .sidebar.open{left:0;}
+        .sidebar-content{flex:1;overflow-y:auto;padding:1rem;scrollbar-width:thin;}
+        .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:90;}
+        .overlay.active{display:block;}
+        .video-feed{width:100%;height:100vh;background:black;object-fit:cover;display:block;}
+        .hidden{display:none;}
 
-        .video-wrapper {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            overflow: hidden;
-            margin-left: calc(-50vw + 50%);
+        /* ── NAV COMPACTA — todos os 5 botões sem scroll ── */
+        .nav-rapida{
+            display:flex;
+            gap:3px;
+            padding:6px 6px;
+            background:#050a14;
+            border-bottom:1px solid #1d2d50;
+            align-items:center;
         }
-        .video-skeleton {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #112240 25%, #1d2d50 50%, #112240 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.2s infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
+        .btn-nav-item{
+            background:#112240;
+            border:1px solid #1d2d50;
+            padding:7px 2px;
+            border-radius:50px;
+            white-space:nowrap;
+            font-size:11px;
+            font-weight:800;
+            text-transform:uppercase;
+            transition:0.3s;
+            cursor:pointer;
+            letter-spacing:0.01em;
+            flex:1;
+            min-width:0;
+            text-align:center;
+            overflow:hidden;
+            text-overflow:ellipsis;
         }
-        .video-skeleton svg { opacity: 0.4; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .btn-som-video {
-            position: absolute;
-            bottom: 18px;
-            right: 18px;
-            z-index: 10;
-            background: rgba(0,0,0,0.65);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background 0.2s;
-            -webkit-tap-highlight-color: transparent;
+        .btn-nav-item:hover{border-color:#ff0000;color:#ff0000;}
+
+        /* ── Botão TV SX — cores especiais inline preservadas ── */
+        .btn-nav-tvsx-label .tv-word{color:#ffffff;font-weight:900;}
+        .btn-nav-tvsx-label .sx-s{color:#ff0000;font-weight:900;}
+        .btn-nav-tvsx-label .sx-x{color:#ffffff;font-weight:900;}
+
+        .btn-curtir{transition:transform 0.2s;cursor:pointer;color:#ff0000;}
+        .btn-curtir:active{transform:scale(1.4);}
+        .num-curtidas{color:white!important;font-weight:bold;}
+        .comment-box{background:rgba(0,0,0,0.2);border:1px solid #1d2d50;border-radius:8px;color:white;}
+        .btn-upload-elegant{background:linear-gradient(45deg,#112240,#1d2d50);border:1px solid #ff0000;color:#fff;padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold;transition:all 0.3s;}
+        #area-veiculos{display:none;}
+        .cls-header{background:#061427;padding:20px;text-align:center;font-size:22px;font-weight:bold;border-bottom:2px solid #ff0000;}
+        .cls-container{max-width:900px;margin:auto;padding:20px;}
+        .cls-btn{background:#00aa00;color:white;border:none;padding:12px 22px;border-radius:8px;cursor:pointer;font-weight:bold;}
+        .cls-btn:hover{background:#00cc00;}
+        .cls-btn:disabled{background:#666;cursor:not-allowed;}
+        .cls-btn-novo{background:linear-gradient(45deg,#ff4444,#cc0000);margin-bottom:20px;}
+        .upload-btn-cls{background:linear-gradient(45deg,#00aa00,#00cc00);color:white;padding:12px 22px;border-radius:8px;cursor:pointer;display:inline-block;font-weight:bold;margin:10px 0;border:none;font-size:15px;transition:transform 0.2s;}
+        .upload-btn-cls:hover{transform:scale(1.05);}
+        .form-box-cls{background:#10264d;padding:25px;border-radius:12px;margin:20px 0;display:none;}
+        .cls-input,.cls-textarea,.cls-select{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;background:#1a3a6d;color:white;box-sizing:border-box;}
+        .cls-input::placeholder,.cls-textarea::placeholder{color:#ddd;}
+        .cls-input:focus,.cls-textarea:focus,.cls-select:focus{background:#2a4a8d;outline:none;}
+        .cls-label{color:white;font-weight:bold;margin:10px 0 5px 0;display:block;}
+        .preview-cls{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;}
+        .preview-cls img{width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform 0.3s;}
+        .preview-cls img:hover{transform:scale(1.5);}
+        .preview-cls video{width:100px;height:80px;object-fit:cover;border-radius:8px;}
+        .midia-grid-cls{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;}
+        .midia-grid-cls img{max-width:140px;height:110px;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform 0.3s;}
+        .midia-grid-cls img:hover{transform:scale(1.2);}
+        .midia-grid-cls video{max-width:140px;height:110px;object-fit:cover;border-radius:8px;}
+        .cls-status{padding:12px;margin:12px 0;border-radius:8px;font-weight:bold;text-align:center;}
+        .cls-status-ok{background:#004400;} .cls-status-erro{background:#440000;}
+        .anuncio-cls{background:#10264d;padding:20px;border-radius:12px;margin:20px 0;}
+        .anuncio-cls h3{margin:0 0 10px 0;}
+        .badge-publicado{background:#004400;color:#00ff88;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;display:inline-block;margin-bottom:8px;}
+        #area-vestir{display:none;width:100%;background:#000;}
+        #pv-iframe{width:100%;height:calc(100vh - 73px - 46px);border:none;display:block;}
+        .sx-card-cadastro{background:#112240;border-radius:15px;border:1px solid #1d2d50;}
+        .card-anuncio-nativo{background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);}
+        #btn-flutuante-admin{display:none;position:fixed;bottom:24px;right:20px;background:linear-gradient(45deg,#ff0000,#8800cc);color:white;font-size:13px;font-weight:900;padding:14px 18px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,0.5);cursor:pointer;z-index:80;border:2px solid rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:1px;transition:all 0.3s;}
+        #btn-flutuante-admin:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(255,0,0,0.7);}
+        #area-lojas-look{display:none;}
+        .prof-card{background:#112240;border-radius:15px;border:1px solid #1d2d50;}
+        .marquee-container-lok{background:#0a192f;color:white;padding:12px 0;overflow:hidden;white-space:nowrap;font-weight:bold;border-bottom:2px solid #1d2d50;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
+        .marquee-text-lok{display:inline-block;padding-left:100%;animation:marquee-lok 50s linear infinite;font-size:1.1rem;}
+        @keyframes marquee-lok{0%{transform:translate(0,0);}100%{transform:translate(-100%,0);}}
+        .s-red{color:#ff0000;}
+        .x-white{color:#ffffff;}
+        #caixa-cadastro-lok{transition:all 0.5s ease-in-out;}
+        .alerta-email{display:none;background:#4a0000;border:1px solid #ff0000;color:#ff6060;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px;font-weight:bold;text-align:center;}
+        .alerta-email.visivel{display:block;}
+        .input-erro{border-color:#ff0000!important;}
+        .post-card{background:#112240;border-radius:16px;border:1px solid #1d2d50;border-left:4px solid #ff0000;margin-bottom:24px;overflow:hidden;}
+        .post-card-header{padding:16px 16px 0 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+        .post-card-texto{padding:0 16px 12px 16px;color:#e5e7eb;font-size:1rem;}
+        .post-card-footer{padding:16px;border-top:1px solid #1f2f4d;}
+        .video-wrapper{position:relative;width:100vw;height:100vh;background:#000;overflow:hidden;margin-left:calc(-50vw + 50%);}
+        .video-skeleton{position:absolute;inset:0;background:linear-gradient(90deg,#112240 25%,#1d2d50 50%,#112240 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;display:flex;align-items:center;justify-content:center;z-index:1;}
+        .video-skeleton svg{opacity:0.4;}
+        @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+        /* ====== TV SX — overlay fullscreen SEMPRE LANDSCAPE ====== */
+        #area-tvsx{
+            display:none;
+            position:fixed;
+            top:0; left:0;
+            z-index:500;
+            background:#000;
+            /* Landscape nativo */
+            width:100vw;
+            height:100vh;
+            transform:none;
+            transform-origin:top left;
         }
-        .btn-som-video:active { background: rgba(255,0,0,0.5); }
-        .video-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: #ff0000;
-            z-index: 10;
-            transition: width 0.5s linear;
-            pointer-events: none;
+        #area-tvsx.show{ display:block; }
+
+        /* Portrait: rotaciona 90° para simular landscape */
+        @media screen and (orientation: portrait){
+            #area-tvsx.show{
+                width:100vh !important;
+                height:100vw !important;
+                top:0 !important;
+                left:0 !important;
+                transform: rotate(90deg) translateX(0) translateY(-100%) !important;
+                transform-origin: top left !important;
+            }
+        }
+        /* Landscape: tela cheia sem rotação */
+        @media screen and (orientation: landscape){
+            #area-tvsx.show{
+                width:100vw !important;
+                height:100vh !important;
+                top:0 !important;
+                left:0 !important;
+                transform: none !important;
+            }
         }
 
-        /* ============ TV SX MODAL ============ */
-        #tv-sx-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: #000;
+        #btn-fechar-tvsx{
+            position:absolute;
+            top:12px;right:14px;
+            z-index:510;
+            background:rgba(0,0,0,0.75);
+            border:1px solid #ff0000;
+            color:#ff0000;
+            font-size:20px;
+            width:38px;height:38px;
+            border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;font-weight:900;
         }
-        #tv-sx-modal.open {
-            display: flex;
-            align-items: stretch;
-        }
-        #tv-sx-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-        #btn-fechar-tv {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 10000;
-            background: rgba(255,0,0,0.85);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 38px;
-            height: 38px;
-            font-size: 20px;
-            font-weight: 900;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.7);
-            line-height: 1;
-        }
-        #btn-fechar-tv.open {
-            display: flex;
-        }
-        /* Btn TV SX na nav */
-        .btn-nav-tv {
-            background: #112240;
-            border: 1px solid #1d2d50;
-            padding: 8px 16px;
-            border-radius: 50px;
-            white-space: nowrap;
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .btn-nav-tv:hover { border-color: #ff0000; }
-        .tv-label-tv { color: #ffffff; }
-        .tv-label-s  { color: #ff0000; }
-        .tv-label-x  { color: #ffffff; }
+        /* Player interno */
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400&display=swap');
+        #tvsx-wrap{position:relative;width:100%;height:100%;}
+        #tvsx-vidA,#tvsx-vidB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+        #tvsx-vidB{opacity:0;pointer-events:none;}
+        #tvsx-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.55)100%);pointer-events:none;z-index:2;}
+        #tvsx-banner{position:absolute;top:14px;left:14px;z-index:30;width:108px;border-radius:7px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.7);opacity:0;transition:opacity 0.4s;pointer-events:none;}
+        #tvsx-banner.show{opacity:1;}
+        #tvsx-banner img{width:100%;height:auto;display:block;}
+        #tvsx-adSlot{position:absolute;inset:0;z-index:40;display:none;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;}
+        #tvsx-adSlot.show{display:flex;}
+        #tvsx-adInner{position:relative;width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;}
+        #tvsx-adImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+        #tvsx-adVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+        #tvsx-adEmpty{display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;z-index:1;}
+        .tvsx-pulse-ring{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,60,60,0.4);display:flex;align-items:center;justify-content:center;animation:tvsx-pr 1.8s ease-in-out infinite;}
+        @keyframes tvsx-pr{0%,100%{border-color:rgba(255,60,60,0.15);transform:scale(1);}50%{border-color:rgba(255,60,60,0.7);transform:scale(1.08);}}
+        .tvsx-adEmptyTitle{font-family:'Bebas Neue',cursive,sans-serif;font-size:1rem;letter-spacing:0.2em;color:rgba(255,255,255,0.2);}
+        .tvsx-adBadge{position:absolute;top:14px;left:14px;z-index:41;background:rgba(220,30,30,0.85);color:#fff;font-family:'Bebas Neue',cursive,sans-serif;font-size:0.7rem;letter-spacing:0.2em;padding:3px 12px;border-radius:4px;display:none;}
+        #tvsx-soundHint{position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);z-index:70;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:30px;padding:0.45rem 1.2rem;font-size:0.72rem;letter-spacing:0.12em;color:rgba(255,255,255,0.6);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.4s;}
+        #tvsx-soundHint.show{opacity:1;}
+        #tvsx-info{position:absolute;bottom:2.5rem;left:1.5rem;z-index:5;pointer-events:none;transition:opacity 0.5s;}
+        #tvsx-info.hide{opacity:0;}
+        #tvsx-chNum{font-family:'Bebas Neue',cursive,sans-serif;font-size:0.7rem;letter-spacing:0.28em;color:rgba(255,255,255,0.4);margin-bottom:2px;}
+        #tvsx-chName{font-family:'Bebas Neue',cursive,sans-serif;font-size:2.2rem;letter-spacing:0.04em;color:#fff;line-height:1;text-shadow:0 2px 16px rgba(0,0,0,0.9);}
+        #tvsx-dots{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;gap:5px;pointer-events:none;max-height:80vh;overflow:hidden;}
+        .tvsx-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s;flex-shrink:0;}
+        .tvsx-dot.active{background:#fff;height:18px;border-radius:2px;}
+        .tvsx-dot.is-ad{background:rgba(220,30,30,0.3);}
+        .tvsx-dot.is-ad.active{background:#dc1e1e;height:18px;}
+        #tvsx-loader{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity 0.4s;}
+        #tvsx-loader.hide{opacity:0;pointer-events:none;}
+        .tvsx-spinner{width:32px;height:32px;border:2px solid rgba(255,255,255,0.08);border-top-color:#ff3c3c;border-radius:50%;animation:tvsx-spin 0.75s linear infinite;}
+        @keyframes tvsx-spin{to{transform:rotate(360deg)}}
+        #tvsx-errMsg{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0.8rem;background:rgba(0,0,0,0.85);color:#fff;}
+        #tvsx-errMsg .tvsx-ename{font-family:'Bebas Neue',cursive,sans-serif;font-size:1.5rem;letter-spacing:0.06em;}
+        #tvsx-errMsg span{font-size:0.78rem;color:#555;}
+        #tvsx-errMsg .tvsx-skip{background:#222;color:#aaa;border:1px solid #333;padding:0.45rem 1.4rem;border-radius:6px;font-size:0.85rem;cursor:pointer;}
+        #tvsx-hint{position:absolute;bottom:2.5rem;right:1.5rem;z-index:5;display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0.35;pointer-events:none;animation:tvsx-fadeHint 6s ease forwards;}
+        @keyframes tvsx-fadeHint{0%,70%{opacity:0.35}100%{opacity:0}}
+        #tvsx-hint svg{animation:tvsx-bob 1.3s ease-in-out infinite;}
+        @keyframes tvsx-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+        #tvsx-hint span{font-size:0.6rem;letter-spacing:0.15em;color:#fff;text-transform:uppercase;}
     </style>
 </head>
 <body>
-
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-
-    <aside id="sidebar" class="sidebar">
-        <div class="p-4 flex justify-between items-center border-b border-gray-800">
-            <h2 class="text-2xl font-bold text-red-600">MENU <span class="text-white">SX</span></h2>
-            <button onclick="toggleMenu()" class="text-3xl">&times;</button>
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+<aside id="sidebar" class="sidebar">
+    <div class="p-4 flex justify-between items-center border-b border-gray-800">
+        <h2 class="text-2xl font-bold text-red-600">MENU <span class="text-white">SX</span></h2>
+        <button onclick="toggleMenu()" class="text-3xl">&times;</button>
+    </div>
+    <div class="sidebar-content">
+        <nav class="space-y-4">
+            <button onclick="voltarHome()" class="w-full text-left p-4 hover:bg-red-900 rounded-lg transition font-bold flex items-center gap-3">🏠 Feed Global</button>
+            <button id="btn-me-perfil" class="w-full text-left p-4 hover:bg-red-900 rounded-lg transition font-bold flex items-center gap-3">👤 Minha Página</button>
+            <hr class="border-gray-800">
+            <p class="text-gray-500 text-xs uppercase px-4 mb-2">Comunidade SX</p>
+            <div id="lista-usuarios-menu" class="space-y-2"></div>
+        </nav>
+    </div>
+</aside>
+<div id="login-box" class="hidden min-h-screen flex items-center justify-center p-4">
+    <div class="sx-card-cadastro p-8 w-full max-w-md shadow-2xl border-t-4 border-red-600">
+        <div class="mb-6 flex justify-center items-center">
+            <span class="logo-s">S</span><span class="logo-x">X</span>
         </div>
-        <div class="sidebar-content">
-            <nav class="space-y-4">
-                <button onclick="voltarHome()" class="w-full text-left p-4 hover:bg-red-900 rounded-lg transition font-bold flex items-center gap-3">🏠 Feed Global</button>
-                <button id="btn-me-perfil" class="w-full text-left p-4 hover:bg-red-900 rounded-lg transition font-bold flex items-center gap-3">👤 Minha Página</button>
-                <hr class="border-gray-800">
-                <p class="text-gray-500 text-xs uppercase px-4 mb-2">Comunidade SX</p>
-                <div id="lista-usuarios-menu" class="space-y-2"></div>
-            </nav>
+        <div id="formulario-cadastro">
+            <div id="alerta-email-duplicado" class="alerta-email">
+                ⚠️ Este e-mail já está cadastrado.<br>
+                <span style="font-size:12px;color:#ffaaaa;">Cada e-mail só pode ter uma conta na SX.</span>
+            </div>
+            <input type="text" id="n" placeholder="Nome Completo" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600">
+            <input type="email" id="e" placeholder="Seu melhor E-mail" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600" oninput="limparErroEmail()">
+            <input type="tel" id="t" placeholder="Telefone com DDD" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600">
+            <label class="text-xs text-gray-400">Escolha sua Foto de Perfil:</label>
+            <input type="file" id="f" accept="image/*" class="w-full mb-4 mt-1 text-sm text-gray-400 file:bg-red-600 file:text-white file:rounded-full file:border-none file:px-4 file:py-1">
+            <button onclick="cadastrar()" id="btn-cadastrar" class="w-full bg-red-600 p-3 rounded font-bold hover:bg-red-700 transition">ENVIAR PARA O MONITOR</button>
         </div>
-    </aside>
-
-    <div id="login-box" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="sx-card-cadastro p-8 w-full max-w-md shadow-2xl border-t-4 border-red-600">
-            <div class="mb-6 flex justify-center items-center">
-                <span class="logo-s">S</span><span class="logo-x">X</span>
-            </div>
-            <div id="formulario-cadastro">
-                <div id="alerta-email-duplicado" class="alerta-email">
-                    ⚠️ Este e-mail já está cadastrado.<br>
-                    <span style="font-size:12px;color:#ffaaaa;">Cada e-mail só pode ter uma conta na SX.</span>
-                </div>
-                <input type="text" id="n" placeholder="Nome Completo" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600">
-                <input type="email" id="e" placeholder="Seu melhor E-mail" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600" oninput="limparErroEmail()">
-                <input type="tel" id="t" placeholder="Telefone com DDD" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white outline-none focus:border-red-600">
-                <label class="text-xs text-gray-400">Escolha sua Foto de Perfil:</label>
-                <input type="file" id="f" accept="image/*" class="w-full mb-4 mt-1 text-sm text-gray-400 file:bg-red-600 file:text-white file:rounded-full file:border-none file:px-4 file:py-1">
-                <button onclick="cadastrar()" id="btn-cadastrar" class="w-full bg-red-600 p-3 rounded font-bold hover:bg-red-700 transition">ENVIAR PARA O MONITOR</button>
-            </div>
-            <div id="sucesso-cadastro" class="hidden text-center py-10">
-                <div class="text-6xl mb-4">✅</div>
-                <h2 class="text-2xl font-bold text-green-500">Cadastro Enviado!</h2>
-                <p class="text-gray-400 mt-2">Suas informações foram enviadas ao monitor.<br>Você entrará automaticamente assim que for liberado.</p>
-            </div>
+        <div id="sucesso-cadastro" class="hidden text-center py-10">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-2xl font-bold text-green-500">Cadastro Enviado!</h2>
+            <p class="text-gray-400 mt-2">Suas informações foram enviadas ao monitor.<br>Você entrará automaticamente assim que for liberado.</p>
         </div>
     </div>
-
-    <div id="main-box" class="hidden">
-        <header class="bg-[#112240] p-4 flex justify-between items-center border-b border-red-900 sticky top-0 z-50">
-            <button onclick="toggleMenu()" class="text-3xl text-red-600">☰</button>
-            <div onclick="voltarHome()" class="cursor-pointer flex items-center">
-                <span class="text-red-600 font-black text-3xl">S</span><span class="text-white font-black text-3xl">X</span>
-            </div>
-            <div id="perfil-status"></div>
-        </header>
-
-        <div id="nav-feed-global" class="nav-rapida sticky top-[73px] z-40">
-            <button onclick="voltarHome()" id="btn-nav-feed" class="btn-nav-item" style="border-color:#ff0000;color:#ff0000;">Postar</button>
-            <button onclick="abrirVeiculos()" id="btn-nav-veiculos" class="btn-nav-item">Veículos</button>
-            <button onclick="abrirVestir()" id="btn-nav-vestir" class="btn-nav-item">Vestir</button>
-            <button onclick="abrirLojasLook()" id="btn-nav-lojas" class="btn-nav-item">Domicílio</button>
-            <button onclick="abrirTvSx()" id="btn-nav-tv" class="btn-nav-tv"><span class="tv-label-tv">TV </span><span class="tv-label-s">S</span><span class="tv-label-x">X</span></button>
-        </div>
-
-        <div id="area-perfil" class="hidden w-full mb-6 relative">
-            <button id="btn-confirmar-capa" class="hidden" onclick="confirmarUploadCapa()">✅ SALVAR PARA TODOS</button>
-            <div class="capa-container">
-                <img id="img-capa-view" src="https://images.unsplash.com/photo-1557683316-973673baf926" class="capa-img">
-                <label id="label-capa" class="btn-editar-capa hidden">
-                    <span>📷 Mudar Capa</span>
-                    <input type="file" id="input-capa" accept="image/*" class="hidden" onchange="previaCapa(this)">
-                </label>
-            </div>
-            <div class="mt-4 text-center">
-                <h1 id="nome-perfil-view" class="text-4xl font-black uppercase text-white"></h1>
-            </div>
-        </div>
-
-        <main class="max-w-2xl mx-auto" style="overflow-x:hidden;">
-            <div id="caixa-post" class="sx-card p-4 mb-6 border-t-4 border-red-600 mx-2">
-                <div class="flex gap-3 mb-4">
-                    <div id="mini-foto-post"></div>
-                    <textarea id="txt" placeholder="Escreva algo" class="w-full bg-transparent text-white placeholder-white text-lg focus:ring-0 resize-none outline-none font-medium" rows="2"></textarea>
-                </div>
-                <div class="flex flex-col gap-3">
-                    <label class="btn-upload-elegant cursor-pointer">
-                        <span id="file-name" class="flex items-center gap-2">✨ ADICIONAR MÍDIA INCRÍVEL</span>
-                        <input type="file" id="midia" accept="image/*,video/*" class="hidden" onchange="document.getElementById('file-name').innerText = '✓ ' + this.files[0].name">
-                    </label>
-                    <button onclick="postar()" id="btn-post" class="w-full btn-vermelho py-3 rounded-xl font-black uppercase">Publicar</button>
-                </div>
-            </div>
-            <div id="feed"></div>
-        </main>
-
-        <div id="area-veiculos">
-            <div class="cls-header">Classificados <span style="color:red;">S</span><span style="color:white;">X</span> — Veículos</div>
-            <div class="cls-container">
-                <div id="cls-status" class="cls-status cls-status-ok">⏳ Iniciando...</div>
-                <button id="btnNovo" class="cls-btn cls-btn-novo" onclick="clsAbrirForm()" disabled>🚗 NOVO ANÚNCIO</button>
-                <div class="form-box-cls" id="cls-formulario">
-                    <label class="cls-label">📂 Categoria:</label>
-                    <select id="cls-categoria" class="cls-select">
-                        <option value="">Selecione...</option>
-                        <option value="Carro">🚗 Carro</option>
-                        <option value="Moto">🏍️ Moto</option>
-                    </select>
-                    <label class="cls-label">🚙 Nome do Veículo:</label>
-                    <input type="text" id="cls-nome" class="cls-input" placeholder="Honda Civic">
-                    <label class="cls-label">📅 Ano:</label>
-                    <input type="number" id="cls-ano" class="cls-input" placeholder="2020">
-                    <label class="cls-label">📍 Bairro:</label>
-                    <input type="text" id="cls-bairro" class="cls-input" placeholder="Copacabana">
-                    <label class="cls-label">🌎 Estado:</label>
-                    <input type="text" id="cls-estado" class="cls-input" placeholder="RJ">
-                    <label class="cls-label">💰 Preço (R$):</label>
-                    <input type="number" id="cls-preco" class="cls-input" placeholder="85000">
-                    <label class="cls-label">📱 WhatsApp (sem 55):</label>
-                    <input type="text" id="cls-whatsapp" class="cls-input" placeholder="21987654321">
-                    <label class="cls-label">📝 Descrição:</label>
-                    <textarea id="cls-descricao" class="cls-textarea" rows="3" placeholder="Descreva seu veículo..."></textarea>
-                    <label class="cls-label">📸 Fotos e Vídeos (1-6):</label>
-                    <input type="file" id="cls-midia" multiple accept="image/*,video/*" style="display:none;">
-                    <label for="cls-midia" class="upload-btn-cls">📤 ESCOLHER FOTOS/VÍDEOS</label>
-                    <div class="preview-cls" id="cls-preview"></div>
-                    <div id="cls-contador" style="color:#ddd;">0/6 arquivos</div>
-                    <button onclick="clsAnunciar()" id="cls-btnPublicar" class="cls-btn" disabled style="margin-top:12px;">🚀 PUBLICAR ANÚNCIO</button>
-                </div>
-                <div id="cls-listaAnuncios"></div>
-            </div>
-        </div>
-
-        <div id="area-vestir">
-            <iframe id="pv-iframe" src="" allow="camera; microphone" allowfullscreen></iframe>
-        </div>
-
-        <div id="area-lojas-look">
-            <div class="marquee-container-lok">
-                <div class="marquee-text-lok">
-                    Cadastre-se e faça parte da <span class="s-red">S</span><span class="x-white">X</span> à domicílio, basta pagar uma taxa mensal de R$17,00 (Chave PIX: 21985492615). Após o cadastro, seus serviços estarão online para os usuários da <span class="s-red">S</span><span class="x-white">X</span> contratarem seus serviços. Após o cadastro, espere aparecer seus dados de contratação na página acessando o botão profissionais; assim que aparecer, é só você fazer o PIX e estará liberado! --- Para mais informações entre em contato pelo WhatsApp da <span class="s-red">S</span>X 21985492615.
-                </div>
-            </div>
-            <div class="p-4 md:p-8">
-                <div class="text-center mb-10">
-                    <button onclick="toggleCadastroLok()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all text-lg border-2 border-white/20">
-                        🚀 QUERO ME CADASTRAR AGORA
-                    </button>
-                </div>
-                <div id="caixa-cadastro-lok" class="sx-card p-8 w-full max-w-md shadow-2xl mx-auto mb-20 hidden">
-                    <div class="text-center mb-6">
-                        <span class="text-red-600 font-bold text-4xl">S</span><span class="text-white font-bold text-4xl">X</span>
-                        <h2 class="text-xl mt-2 font-bold">Cadastro Profissionais</h2>
-                    </div>
-                    <div id="formulario-lok">
-                        <input type="text" id="lok-n" placeholder="Nome Completo" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
-                        <input type="text" id="lok-cpf" maxlength="14" oninput="mascaraCPF(this)" placeholder="CPF (123.123.123-34)" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
-                        <input type="tel" id="lok-t" placeholder="Telefone/WhatsApp (5511999999999)" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
-                        <input type="text" id="lok-end" placeholder="Rua, número, complemento, cidade, Estado" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
-                        <select id="lok-p" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
-                            <option value="">Selecione sua Profissão</option>
-                            <optgroup label="Beleza e Estética">
-                                <option value="Cabeleireiro">Cabeleireiro(a)</option>
-                                <option value="Manicure">Manicure/Pedicure</option>
-                                <option value="Maquiadora">Maquiadora</option>
-                                <option value="Depiladora">Depiladora</option>
-                                <option value="Esteticista">Esteticista</option>
-                                <option value="Barbeiro">Barbeiro</option>
-                            </optgroup>
-                            <optgroup label="Manutenção e Reformas">
-                                <option value="Eletricista">Eletricista</option>
-                                <option value="Hidráulico">Encanador/Hidráulico</option>
-                                <option value="Pintor">Pintor</option>
-                                <option value="Marceneiro">Marceneiro</option>
-                                <option value="Pedreiro">Pedreiro</option>
-                                <option value="Serralheiro">Serralheiro</option>
-                                <option value="Técnico de Ar Condicionado">Técnico de Ar Condicionado</option>
-                                <option value="Marido de Aluguel">Marido de Aluguel</option>
-                            </optgroup>
-                            <optgroup label="Serviços Domésticos">
-                                <option value="Faxineira">Faxineira/Diarista</option>
-                                <option value="Passadeira">Passadeira</option>
-                                <option value="Cozinheira">Cozinheira</option>
-                                <option value="Jardineiro">Jardineiro</option>
-                                <option value="Piscineiro">Piscineiro</option>
-                            </optgroup>
-                            <optgroup label="Outros">
-                                <option value="Bombeiro">Bombeiro Civil</option>
-                                <option value="Cuidador de Idosos">Cuidador de Idosos</option>
-                                <option value="Babá">Babá</option>
-                                <option value="Pet Sitter">Pet Sitter (Cuidador de Pets)</option>
-                                <option value="Massagista">Massagista/Massoterapeuta</option>
-                            </optgroup>
-                        </select>
-                        <label class="text-xs text-gray-400 mb-1 block">Foto de Perfil:</label>
-                        <input type="file" id="lok-f" accept="image/*" class="w-full mb-4 text-sm text-gray-400 file:bg-red-600 file:text-white file:rounded-full file:border-none file:px-4 file:py-1">
-                        <button onclick="cadastrarLok()" id="lok-btn" class="w-full bg-red-600 p-3 rounded font-bold hover:bg-red-700 transition">📤 ENVIAR PARA MONITOR</button>
-                    </div>
-                    <div id="sucesso-lok" class="hidden text-center py-10">
-                        <div class="text-6xl mb-4">✅</div>
-                        <h2 class="text-2xl font-bold text-green-500">Cadastro Enviado!</h2>
-                        <p class="text-gray-400 mt-2">Aguardando aprovação no monitor...</p>
-                        <button onclick="fecharSucessoLok()" class="mt-6 text-red-500 underline">Fechar</button>
-                    </div>
-                </div>
-                <hr class="border-gray-800 mb-10">
-                <div class="max-w-6xl mx-auto">
-                    <div class="text-center mb-12">
-                        <span class="text-red-600 font-bold text-5xl">S</span><span class="text-white font-bold text-5xl">X</span>
-                        <h1 class="text-3xl mt-4">Profissionais Disponíveis</h1>
-                        <div id="lok-totalAprovados" class="text-2xl mt-4 font-bold text-green-400">Conectando...</div>
-                    </div>
-                    <div id="lok-listaAprovados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <button id="btn-flutuante-admin" onclick="abrirMonitorAnuncios()">📢 Anúncios</button>
-
-    <!-- ============ TV SX MODAL ============ -->
-    <div id="tv-sx-modal">
-        <iframe id="tv-sx-iframe" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
-    </div>
-    <button id="btn-fechar-tv" onclick="fecharTvSx()" title="Fechar TV SX">&times;</button>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot,
-                 orderBy, doc, updateDoc, getDoc, deleteDoc, arrayUnion, serverTimestamp }
-                 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref as stRef, uploadBytes, getDownloadURL }
-                 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCXTQ932v0Amnbtha01BzFsUfUZKnwYQIA",
-            authDomain: "chofer-522be.firebaseapp.com",
-            projectId: "chofer-522be",
-            storageBucket: "chofer-522be.firebasestorage.app",
-            messagingSenderId: "81306033578",
-            appId: "1:81306033578:web:0c3688bc455a51b972dfd3"
-        };
-
-        const app     = initializeApp(firebaseConfig);
-        const fsdb    = getFirestore(app, "cadastro");
-        const storage = getStorage(app);
-        const auth    = getAuth(app);
-
-        let userLogado = null, idLogado = null, unsubFeed = null, arquivoCapaPendente = null;
-        let curtidasNestaSessao = new Set();
-        let clsArquivos = [], clsIsSubmitting = false;
-        let isAdmin = false;
-        let anunciosAtivos = [];
-        let lokListaCarregada = false;
-        let intervaloVerificacao = null;
-
-        // =============================================
-        // TV SX — abre modal em landscape forçado
-        // =============================================
-        // O conteúdo dos canais é injetado diretamente no iframe via srcdoc
-        // para funcionar sem arquivo externo, mantendo a URL original do app.
-
-        const TV_SX_HTML = `<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Canais</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"><\/script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'DM Sans',sans-serif;touch-action:none;user-select:none;}
-#wrap{position:relative;width:100%;height:100%;}
-#vidA,#vidB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-#vidB{opacity:0;pointer-events:none;}
-#vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.55)100%);pointer-events:none;z-index:2;}
-#banner{position:absolute;top:14px;left:14px;z-index:30;width:108px;border-radius:7px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.7);opacity:0;transition:opacity 0.4s;pointer-events:none;}
-#banner.show{opacity:1;}
-#banner img{width:100%;height:auto;display:block;}
-#adSlot{position:absolute;inset:0;z-index:40;display:none;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;}
-#adSlot.show{display:flex;}
-#adInner{position:relative;width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center;}
-#adImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
-#adVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
-#adEmpty{display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;z-index:1;}
-.pulse-ring{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,60,60,0.4);display:flex;align-items:center;justify-content:center;animation:pr 1.8s ease-in-out infinite;}
-@keyframes pr{0%,100%{border-color:rgba(255,60,60,0.15);transform:scale(1);}50%{border-color:rgba(255,60,60,0.7);transform:scale(1.08);}}
-.adEmptyTitle{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.2em;color:rgba(255,255,255,0.2);}
-.adBadge{position:absolute;top:14px;left:14px;z-index:41;background:rgba(220,30,30,0.85);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:0.7rem;letter-spacing:0.2em;padding:3px 12px;border-radius:4px;display:none;}
-#info{position:absolute;bottom:2.5rem;left:1.5rem;z-index:5;pointer-events:none;transition:opacity 0.5s;}
-#info.hide{opacity:0;}
-#chNum{font-family:'Bebas Neue',sans-serif;font-size:0.7rem;letter-spacing:0.28em;color:rgba(255,255,255,0.4);margin-bottom:2px;}
-#chName{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:0.04em;color:#fff;line-height:1;text-shadow:0 2px 16px rgba(0,0,0,0.9);}
-#dots{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;gap:5px;pointer-events:none;max-height:80vh;overflow:hidden;}
-.dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s;flex-shrink:0;}
-.dot.active{background:#fff;height:18px;border-radius:2px;}
-.dot.is-ad{background:rgba(220,30,30,0.3);}
-.dot.is-ad.active{background:#dc1e1e;height:18px;}
-#hint{position:absolute;bottom:2.5rem;right:1.5rem;z-index:5;display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0.35;pointer-events:none;animation:fadeHint 6s ease forwards;}
-@keyframes fadeHint{0%,70%{opacity:0.35}100%{opacity:0}}
-#hint svg{animation:bob 1.3s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-#hint span{font-size:0.6rem;letter-spacing:0.15em;color:#fff;text-transform:uppercase;}
-#loader{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity 0.4s;}
-#loader.hide{opacity:0;pointer-events:none;}
-.spinner{width:32px;height:32px;border:2px solid rgba(255,255,255,0.08);border-top-color:#ff3c3c;border-radius:50%;animation:spin 0.75s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-#errMsg{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0.8rem;background:rgba(0,0,0,0.85);color:#fff;}
-#errMsg .ename{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:0.06em;}
-#errMsg span{font-size:0.78rem;color:#555;}
-#errMsg .skip{background:#222;color:#aaa;border:1px solid #333;padding:0.45rem 1.4rem;border-radius:6px;font-size:0.85rem;cursor:pointer;}
-#soundHint{position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);z-index:70;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:30px;padding:0.45rem 1.2rem;font-size:0.72rem;letter-spacing:0.12em;color:rgba(255,255,255,0.6);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.4s;}
-#soundHint.show{opacity:1;}
-</style>
-</head>
-<body>
-<div id="wrap">
-  <video id="vidA" autoplay playsinline muted></video>
-  <video id="vidB" autoplay playsinline muted></video>
-  <div id="vignette"></div>
-  <div id="banner"><img id="bannerImg" src="" alt=""></div>
-  <div id="adSlot">
-    <div id="adInner">
-      <div id="adEmpty">
-        <div class="pulse-ring">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff3c3c" stroke-width="1.5">
-            <rect x="2" y="7" width="20" height="15" rx="2"/>
-            <path d="M16 7V5a2 2 0 0 0-4 0v2"/>
-          </svg>
-        </div>
-        <div class="adEmptyTitle">Espaco Publicitario</div>
-      </div>
-      <img id="adImg" src="" alt="">
-      <video id="adVid" autoplay playsinline muted loop></video>
-    </div>
-  </div>
-  <div class="adBadge" id="adBadge">PUBLICIDADE</div>
-  <div id="soundHint">🔇 Toque para ativar o som</div>
-  <div id="info"><div id="chNum"></div><div id="chName">Carregando...</div></div>
-  <div id="hint">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-    <span>Deslize</span>
-  </div>
-  <div id="dots"></div>
-  <div id="loader"><div class="spinner"></div></div>
-  <div id="errMsg">
-    <div class="ename" id="errName"></div>
-    <span>Indisponivel — pulando em <span id="errCount">5</span>s</span>
-    <button class="skip" onclick="nextSlot()">Pular</button>
-  </div>
 </div>
+<div id="main-box" class="hidden">
+    <header class="bg-[#112240] p-4 flex justify-between items-center border-b border-red-900 sticky top-0 z-50">
+        <button onclick="toggleMenu()" class="text-3xl text-red-600">☰</button>
+        <div onclick="voltarHome()" class="cursor-pointer flex items-center">
+            <span class="text-red-600 font-black text-3xl">S</span><span class="text-white font-black text-3xl">X</span>
+        </div>
+        <div id="perfil-status"></div>
+    </header>
+
+    <!-- NAV: 5 botões todos visíveis sem scroll -->
+    <div id="nav-feed-global" class="nav-rapida sticky top-[73px] z-40">
+        <button onclick="voltarHome()" id="btn-nav-feed" class="btn-nav-item" style="border-color:#ff0000;color:#ff0000;">Postar</button>
+        <button onclick="abrirVeiculos()" id="btn-nav-veiculos" class="btn-nav-item">Veículos</button>
+        <!-- Botão TV SX: TV branco, S vermelho, X branco -->
+        <button onclick="abrirTVSX()" id="btn-nav-tvsx" class="btn-nav-item">
+            <span class="btn-nav-tvsx-label">
+                <span class="tv-word">TV </span><span class="sx-s">S</span><span class="sx-x">X</span>
+            </span>
+        </button>
+        <button onclick="abrirVestir()" id="btn-nav-vestir" class="btn-nav-item">Vestir</button>
+        <button onclick="abrirLojasLook()" id="btn-nav-lojas" class="btn-nav-item">Domicílio</button>
+    </div>
+
+    <div id="area-perfil" class="hidden w-full mb-6 relative">
+        <button id="btn-confirmar-capa" class="hidden" onclick="confirmarUploadCapa()">✅ SALVAR PARA TODOS</button>
+        <div class="capa-container">
+            <img id="img-capa-view" src="https://images.unsplash.com/photo-1557683316-973673baf926" class="capa-img">
+            <label id="label-capa" class="btn-editar-capa hidden">
+                <span>📷 Mudar Capa</span>
+                <input type="file" id="input-capa" accept="image/*" class="hidden" onchange="previaCapa(this)">
+            </label>
+        </div>
+        <div class="mt-4 text-center">
+            <h1 id="nome-perfil-view" class="text-4xl font-black uppercase text-white"></h1>
+        </div>
+    </div>
+    <main class="max-w-2xl mx-auto" style="overflow-x:hidden;">
+        <div id="caixa-post" class="sx-card p-4 mb-6 border-t-4 border-red-600 mx-2">
+            <div class="flex gap-3 mb-4">
+                <div id="mini-foto-post"></div>
+                <textarea id="txt" placeholder="Escreva algo" class="w-full bg-transparent text-white placeholder-white text-lg focus:ring-0 resize-none outline-none font-medium" rows="2"></textarea>
+            </div>
+            <div class="flex flex-col gap-3">
+                <label class="btn-upload-elegant cursor-pointer">
+                    <span id="file-name" class="flex items-center gap-2">✨ ADICIONAR MÍDIA INCRÍVEL</span>
+                    <input type="file" id="midia" accept="image/*,video/*" class="hidden" onchange="document.getElementById('file-name').innerText='✓ '+this.files[0].name">
+                </label>
+                <button onclick="postar()" id="btn-post" class="w-full btn-vermelho py-3 rounded-xl font-black uppercase">Publicar</button>
+            </div>
+        </div>
+        <div id="feed"></div>
+    </main>
+    <!-- CLASSIFICADOS -->
+    <div id="area-veiculos">
+        <div class="cls-header">Classificados <span style="color:red;">S</span><span style="color:white;">X</span> — Veículos</div>
+        <div class="cls-container">
+            <div id="cls-status" class="cls-status cls-status-ok">⏳ Iniciando...</div>
+            <button id="btnNovo" class="cls-btn cls-btn-novo" onclick="clsAbrirForm()" disabled>🚗 NOVO ANÚNCIO</button>
+            <div class="form-box-cls" id="cls-formulario">
+                <label class="cls-label">📂 Categoria:</label>
+                <select id="cls-categoria" class="cls-select"><option value="">Selecione...</option><option value="Carro">🚗 Carro</option><option value="Moto">🏍️ Moto</option></select>
+                <label class="cls-label">🚙 Nome do Veículo:</label><input type="text" id="cls-nome" class="cls-input" placeholder="Honda Civic">
+                <label class="cls-label">📅 Ano:</label><input type="number" id="cls-ano" class="cls-input" placeholder="2020">
+                <label class="cls-label">📍 Bairro:</label><input type="text" id="cls-bairro" class="cls-input" placeholder="Copacabana">
+                <label class="cls-label">🌎 Estado:</label><input type="text" id="cls-estado" class="cls-input" placeholder="RJ">
+                <label class="cls-label">💰 Preço (R$):</label><input type="number" id="cls-preco" class="cls-input" placeholder="85000">
+                <label class="cls-label">📱 WhatsApp (sem 55):</label><input type="text" id="cls-whatsapp" class="cls-input" placeholder="21987654321">
+                <label class="cls-label">📝 Descrição:</label><textarea id="cls-descricao" class="cls-textarea" rows="3" placeholder="Descreva seu veículo..."></textarea>
+                <label class="cls-label">📸 Fotos e Vídeos (1-6):</label>
+                <input type="file" id="cls-midia" multiple accept="image/*,video/*" style="display:none;">
+                <label for="cls-midia" class="upload-btn-cls">📤 ESCOLHER FOTOS/VÍDEOS</label>
+                <div class="preview-cls" id="cls-preview"></div>
+                <div id="cls-contador" style="color:#ddd;">0/6 arquivos</div>
+                <button onclick="clsAnunciar()" id="cls-btnPublicar" class="cls-btn" disabled style="margin-top:12px;">🚀 PUBLICAR ANÚNCIO</button>
+            </div>
+            <div id="cls-listaAnuncios"></div>
+        </div>
+    </div>
+    <!-- VESTIR -->
+    <div id="area-vestir">
+        <iframe id="pv-iframe" src="" allow="camera; microphone" allowfullscreen></iframe>
+    </div>
+    <!-- DOMICÍLIO -->
+    <div id="area-lojas-look">
+        <div class="marquee-container-lok">
+            <div class="marquee-text-lok">Cadastre-se e faça parte da <span class="s-red">S</span><span class="x-white">X</span> à domicílio, basta pagar uma taxa mensal de R$17,00 (Chave PIX: 21985492615). Após o cadastro, seus serviços estarão online para os usuários da <span class="s-red">S</span><span class="x-white">X</span> contratarem. --- Para mais informações entre em contato pelo WhatsApp da SX: 21985492615.</div>
+        </div>
+        <div class="p-4 md:p-8">
+            <div class="text-center mb-10">
+                <button onclick="toggleCadastroLok()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all text-lg border-2 border-white/20">🚀 QUERO ME CADASTRAR AGORA</button>
+            </div>
+            <div id="caixa-cadastro-lok" class="sx-card p-8 w-full max-w-md shadow-2xl mx-auto mb-20 hidden">
+                <div class="text-center mb-6">
+                    <span class="text-red-600 font-bold text-4xl">S</span><span class="text-white font-bold text-4xl">X</span>
+                    <h2 class="text-xl mt-2 font-bold">Cadastro Profissionais</h2>
+                </div>
+                <div id="formulario-lok">
+                    <input type="text" id="lok-n" placeholder="Nome Completo" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
+                    <input type="text" id="lok-cpf" maxlength="14" oninput="mascaraCPF(this)" placeholder="CPF (123.123.123-34)" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
+                    <input type="tel" id="lok-t" placeholder="Telefone/WhatsApp (5511999999999)" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
+                    <input type="text" id="lok-end" placeholder="Rua, número, complemento, cidade, Estado" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
+                    <select id="lok-p" class="w-full p-3 mb-3 rounded bg-[#0a192f] border border-gray-700 text-white" required>
+                        <option value="">Selecione sua Profissão</option>
+                        <optgroup label="Beleza e Estética"><option value="Cabeleireiro">Cabeleireiro(a)</option><option value="Manicure">Manicure/Pedicure</option><option value="Maquiadora">Maquiadora</option><option value="Depiladora">Depiladora</option><option value="Esteticista">Esteticista</option><option value="Barbeiro">Barbeiro</option></optgroup>
+                        <optgroup label="Manutenção e Reformas"><option value="Eletricista">Eletricista</option><option value="Hidráulico">Encanador/Hidráulico</option><option value="Pintor">Pintor</option><option value="Marceneiro">Marceneiro</option><option value="Pedreiro">Pedreiro</option><option value="Serralheiro">Serralheiro</option><option value="Técnico de Ar Condicionado">Técnico de Ar Condicionado</option><option value="Marido de Aluguel">Marido de Aluguel</option></optgroup>
+                        <optgroup label="Serviços Domésticos"><option value="Faxineira">Faxineira/Diarista</option><option value="Passadeira">Passadeira</option><option value="Cozinheira">Cozinheira</option><option value="Jardineiro">Jardineiro</option><option value="Piscineiro">Piscineiro</option></optgroup>
+                        <optgroup label="Outros"><option value="Bombeiro">Bombeiro Civil</option><option value="Cuidador de Idosos">Cuidador de Idosos</option><option value="Babá">Babá</option><option value="Pet Sitter">Pet Sitter</option><option value="Massagista">Massagista/Massoterapeuta</option></optgroup>
+                    </select>
+                    <label class="text-xs text-gray-400 mb-1 block">Foto de Perfil:</label>
+                    <input type="file" id="lok-f" accept="image/*" class="w-full mb-4 text-sm text-gray-400 file:bg-red-600 file:text-white file:rounded-full file:border-none file:px-4 file:py-1">
+                    <button onclick="cadastrarLok()" id="lok-btn" class="w-full bg-red-600 p-3 rounded font-bold hover:bg-red-700 transition">📤 ENVIAR PARA MONITOR</button>
+                </div>
+                <div id="sucesso-lok" class="hidden text-center py-10">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h2 class="text-2xl font-bold text-green-500">Cadastro Enviado!</h2>
+                    <p class="text-gray-400 mt-2">Aguardando aprovação no monitor...</p>
+                    <button onclick="fecharSucessoLok()" class="mt-6 text-red-500 underline">Fechar</button>
+                </div>
+            </div>
+            <hr class="border-gray-800 mb-10">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <span class="text-red-600 font-bold text-5xl">S</span><span class="text-white font-bold text-5xl">X</span>
+                    <h1 class="text-3xl mt-4">Profissionais Disponíveis</h1>
+                    <div id="lok-totalAprovados" class="text-2xl mt-4 font-bold text-green-400">Conectando...</div>
+                </div>
+                <div id="lok-listaAprovados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<button id="btn-flutuante-admin" onclick="abrirMonitorAnuncios()">📢 Anúncios</button>
+
+<!-- ====== TV SX OVERLAY — landscape forçado ====== -->
+<div id="area-tvsx">
+    <button id="btn-fechar-tvsx" onclick="fecharTVSX()" title="Fechar TV SX">✕</button>
+    <div id="tvsx-wrap">
+        <video id="tvsx-vidA" autoplay playsinline muted></video>
+        <video id="tvsx-vidB" autoplay playsinline muted></video>
+        <div id="tvsx-vignette"></div>
+        <div id="tvsx-banner"><img id="tvsx-bannerImg" src="" alt=""></div>
+        <div id="tvsx-adSlot">
+            <div id="tvsx-adInner">
+                <div id="tvsx-adEmpty">
+                    <div class="tvsx-pulse-ring">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff3c3c" stroke-width="1.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>
+                    </div>
+                    <div class="tvsx-adEmptyTitle">Espaco Publicitario</div>
+                </div>
+                <img id="tvsx-adImg" src="" alt="">
+                <video id="tvsx-adVid" autoplay playsinline muted loop></video>
+            </div>
+        </div>
+        <div class="tvsx-adBadge" id="tvsx-adBadge">PUBLICIDADE</div>
+        <div id="tvsx-soundHint">🔇 Toque para ativar o som</div>
+        <div id="tvsx-info">
+            <div id="tvsx-chNum"></div>
+            <div id="tvsx-chName">Carregando...</div>
+        </div>
+        <div id="tvsx-hint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            <span>Deslize</span>
+        </div>
+        <div id="tvsx-dots"></div>
+        <div id="tvsx-loader"><div class="tvsx-spinner"></div></div>
+        <div id="tvsx-errMsg">
+            <div class="tvsx-ename" id="tvsx-errName"></div>
+            <span>Indisponivel — pulando em <span id="tvsx-errCount">5</span>s</span>
+            <button class="tvsx-skip" onclick="tvsxNextSlot()">Pular</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== FIREBASE + LÓGICA ====== -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot,
+         orderBy, doc, updateDoc, getDoc, deleteDoc, arrayUnion, serverTimestamp }
+         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref as stRef, uploadBytes, getDownloadURL }
+         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getDatabase, ref as dbRef, onValue }
+         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCXTQ932v0Amnbtha01BzFsUfUZKnwYQIA",
-  authDomain: "chofer-522be.firebaseapp.com",
-  databaseURL: "https://chofer-522be-default-rtdb.firebaseio.com",
-  projectId: "chofer-522be",
-  storageBucket: "chofer-522be.appspot.com",
-  messagingSenderId: "81306033578",
-  appId: "1:81306033578:web:0c3688bc455a51b972dfd3"
+    apiKey:"AIzaSyCXTQ932v0Amnbtha01BzFsUfUZKnwYQIA",
+    authDomain:"chofer-522be.firebaseapp.com",
+    databaseURL:"https://chofer-522be-default-rtdb.firebaseio.com",
+    projectId:"chofer-522be",
+    storageBucket:"chofer-522be.firebasestorage.app",
+    messagingSenderId:"81306033578",
+    appId:"1:81306033578:web:0c3688bc455a51b972dfd3"
 };
-const app2 = initializeApp(firebaseConfig, "tv-sx-app");
-const db  = getDatabase(app2);
-const CHANNELS = [
-  {name:"Sony One Classicas", url:"https://spt-sonyoneclassicas-1-br.samsung.wurl.tv/playlist.m3u8"},
-  {name:"RT Arabic",          url:"https://run-rt-ra.otteravision.com/run/rt_ra/rt_ra_720.m3u8"},
-  {name:"Plex TV",            url:"https://amg00353-amg00353c29-plex-us-3205.playouts.now.amagi.tv/1080p-cc/index.m3u8"},
-  {name:"GLN Filmes",         url:"https://stmv8.samcast.com.br/glnfilmes/glnfilmes/playlist.m3u8"},
-  {name:"TV do Carro",        url:"https://tv03.zas.media:1936/tvdocarro/tvdocarro/playlist.m3u8"},
-  {name:"Wording TV",         url:"https://tv02.zas.media:1936/wordingtv/wordingtv/playlist.m3u8"},
-  {name:"MasterChef Brasil",  url:"https://amg00627-amg00627c9-runtime-latam-2613.playouts.now.amagi.tv/playlist/amg00627-banijayfast-masterchefbrazil-runtimelatam/playlist.m3u8"},
-  {name:"Globo / TCL",        url:"https://amg00716-globo-amg00716c3-tcl-br-9498.playouts.now.amagi.tv/1080p-cc/index.m3u8"},
-  {name:"Tastemade PT",       url:"https://amg00047-tastemade-amg00047c5-plex-us-2273.playouts.now.amagi.tv/playlist/amg00047-tastemadefast-tastemadeportuguesept16intl-plexus/playlist.m3u8"},
-  {name:"Tastemade ES",       url:"https://amg00047-amg00047c6-canelatv-international-5854.playouts.now.amagi.tv/playlist/amg00047-tastemadefast-tastemadeespanoles16us-canelatvinternational/playlist.m3u8"},
-  {name:"Canal 29",           url:"https://stmv1.srvif.com/canal29/canal29/playlist.m3u8"},
-  {name:"Jetson TV",          url:"https://stmv1.srvif.com/jetsontv/jetsontv/playlist.m3u8"},
-  {name:"Central TV Web",     url:"https://tv01.zas.media:1936/centraltvweb/centraltvweb/playlist.m3u8"},
-  {name:"AMG Canal",          url:"https://amg01391-amg01391c10-tcl-br-9630.playouts.now.amagi.tv/playlist.m3u8"},
-  {name:"NSport",             url:"https://ogc-nsprt-tcl-roku-syndication.otteravision.com/ogc/nsprt/nsprt_720p.m3u8"},
-  {name:"Top TV",             url:"https://isaocorp.cloudecast.com/toptv/index.m3u8"},
-  {name:"Lightning 80s",      url:"https://lightning-now80s-rakuten.amagi.tv/playlist.m3u8"},
-  {name:"New Kid TV",         url:"https://newidco-newkid-1-eu.xiaomi.wurl.tv/playlist.m3u8"},
-  {name:"Canal Mix",          url:"https://4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S35394734/Z6U2wGoDYANk/playlist.m3u8"},
-  {name:"Rock TV",            url:"https://tv.broadcasting.ro/rocktv/85c83a80-4f71-4f2d-a8d6-43f676896bcb.m3u8"},
-  {name:"TV Cidade Brasil",   url:"https://stmv2.samcast.com.br/tvcidadebrasil/tvcidadebrasil/playlist.m3u8"},
-  {name:"Redemundo TV",       url:"https://video04.logicahost.com.br/redemundotv/redemundotv/playlist.m3u8"},
-  {name:"RNW",                url:"https://run-rnw-rn.otteravision.com/rnw/rn/rnw_rn_720p_high.m3u8"},
-  {name:"TVI Reality",        url:"https://video-auth5.iol.pt/live_tvi_reality/live_tvi_reality/edge_servers/tvireality-720_passthrough/playlist.m3u8"},
-  {name:"Clube FM",           url:"https://clubefm1.brasilstream.com.br/hls/clubefm1/index.m3u8"},
-];
-const PLAYLIST = [];
-CHANNELS.forEach((_,i) => {
-  PLAYLIST.push({type:'channel', chIndex:i});
-  PLAYLIST.push({type:'ad',      chIndex:i});
-});
-const TOTAL = PLAYLIST.length;
-const vidA=document.getElementById('vidA'),vidB=document.getElementById('vidB');
-const bannerDiv=document.getElementById('banner'),bannerImg=document.getElementById('bannerImg');
-const adSlot=document.getElementById('adSlot'),adEmpty=document.getElementById('adEmpty');
-const adImg=document.getElementById('adImg'),adVid=document.getElementById('adVid');
-const adBadge=document.getElementById('adBadge'),loader=document.getElementById('loader');
-const errMsg=document.getElementById('errMsg'),errName=document.getElementById('errName');
-const errCount=document.getElementById('errCount'),chNum=document.getElementById('chNum');
-const chName=document.getElementById('chName'),info=document.getElementById('info');
-const dotsEl=document.getElementById('dots'),soundHint=document.getElementById('soundHint');
-let currentSlot=0,isChanging=false,soundUnlocked=false;
-let hlsA=null,hlsB=null,infoTimer=null,errCountInterval=null;
-let banners={},activeVid=vidA,preloadVid=vidB,preloadIdx=-1,inAd=false;
-function isVideoUrl(url){if(!url)return false;if(url.startsWith('data:video/'))return true;return /\\.(mp4|webm|ogg|mov|m4v)(\\?.*)?$/i.test(url);}
-onValue(dbRef(db,'banners'),snap=>{
-  const raw=snap.val()||{};banners={};
-  Object.keys(raw).forEach(k=>{banners[String(k)]=raw[k];});
-  const item=PLAYLIST[currentSlot];
-  if(item){if(item.type==='channel')refreshWatermark(item.chIndex);if(item.type==='ad')refreshAdSlot(item.chIndex);}
-});
-function refreshWatermark(ci){const b=banners[String(ci)];if(b&&b.url&&!isVideoUrl(b.url)){bannerImg.src=b.url;bannerImg.onload=()=>bannerDiv.classList.add('show');bannerImg.onerror=()=>bannerDiv.classList.remove('show');}else{bannerDiv.classList.remove('show');}}
-function refreshAdSlot(ci){const b=banners[String(ci)];adBadge.style.display='block';adVid.pause();adVid.src='';adVid.style.display='none';adImg.style.display='none';adEmpty.style.display='none';if(b&&b.url){if(isVideoUrl(b.url)){adVid.src=b.url;adVid.style.display='block';adVid.muted=true;adVid.play().catch(()=>{});}else{adImg.src=b.url;adImg.style.display='block';}}else{adEmpty.style.display='flex';}adSlot.classList.add('show');loader.classList.add('hide');}
-function hideAd(){inAd=false;adSlot.classList.remove('show');adVid.pause();adVid.src='';adVid.style.display='none';adImg.src='';adImg.style.display='none';adEmpty.style.display='none';adBadge.style.display='none';activeVid.muted=!soundUnlocked;activeVid.volume=1;}
-PLAYLIST.forEach((item,i)=>{const d=document.createElement('div');d.className='dot'+(item.type==='ad'?' is-ad':'')+(i===0?' active':'');dotsEl.appendChild(d);});
-function updateDots(i){document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('active',j===i));}
-function showInfo(){info.classList.remove('hide');clearTimeout(infoTimer);infoTimer=setTimeout(()=>info.classList.add('hide'),4000);}
-function tryUnlock(){if(soundUnlocked)return;soundUnlocked=true;soundHint.classList.remove('show');if(!inAd){activeVid.muted=false;activeVid.volume=1;activeVid.play().catch(()=>{});}}
-document.addEventListener('touchstart',tryUnlock,{passive:true});
-document.addEventListener('mousedown',tryUnlock);
-function createHLS(vidEl,url,onReady,onErr){let h=null;if(Hls.isSupported()){h=new Hls({maxBufferLength:8,maxMaxBufferLength:16,lowLatencyMode:true,fragLoadingTimeOut:8000,manifestLoadingTimeOut:8000});h.loadSource(url);h.attachMedia(vidEl);h.on(Hls.Events.MANIFEST_PARSED,()=>{vidEl.play().catch(()=>{});if(onReady)onReady();});h.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal&&onErr)onErr();});}else if(vidEl.canPlayType('application/vnd.apple.mpegurl')){vidEl.src=url;vidEl.addEventListener('canplay',()=>{vidEl.play().catch(()=>{});if(onReady)onReady();},{once:true});vidEl.addEventListener('error',()=>{if(onErr)onErr();},{once:true});vidEl.load();}else{if(onErr)onErr();}return h;}
-function destroyHLS(h,vidEl){if(h)h.destroy();vidEl.src='';vidEl.load();}
-function preloadNext(fromSlot){let idx=((fromSlot%TOTAL)+TOTAL)%TOTAL;for(let s=0;s<TOTAL;s++){if(PLAYLIST[idx].type==='channel')break;idx=(idx+1)%TOTAL;}const ci=PLAYLIST[idx].chIndex;if(preloadIdx===ci)return;preloadIdx=ci;destroyHLS(hlsB,preloadVid);preloadVid.muted=true;hlsB=createHLS(preloadVid,CHANNELS[ci].url,null,null);}
-function loadSlot(slotIdx){if(isChanging)return;isChanging=true;currentSlot=((slotIdx%TOTAL)+TOTAL)%TOTAL;const item=PLAYLIST[currentSlot];updateDots(currentSlot);showInfo();errMsg.style.display='none';clearInterval(errCountInterval);if(item.type==='ad'){inAd=true;vidA.muted=true;vidB.muted=true;chNum.textContent='PUBLICIDADE '+(item.chIndex+1)+' / '+CHANNELS.length;chName.textContent=CHANNELS[item.chIndex].name;refreshAdSlot(item.chIndex);isChanging=false;return;}hideAd();bannerDiv.classList.remove('show');const ch=CHANNELS[item.chIndex];chNum.textContent='CANAL '+String(item.chIndex+1).padStart(2,'0')+' / '+CHANNELS.length;chName.textContent=ch.name;const preloadReady=(preloadIdx===item.chIndex&&preloadVid.readyState>=2);if(preloadReady){loader.classList.add('hide');const tH=hlsA,tV=activeVid;hlsA=hlsB;hlsB=tH;activeVid=preloadVid;preloadVid=tV;activeVid.style.opacity='1';activeVid.style.pointerEvents='auto';preloadVid.style.opacity='0';preloadVid.style.pointerEvents='none';activeVid.muted=!soundUnlocked;activeVid.volume=1;activeVid.play().then(()=>soundHint.classList.remove('show')).catch(()=>{activeVid.muted=true;activeVid.play().catch(()=>{});soundHint.classList.add('show');});preloadIdx=-1;isChanging=false;refreshWatermark(item.chIndex);setTimeout(()=>preloadNext(currentSlot+1),500);}else{loader.classList.remove('hide');destroyHLS(hlsA,activeVid);activeVid.muted=true;const onReady=()=>{activeVid.muted=!soundUnlocked;activeVid.volume=1;activeVid.play().then(()=>soundHint.classList.remove('show')).catch(()=>{activeVid.muted=true;activeVid.play().catch(()=>{});soundHint.classList.add('show');});loader.classList.add('hide');isChanging=false;refreshWatermark(item.chIndex);setTimeout(()=>preloadNext(currentSlot+1),800);};const onErr=()=>{loader.classList.add('hide');isChanging=false;errName.textContent=ch.name;errMsg.style.display='flex';let cd=5;errCount.textContent=cd;errCountInterval=setInterval(()=>{cd--;errCount.textContent=cd;if(cd<=0){clearInterval(errCountInterval);errMsg.style.display='none';loadSlot(currentSlot+1);}},1000);};hlsA=createHLS(activeVid,ch.url,onReady,onErr);}}
-window.nextSlot=()=>{if(!isChanging)loadSlot(currentSlot+1);};
-window.prevSlot=()=>{if(!isChanging)loadSlot(currentSlot-1);};
-let mY=0,mX=0,mDown=false;
-document.addEventListener('mousedown',e=>{mY=e.clientY;mX=e.clientX;mDown=true;});
-document.addEventListener('mouseup',e=>{if(!mDown)return;mDown=false;const dy=e.clientY-mY,dx=e.clientX-mX;if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>35){dy<0?nextSlot():prevSlot();}});
-document.addEventListener('mousemove',()=>showInfo());
-let tY=0,tX=0;
-document.addEventListener('touchstart',e=>{tY=e.touches[0].clientY;tX=e.touches[0].clientX;showInfo();},{passive:true});
-document.addEventListener('touchend',e=>{const dy=e.changedTouches[0].clientY-tY,dx=e.changedTouches[0].clientX-tX;if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>35){dy<0?nextSlot():prevSlot();}},{passive:true});
-document.addEventListener('wheel',e=>{e.preventDefault();e.deltaY>0?nextSlot():prevSlot();},{passive:false});
-document.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowRight')nextSlot();if(e.key==='ArrowUp'||e.key==='ArrowLeft')prevSlot();});
-loadSlot(0);
-<\/script>
-</body>
-</html>`;
+const app = initializeApp(firebaseConfig);
+const fsdb = getFirestore(app,"cadastro");
+const storage = getStorage(app);
+const auth = getAuth(app);
+const rtdb = getDatabase(app);
 
-        // Expõe globalmente para os botões inline
-        let tvBlobUrl = null;
-        window.abrirTvSx = () => {
-            const modal = document.getElementById('tv-sx-modal');
-            const iframe = document.getElementById('tv-sx-iframe');
-            const btnFechar = document.getElementById('btn-fechar-tv');
+let userLogado=null,idLogado=null,unsubFeed=null,arquivoCapaPendente=null;
+let curtidasNestaSessao=new Set();
+let clsArquivos=[],clsIsSubmitting=false;
+let isAdmin=false;
+let anunciosAtivos=[];
+let lokListaCarregada=false;
+let intervaloVerificacao=null;
 
-            // Usa Blob URL para evitar conflito de template literal com srcdoc
-            if (!tvBlobUrl) {
-                const blob = new Blob([TV_SX_HTML], {type: 'text/html'});
-                tvBlobUrl = URL.createObjectURL(blob);
+// ===== SISTEMA DE VÍDEO DO FEED =====
+const videoCache=new Set();
+let videoAtual=null;
+let somDesbloqueado=false;
+
+function desbloquearSom(){
+    if(somDesbloqueado)return;
+    somDesbloqueado=true;
+    document.querySelectorAll('video.video-feed').forEach(v=>{v.muted=false;});
+    if(videoAtual){videoAtual.muted=false;videoAtual.play().catch(()=>{});}
+}
+document.addEventListener('click',desbloquearSom,{passive:true});
+document.addEventListener('touchstart',desbloquearSom,{passive:true});
+
+// Para TODOS os vídeos do feed e isola o áudio — chamado ao abrir TV SX
+function pausarTodosFeedVideos(){
+    document.querySelectorAll('video.video-feed').forEach(v=>{
+        v.pause();
+        v.muted=true;
+    });
+    videoAtual=null;
+    somDesbloqueado=false; // reseta desbloqueio do feed
+}
+
+const videoObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+        const video=entry.target;
+        // Se TV SX estiver aberta, não tocar vídeos do feed
+        if(document.getElementById('area-tvsx').classList.contains('show'))return;
+        if(entry.isIntersecting){
+            document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video){v.pause();v.muted=true;}});
+            videoAtual=video;
+            if(video.readyState<2){video.preload='auto';video.load();}
+            video.muted=!somDesbloqueado;
+            const skeleton=video.parentElement?.querySelector('.video-skeleton');
+            video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
+            if(skeleton){
+                const hide=()=>{skeleton.style.opacity='0';setTimeout(()=>{if(skeleton)skeleton.style.display='none';},200);video.removeEventListener('canplay',hide);};
+                video.readyState>=3?hide():video.addEventListener('canplay',hide);
             }
-            iframe.src = tvBlobUrl;
+        } else {
+            video.pause();video.muted=true;
+            const skeleton=video.parentElement?.querySelector('.video-skeleton');
+            if(skeleton&&video.readyState<2){skeleton.style.display='flex';skeleton.style.opacity='1';}
+        }
+    });
+},{threshold:0.5});
 
-            modal.classList.add('open');
-            btnFechar.classList.add('open');
+const preloadObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+        if(entry.isIntersecting){
+            const v=entry.target;
+            if(!videoCache.has(v.src)){videoCache.add(v.src);v.preload='auto';v.load();}
+            preloadObserver.unobserve(v);
+        }
+    });
+},{rootMargin:'800px 0px',threshold:0});
 
-            // Força orientação landscape via Screen Orientation API se disponível
-            try {
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(() => {});
+function registrarVideo(v){v.preload='none';v.muted=true;preloadObserver.observe(v);videoObserver.observe(v);}
+
+const MONITOR_URL='sx-monitor.html';
+const PV_URL='https://sadministrador.github.io/sx/sx.html?id=loja01';
+
+window.limparErroEmail=()=>{
+    document.getElementById('alerta-email-duplicado').classList.remove('visivel');
+    document.getElementById('e').classList.remove('input-erro');
+};
+function mostrarErroEmail(){
+    document.getElementById('alerta-email-duplicado').classList.add('visivel');
+    document.getElementById('e').classList.add('input-erro');
+    document.getElementById('e').focus();
+}
+
+async function inicializar(){
+    const emailSalvo=localStorage.getItem('sx_email');
+    if(!emailSalvo){document.getElementById('login-box').classList.remove('hidden');return;}
+    try{
+        const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",emailSalvo));
+        const snap=await getDocs(q);
+        if(!snap.empty){
+            const dados=snap.docs[0].data();
+            const liberado=dados.status==="aprovado"||dados.status==="ativo";
+            if(liberado){idLogado=snap.docs[0].id;userLogado=dados;entrarNaPlataforma();}
+            else{verificarAprovacao(emailSalvo);}
+        } else{localStorage.removeItem('sx_email');document.getElementById('login-box').classList.remove('hidden');}
+    }catch(e){document.getElementById('login-box').classList.remove('hidden');}
+}
+
+function verificarAprovacao(email){
+    if(intervaloVerificacao)clearInterval(intervaloVerificacao);
+    intervaloVerificacao=setInterval(async()=>{
+        try{
+            const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",email));
+            const snap=await getDocs(q);
+            if(!snap.empty){
+                const dados=snap.docs[0].data();
+                if(dados.status==="aprovado"||dados.status==="ativo"){
+                    clearInterval(intervaloVerificacao);idLogado=snap.docs[0].id;userLogado=dados;entrarNaPlataforma();
                 }
-            } catch(e) {}
-
-            // Fecha a nav highlight
-            resetNav();
-            document.getElementById('btn-nav-tv').style.borderColor = '#ff0000';
-            document.getElementById('btn-nav-tv').style.color = '#ffffff';
-
-            if (document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-        };
-
-        window.fecharTvSx = () => {
-            const modal = document.getElementById('tv-sx-modal');
-            const btnFechar = document.getElementById('btn-fechar-tv');
-            modal.classList.remove('open');
-            btnFechar.classList.remove('open');
-
-            // Volta para portrait
-            try {
-                if (screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
-                }
-            } catch(e) {}
-
-            resetNav();
-            document.getElementById('btn-nav-feed').style.borderColor = '#ff0000';
-            document.getElementById('btn-nav-feed').style.color = '#ff0000';
-        };
-
-        // =============================================
-        // SISTEMA DE VÍDEO OTIMIZADO
-        // =============================================
-        const videoCache = new Set();
-        let videoAtual = null;
-
-        const videoObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                const video = entry.target;
-                if (entry.isIntersecting) {
-                    document.querySelectorAll('video.video-feed').forEach(v => {
-                        if (v !== video) { v.pause(); v.muted = true; }
-                    });
-                    videoAtual = video;
-                    const skeleton = video.parentElement?.querySelector('.video-skeleton');
-                    if (video.readyState < 2) { video.preload = 'auto'; video.load(); }
-                    // Tenta tocar com som; se browser bloquear, cai para mudo
-                    video.muted = false;
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(() => {
-                            video.muted = true;
-                            video.play().catch(() => {});
-                        });
-                    }
-                    if (skeleton) {
-                        const onReady = () => { skeleton.style.opacity = '0'; setTimeout(() => { if (skeleton) skeleton.style.display = 'none'; }, 300); video.removeEventListener('canplay', onReady); };
-                        if (video.readyState >= 3) { skeleton.style.opacity = '0'; setTimeout(() => { if (skeleton) skeleton.style.display = 'none'; }, 300); }
-                        else { video.addEventListener('canplay', onReady); }
-                    }
-                } else {
-                    video.pause(); video.muted = true;
-                    const skeleton = video.parentElement?.querySelector('.video-skeleton');
-                    if (skeleton && video.readyState < 2) { skeleton.style.display = 'flex'; skeleton.style.opacity = '1'; }
-                }
-            });
-        }, { threshold: 0.6 });
-
-        const preloadObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const v = entry.target;
-                    if (v.preload === 'none' || v.preload === '') {
-                        v.preload = 'metadata';
-                        if (!videoCache.has(v.src)) {
-                            videoCache.add(v.src);
-                            const link = document.createElement('link');
-                            link.rel = 'prefetch'; link.as = 'video'; link.href = v.src;
-                            document.head.appendChild(link);
-                        }
-                    }
-                    preloadObserver.unobserve(v);
-                }
-            });
-        }, { rootMargin: '600px 0px', threshold: 0 });
-
-        // Desbloqueia som em qualquer interação do usuário
-        let somDesbloqueado = false;
-        const desbloqueioSom = () => {
-            if (somDesbloqueado) return;
-            somDesbloqueado = true;
-            document.querySelectorAll('video.video-feed').forEach(v => {
-                v.muted = false;
-                if (!v.paused) v.play().catch(() => {});
-            });
-        };
-        document.addEventListener('click', desbloqueioSom, { passive: true });
-        document.addEventListener('touchstart', desbloqueioSom, { passive: true });
-        document.addEventListener('scroll', desbloqueioSom, { once: true, passive: true });
-
-        function registrarVideo(v) {
-            v.preload = 'none';
-            v.muted = false; // tenta com som; só muta se browser bloquear
-            const wrapper = v.closest('.video-wrapper');
-            if (wrapper && !wrapper.querySelector('.video-progress')) {
-                const barra = document.createElement('div'); barra.className = 'video-progress'; wrapper.appendChild(barra);
-                v.addEventListener('timeupdate', () => { if (v.duration) barra.style.width = ((v.currentTime / v.duration) * 100) + '%'; });
             }
-            preloadObserver.observe(v); videoObserver.observe(v);
+        }catch(e){}
+    },8000);
+}
+
+function entrarNaPlataforma(){
+    if(intervaloVerificacao)clearInterval(intervaloVerificacao);
+    isAdmin=(userLogado.email==="admin@sx.com");
+    document.getElementById('login-box').classList.add('hidden');
+    document.getElementById('main-box').classList.remove('hidden');
+    document.getElementById('perfil-status').innerHTML=`<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">`;
+    document.getElementById('mini-foto-post').innerHTML=`<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600">`;
+    document.getElementById('btn-me-perfil').onclick=()=>verPerfil(idLogado);
+    if(isAdmin)document.getElementById('btn-flutuante-admin').style.display='flex';
+    carregarUsuariosMenu();
+    carregarAnunciosAtivos().then(()=>carregarFeed());
+    try{signInAnonymously(auth);}catch(e){}
+    clsIniciar();
+    onSnapshot(doc(fsdb,"usuariosAprovados",idLogado),(snap)=>{
+        if(!snap.exists()||snap.data().status==="excluido"||snap.data().status==="bloqueado"){
+            localStorage.removeItem('sx_email');
+            document.getElementById('main-box').classList.add('hidden');
+            document.getElementById('formulario-cadastro').classList.remove('hidden');
+            document.getElementById('sucesso-cadastro').classList.add('hidden');
+            document.getElementById('login-box').classList.remove('hidden');
         }
+    });
+}
 
-        function criarBotaoSom(wrapper, video) {
-            if (wrapper.querySelector('.btn-som-video')) return;
-            const btn = document.createElement('button'); btn.className = 'btn-som-video'; btn.innerHTML = '🔊'; btn.title = 'Ligar/desligar som';
-            btn.addEventListener('click', (e) => { e.stopPropagation(); video.muted = !video.muted; btn.innerHTML = video.muted ? '🔇' : '🔊'; });
-            video.addEventListener('volumechange', () => { btn.innerHTML = video.muted ? '🔇' : '🔊'; });
-            wrapper.appendChild(btn);
-        }
+window.cadastrar=async()=>{
+    const nome=document.getElementById('n').value.trim();
+    const email=document.getElementById('e').value.trim().toLowerCase();
+    const tel=document.getElementById('t').value.trim();
+    const file=document.getElementById('f').files[0];
+    const btn=document.getElementById('btn-cadastrar');
+    if(!nome)return alert("Digite seu nome completo!");
+    if(!email)return alert("Digite seu e-mail!");
+    if(!tel)return alert("Digite seu telefone!");
+    if(!file)return alert("Por favor, suba sua foto de perfil!");
+    btn.disabled=true;btn.innerText="VERIFICANDO...";
+    try{
+        const qExiste=query(collection(fsdb,"usuariosAprovados"),where("email","==",email));
+        const snapExiste=await getDocs(qExiste);
+        if(!snapExiste.empty){mostrarErroEmail();btn.disabled=false;btn.innerText="ENVIAR PARA O MONITOR";return;}
+        btn.innerText="ENVIANDO...";
+        const sRef=stRef(storage,'perfis/'+Date.now()+"_"+file.name);
+        await uploadBytes(sRef,file);
+        const url=await getDownloadURL(sRef);
+        await addDoc(collection(fsdb,"usuariosAprovados"),{nome,email,tel,foto:url,status:"pendente"});
+        localStorage.setItem('sx_email',email);
+        document.getElementById('formulario-cadastro').classList.add('hidden');
+        document.getElementById('sucesso-cadastro').classList.remove('hidden');
+        verificarAprovacao(email);
+    }catch(e){alert("Erro ao enviar cadastro.");btn.disabled=false;btn.innerText="ENVIAR PARA O MONITOR";}
+};
 
-        const MONITOR_URL = 'sx-monitor.html';
-        const PV_URL = 'https://sadministrador.github.io/sx/sx.html?id=loja01';
+function resetNav(){
+    ['btn-nav-feed','btn-nav-veiculos','btn-nav-tvsx','btn-nav-vestir','btn-nav-lojas'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){el.style.borderColor='';el.style.color='';}
+    });
+}
 
-        window.limparErroEmail = () => {
-            document.getElementById('alerta-email-duplicado').classList.remove('visivel');
-            document.getElementById('e').classList.remove('input-erro');
-        };
-        function mostrarErroEmail() {
-            document.getElementById('alerta-email-duplicado').classList.add('visivel');
-            document.getElementById('e').classList.add('input-erro');
-            document.getElementById('e').focus();
-        }
+function esconderTudo(){
+    document.getElementById('area-veiculos').style.display='none';
+    document.getElementById('area-vestir').style.display='none';
+    document.getElementById('area-lojas-look').style.display='none';
+    document.getElementById('feed').style.display='';
+}
 
-        async function inicializar() {
-            const emailSalvo = localStorage.getItem('sx_email');
-            if (!emailSalvo) { document.getElementById('login-box').classList.remove('hidden'); return; }
-            try {
-                const q = query(collection(fsdb, "usuariosAprovados"), where("email", "==", emailSalvo));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    const dados = snap.docs[0].data();
-                    const liberado = dados.status === "aprovado" || dados.status === "ativo";
-                    if (liberado) { idLogado = snap.docs[0].id; userLogado = dados; entrarNaPlataforma(); }
-                    else { verificarAprovacao(emailSalvo); }
-                } else { localStorage.removeItem('sx_email'); document.getElementById('login-box').classList.remove('hidden'); }
-            } catch(e) { document.getElementById('login-box').classList.remove('hidden'); }
-        }
+window.toggleMenu=()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active');};
 
-        function verificarAprovacao(email) {
-            if (intervaloVerificacao) clearInterval(intervaloVerificacao);
-            intervaloVerificacao = setInterval(async () => {
-                try {
-                    const q = query(collection(fsdb, "usuariosAprovados"), where("email", "==", email));
-                    const snap = await getDocs(q);
-                    if (!snap.empty) {
-                        const dados = snap.docs[0].data();
-                        if (dados.status === "aprovado" || dados.status === "ativo") {
-                            clearInterval(intervaloVerificacao); idLogado = snap.docs[0].id; userLogado = dados; entrarNaPlataforma();
-                        }
-                    }
-                } catch(e) {}
-            }, 8000);
-        }
+window.voltarHome=()=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    esconderTudo();document.getElementById('pv-iframe').src='';
+    document.getElementById('area-perfil').classList.add('hidden');
+    document.getElementById('caixa-post').classList.remove('hidden');
+    resetNav();document.getElementById('btn-nav-feed').style.borderColor='#ff0000';document.getElementById('btn-nav-feed').style.color='#ff0000';
+    carregarFeed();window.scrollTo({top:0,behavior:'smooth'});
+};
 
-        function entrarNaPlataforma() {
-            if (intervaloVerificacao) clearInterval(intervaloVerificacao);
-            isAdmin = (userLogado.email === "admin@sx.com");
-            document.getElementById('login-box').classList.add('hidden');
-            document.getElementById('main-box').classList.remove('hidden');
-            document.getElementById('perfil-status').innerHTML = `<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">`;
-            document.getElementById('mini-foto-post').innerHTML = `<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600">`;
-            document.getElementById('btn-me-perfil').onclick = () => verPerfil(idLogado);
-            if (isAdmin) document.getElementById('btn-flutuante-admin').style.display = 'flex';
-            carregarUsuariosMenu();
-            carregarAnunciosAtivos().then(() => carregarFeed());
-            try { signInAnonymously(auth); } catch(e) {}
-            clsIniciar();
-            onSnapshot(doc(fsdb, "usuariosAprovados", idLogado), (snap) => {
-                if (!snap.exists() || snap.data().status === "excluido" || snap.data().status === "bloqueado") {
-                    localStorage.removeItem('sx_email');
-                    document.getElementById('main-box').classList.add('hidden');
-                    document.getElementById('formulario-cadastro').classList.remove('hidden');
-                    document.getElementById('sucesso-cadastro').classList.add('hidden');
-                    document.getElementById('login-box').classList.remove('hidden');
-                }
-            });
-        }
+window.abrirVeiculos=()=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    document.getElementById('area-perfil').classList.add('hidden');document.getElementById('caixa-post').classList.add('hidden');
+    document.getElementById('feed').style.display='none';document.getElementById('area-vestir').style.display='none';
+    document.getElementById('area-lojas-look').style.display='none';document.getElementById('pv-iframe').src='';
+    document.getElementById('area-veiculos').style.display='block';
+    resetNav();document.getElementById('btn-nav-veiculos').style.borderColor='#ff0000';document.getElementById('btn-nav-veiculos').style.color='#ff0000';
+    window.scrollTo({top:0,behavior:'smooth'});
+};
 
-        window.cadastrar = async () => {
-            const nome = document.getElementById('n').value.trim();
-            const email = document.getElementById('e').value.trim().toLowerCase();
-            const tel = document.getElementById('t').value.trim();
-            const file = document.getElementById('f').files[0];
-            const btn = document.getElementById('btn-cadastrar');
-            if (!nome) return alert("Digite seu nome completo!");
-            if (!email) return alert("Digite seu e-mail!");
-            if (!tel) return alert("Digite seu telefone!");
-            if (!file) return alert("Por favor, suba sua foto de perfil!");
-            btn.disabled = true; btn.innerText = "VERIFICANDO...";
-            try {
-                const qExiste = query(collection(fsdb, "usuariosAprovados"), where("email", "==", email));
-                const snapExiste = await getDocs(qExiste);
-                if (!snapExiste.empty) { mostrarErroEmail(); btn.disabled = false; btn.innerText = "ENVIAR PARA O MONITOR"; return; }
-                btn.innerText = "ENVIANDO...";
-                const sRef = stRef(storage, 'perfis/' + Date.now() + "_" + file.name);
-                await uploadBytes(sRef, file);
-                const url = await getDownloadURL(sRef);
-                await addDoc(collection(fsdb, "usuariosAprovados"), { nome, email, tel, foto: url, status: "pendente" });
-                localStorage.setItem('sx_email', email);
-                document.getElementById('formulario-cadastro').classList.add('hidden');
-                document.getElementById('sucesso-cadastro').classList.remove('hidden');
-                verificarAprovacao(email);
-            } catch(e) { alert("Erro ao enviar cadastro."); btn.disabled = false; btn.innerText = "ENVIAR PARA O MONITOR"; }
-        };
+window.abrirVestir=()=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    document.getElementById('area-perfil').classList.add('hidden');document.getElementById('caixa-post').classList.add('hidden');
+    document.getElementById('feed').style.display='none';document.getElementById('area-veiculos').style.display='none';
+    document.getElementById('area-lojas-look').style.display='none';document.getElementById('area-vestir').style.display='block';
+    const iframe=document.getElementById('pv-iframe');if(iframe.src!==PV_URL)iframe.src=PV_URL;
+    resetNav();document.getElementById('btn-nav-vestir').style.borderColor='#ff0000';document.getElementById('btn-nav-vestir').style.color='#ff0000';
+    window.scrollTo({top:0,behavior:'smooth'});
+};
 
-        function resetNav() {
-            ['btn-nav-feed','btn-nav-veiculos','btn-nav-vestir','btn-nav-lojas','btn-nav-tv'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) { el.style.borderColor = ''; el.style.color = ''; }
-            });
-        }
-        function esconderTudo() {
-            document.getElementById('area-veiculos').style.display = 'none';
-            document.getElementById('area-vestir').style.display = 'none';
-            document.getElementById('area-lojas-look').style.display = 'none';
-            document.getElementById('feed').style.display = '';
-        }
-        window.toggleMenu = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
-        window.voltarHome = () => {
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            fecharTvSx();
-            esconderTudo(); document.getElementById('pv-iframe').src = '';
-            document.getElementById('area-perfil').classList.add('hidden');
-            document.getElementById('caixa-post').classList.remove('hidden');
-            resetNav(); document.getElementById('btn-nav-feed').style.borderColor = '#ff0000'; document.getElementById('btn-nav-feed').style.color = '#ff0000';
-            carregarFeed(); window.scrollTo({top:0, behavior:'smooth'});
-        };
-        window.abrirVeiculos = () => {
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            fecharTvSx();
-            document.getElementById('area-perfil').classList.add('hidden'); document.getElementById('caixa-post').classList.add('hidden');
-            document.getElementById('feed').style.display = 'none'; document.getElementById('area-vestir').style.display = 'none';
-            document.getElementById('area-lojas-look').style.display = 'none'; document.getElementById('pv-iframe').src = '';
-            document.getElementById('area-veiculos').style.display = 'block';
-            resetNav(); document.getElementById('btn-nav-veiculos').style.borderColor = '#ff0000'; document.getElementById('btn-nav-veiculos').style.color = '#ff0000';
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-        window.abrirVestir = () => {
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            fecharTvSx();
-            document.getElementById('area-perfil').classList.add('hidden'); document.getElementById('caixa-post').classList.add('hidden');
-            document.getElementById('feed').style.display = 'none'; document.getElementById('area-veiculos').style.display = 'none';
-            document.getElementById('area-lojas-look').style.display = 'none'; document.getElementById('area-vestir').style.display = 'block';
-            const iframe = document.getElementById('pv-iframe'); if(iframe.src !== PV_URL) iframe.src = PV_URL;
-            resetNav(); document.getElementById('btn-nav-vestir').style.borderColor = '#ff0000'; document.getElementById('btn-nav-vestir').style.color = '#ff0000';
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-        window.abrirLojasLook = () => {
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            fecharTvSx();
-            document.getElementById('area-perfil').classList.add('hidden'); document.getElementById('caixa-post').classList.add('hidden');
-            document.getElementById('feed').style.display = 'none'; document.getElementById('area-veiculos').style.display = 'none';
-            document.getElementById('area-vestir').style.display = 'none'; document.getElementById('pv-iframe').src = '';
-            document.getElementById('area-lojas-look').style.display = 'block';
-            resetNav(); document.getElementById('btn-nav-lojas').style.borderColor = '#ff0000'; document.getElementById('btn-nav-lojas').style.color = '#ff0000';
-            if(!lokListaCarregada) { lokCarregarProfissionais(); lokListaCarregada = true; }
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-        window.abrirMonitorAnuncios = () => { window.open(MONITOR_URL, '_blank'); };
+window.abrirLojasLook=()=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    document.getElementById('area-perfil').classList.add('hidden');document.getElementById('caixa-post').classList.add('hidden');
+    document.getElementById('feed').style.display='none';document.getElementById('area-veiculos').style.display='none';
+    document.getElementById('area-vestir').style.display='none';document.getElementById('pv-iframe').src='';
+    document.getElementById('area-lojas-look').style.display='block';
+    resetNav();document.getElementById('btn-nav-lojas').style.borderColor='#ff0000';document.getElementById('btn-nav-lojas').style.color='#ff0000';
+    if(!lokListaCarregada){lokCarregarProfissionais();lokListaCarregada=true;}
+    window.scrollTo({top:0,behavior:'smooth'});
+};
 
-        function carregarAnunciosAtivos() {
-            return new Promise((resolve) => {
-                const q = query(collection(fsdb, "anunciosLojas"), where("status", "==", "ativo"));
-                let primeiraVez = true;
-                onSnapshot(q, snap => {
-                    anunciosAtivos = []; snap.forEach(d => anunciosAtivos.push({ id: d.id, ...d.data() }));
-                    if (primeiraVez) { primeiraVez = false; resolve(); } else { carregarFeed(); }
-                });
-            });
-        }
+window.abrirMonitorAnuncios=()=>{window.open(MONITOR_URL,'_blank');};
 
-        function gerarHtmlAnuncio(ad) {
-            if(!ad) return "";
-            const bannerUrl = ad.imagemUrl || ad.imagem || "", isVideo = ad.isVideo || false;
-            const logoHtml = ad.logoUrl ? `<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #ff0000;flex-shrink:0;">` : `<div style="width:42px;height:42px;border-radius:50%;background:#ff0000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;">${(ad.loja||'?')[0]}</div>`;
-            const bannerHtml = bannerUrl ? (isVideo ? `<video src="${bannerUrl}" muted loop playsinline preload="none" data-anuncio="true" style="width:100%;height:220px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>` : `<img src="${bannerUrl}" loading="lazy" style="width:100%;height:220px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`) : '';
-            const linkHtml = ad.link ? `<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(45deg,#ff0000,#cc0000);color:white;font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;">${ad.cta || 'SAIBA MAIS'}</a>` : '';
-            return `<div style="background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);"><div style="background:rgba(255,0,0,0.9);color:white;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin:10px 10px 0 10px;">Patrocinado</div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:#ff6060;text-transform:uppercase;">${ad.loja || ''}</span></div><div style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px;">${ad.titulo || ''}</div><div style="font-size:14px;color:#aac;line-height:1.5;">${ad.descricao || ''}</div>${linkHtml}</div></div>`;
-        }
+// ===== TV SX — abrir/fechar com ISOLAMENTO TOTAL de áudio =====
+window.abrirTVSX=()=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    // Pausa e muta TODOS os vídeos do feed antes de abrir a TV
+    pausarTodosFeedVideos();
+    resetNav();
+    document.getElementById('btn-nav-tvsx').style.borderColor='#ff0000';
+    const areaTVSX=document.getElementById('area-tvsx');
+    areaTVSX.classList.add('show');
+    if(!tvsxInicializado){tvsxIniciar();tvsxInicializado=true;}
+    else if(tvsxActiveVid){tvsxActiveVid.play().catch(()=>{});}
+};
 
-        function carregarFeed(filtroNome = null) {
-            let q = query(collection(fsdb,"posts"), orderBy("data","desc"));
-            if(filtroNome) q = query(collection(fsdb,"posts"), where("nome","==",filtroNome), orderBy("data","desc"));
-            if(unsubFeed) unsubFeed();
-            unsubFeed = onSnapshot(q, snap => {
-                const f = document.getElementById('feed'); f.innerHTML = "";
-                const postsValidos = [];
-                snap.forEach(d => { const p = d.data(); if(p.tipo !== 'classificado') postsValidos.push({ id: d.id, dados: p }); });
-                let idxAd = 0;
-                postsValidos.forEach((item, i) => {
-                    const { id, dados: p } = item;
-                    let midiaHtml = "";
-                    if(p.midia){
-                        if (p.tipo === 'video') {
-                            midiaHtml = `<div class="video-wrapper">
-                                <div class="video-skeleton">
-                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                                <video
-                                    src="${p.midia}"
-                                    loop
-                                    playsinline
-                                    preload="none"
-                                    class="video-feed"
-                                    style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"
-                                    oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"
-                                ></video>
-                            </div>`;
-                        } else {
-                            midiaHtml = `<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
-                        }
-                    }
-                    const comentsHtml = (p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    f.innerHTML += `<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto ? `<p class="post-card-texto">${p.texto}</p>` : ''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
-                    if((i + 1) % 5 === 0 && anunciosAtivos.length > 0) { f.innerHTML += gerarHtmlAnuncio(anunciosAtivos[idxAd % anunciosAtivos.length]); idxAd++; }
-                });
+window.fecharTVSX=()=>{
+    document.getElementById('area-tvsx').classList.remove('show');
+    // Para os vídeos da TV ao fechar — não deixa áudio vazar
+    if(tvsxActiveVid){tvsxActiveVid.pause();tvsxActiveVid.muted=true;}
+    if(tvsxPreloadVid){tvsxPreloadVid.pause();tvsxPreloadVid.muted=true;}
+    // Para também o vídeo de anúncio da TV
+    const adV=document.getElementById('tvsx-adVid');
+    if(adV){adV.pause();adV.muted=true;}
+    // Libera o lock de orientação ao fechar
+    if(screen.orientation&&screen.orientation.unlock){
+        try{screen.orientation.unlock();}catch(e){}
+    }
+    resetNav();
+    document.getElementById('btn-nav-feed').style.borderColor='#ff0000';
+    document.getElementById('btn-nav-feed').style.color='#ff0000';
+};
 
-                document.querySelectorAll('.video-feed').forEach(v => {
-                    registrarVideo(v);
-                    const wrapper = v.closest('.video-wrapper');
-                    if (wrapper) criarBotaoSom(wrapper, v);
-                });
-
-                document.querySelectorAll('video[data-anuncio="true"]').forEach(v => {
-                    v.preload = 'none';
-                    preloadObserver.observe(v);
-                });
-            });
-        }
-
-        function carregarUsuariosMenu() {
-            onSnapshot(collection(fsdb,"usuariosAprovados"), snap => {
-                const lista = document.getElementById('lista-usuarios-menu'); lista.innerHTML = "";
-                snap.forEach(d => {
-                    const st = d.data().status;
-                    if(st !== "aprovado" && st !== "ativo") return;
-                    lista.innerHTML += `<div onclick="verPerfil('${d.id}')" class="flex items-center gap-3 p-3 hover:bg-red-900 rounded-lg cursor-pointer"><img src="${d.data().foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600"><span class="font-bold text-xs uppercase">${d.data().nome}</span></div>`;
-                });
-            });
-        }
-
-        window.verPerfil = async (idPerfil) => {
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            fecharTvSx();
-            const docSnap = await getDoc(doc(fsdb,"usuariosAprovados",idPerfil));
-            if(docSnap.exists()){
-                const p = docSnap.data(); esconderTudo(); document.getElementById('pv-iframe').src = '';
-                document.getElementById('area-perfil').classList.remove('hidden'); document.getElementById('caixa-post').classList.add('hidden');
-                document.getElementById('nome-perfil-view').innerText = p.nome;
-                document.getElementById('img-capa-view').src = p.capa || "https://images.unsplash.com/photo-1557683316-973673baf926";
-                idPerfil === idLogado ? document.getElementById('label-capa').classList.remove('hidden') : document.getElementById('label-capa').classList.add('hidden');
-                carregarFeed(p.nome); window.scrollTo({top:0, behavior:'smooth'});
-            }
-        };
-
-        window.previaCapa = (input) => {
-            const file = input.files[0]; if(!file) return; arquivoCapaPendente = file;
-            const reader = new FileReader();
-            reader.onload = e => { document.getElementById('img-capa-view').src = e.target.result; document.getElementById('btn-confirmar-capa').classList.remove('hidden'); };
-            reader.readAsDataURL(file);
-        };
-
-        window.confirmarUploadCapa = async () => {
-            const btn = document.getElementById('btn-confirmar-capa'); btn.innerText = "SALVANDO...";
-            try {
-                const sr = stRef(storage,'capas/'+idLogado); await uploadBytes(sr, arquivoCapaPendente);
-                const url = await getDownloadURL(sr); await updateDoc(doc(fsdb,"usuariosAprovados",idLogado),{capa:url});
-                alert("SUCESSO! SUA CAPA AGORA É VISÍVEL PARA TODOS."); btn.classList.add('hidden'); btn.innerText = "✅ SALVAR PARA TODOS";
-            } catch(err){ alert("Erro ao salvar."); }
-        };
-
-        window.postar = async () => {
-            const txt = document.getElementById('txt').value, file = document.getElementById('midia').files[0], btn = document.getElementById('btn-post');
-            if(!txt && !file) return; btn.disabled = true; btn.innerText = "POSTANDO...";
-            let url = "", tipo = "";
-            if(file){ const sr = stRef(storage,'posts/'+Date.now()); await uploadBytes(sr,file); url = await getDownloadURL(sr); tipo = file.type.includes('video') ? 'video' : 'foto'; }
-            await addDoc(collection(fsdb,"posts"),{ nome:userLogado.nome, foto:userLogado.foto, texto:txt, midia:url, tipo:tipo, data:new Date(), curtidas:0, comentarios:[] });
-            document.getElementById('txt').value = ""; document.getElementById('midia').value = "";
-            document.getElementById('file-name').innerText = "✨ ADICIONAR MÍDIA INCRÍVEL"; btn.disabled = false; btn.innerText = "Publicar";
-        };
-
-        window.curtirPost = async (id, btn) => {
-            if(curtidasNestaSessao.has(id)) return;
-            const refDoc = doc(fsdb,"posts",id), snap = await getDoc(refDoc), total = (snap.data().curtidas||0)+1;
-            await updateDoc(refDoc,{curtidas:total}); curtidasNestaSessao.add(id);
-            btn.innerHTML = `❤️ <span class="num-curtidas text-xs ml-1">${total}</span>`;
-        };
-
-        window.salvarComentario = async (id) => {
-            const input = document.getElementById(`input-coment-${id}`), texto = input.value.trim(); if(!texto) return;
-            await updateDoc(doc(fsdb,"posts",id),{ comentarios: arrayUnion({autor:userLogado.nome, texto, data:new Date().toLocaleString()}) });
-            input.value = "";
-        };
-
-        // =============================================
-        // CLASSIFICADOS
-        // =============================================
-        function clsIniciar() {
-            clsUpdateStatus('✅ CONECTADO! Pode anunciar.','ok');
-            document.getElementById('btnNovo').disabled = false;
-            const q = query(collection(fsdb,'posts'), where('publicado','==',true), where('tipo','==','classificado'), orderBy('data','desc'));
-            onSnapshot(q, snap => {
-                const lista = document.getElementById('cls-listaAnuncios');
-                lista.innerHTML = snap.empty ? '<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>' : '';
-                snap.forEach(ds => {
-                    const d = ds.data(), midias = d.midia||[];
-                    const nomeVeiculo = (d.nome||'') + (d.ano ? ' ' + d.ano : '') + (d.categoria ? ' (' + d.categoria + ')' : '');
-                    const msgVeiculo = encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* ' + nomeVeiculo + '\n' + (d.preco ? '*Preço:* R$ ' + Number(d.preco).toLocaleString('pt-BR') + '\n' : '') + ([d.bairro, d.estado].filter(Boolean).length ? '*Local:* ' + [d.bairro, d.estado].filter(Boolean).join(', ') + '\n' : '') + '\nO veículo ainda está disponível?');
-                    lista.innerHTML += `<div class="anuncio-cls"><span class="badge-publicado">✅ PUBLICADO</span><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;margin-top:10px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url => { const isVid = url.includes('.mp4')||url.includes('.mov')||url.includes('.webm')||url.includes('video'); return isVid ? `<video src="${url}" loop playsinline preload="none" style="max-width:140px;height:110px;border-radius:8px;cursor:pointer;" onclick="this.muted=!this.muted;this.paused?this.play():this.pause()"></video>` : `<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')" title="Clique para ampliar">`; }).join('')}</div></div>`;
-                });
-            }, () => {
-                onSnapshot(query(collection(fsdb,'posts'), where('publicado','==',true), where('tipo','==','classificado')), snap2 => {
-                    const lista = document.getElementById('cls-listaAnuncios');
-                    lista.innerHTML = snap2.empty ? '<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>' : '';
-                    snap2.forEach(ds => {
-                        const d = ds.data(), midias = d.midia||[];
-                        const nomeVeiculo = (d.nome||'') + (d.ano ? ' ' + d.ano : '') + (d.categoria ? ' (' + d.categoria + ')' : '');
-                        const msgVeiculo = encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* ' + nomeVeiculo + '\n' + (d.preco ? '*Preço:* R$ ' + Number(d.preco).toLocaleString('pt-BR') + '\n' : '') + ([d.bairro, d.estado].filter(Boolean).length ? '*Local:* ' + [d.bairro, d.estado].filter(Boolean).join(', ') + '\n' : '') + '\nO veículo ainda está disponível?');
-                        lista.innerHTML += `<div class="anuncio-cls"><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>`<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')">`).join('')}</div></div>`;
-                    });
-                });
-            });
-        }
-
-        function clsUpdateStatus(msg,type){ const el = document.getElementById('cls-status'); el.textContent = msg; el.className = 'cls-status cls-status-'+(type||'ok'); }
-
-        window.clsAbrirGaleria = url => {
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;';
-            modal.innerHTML = `<img src="${url}" style="max-width:90%;max-height:90%;border-radius:10px;">`;
-            modal.onclick = () => document.body.removeChild(modal); document.body.appendChild(modal);
-        };
-
-        window.clsAbrirForm = () => { document.getElementById('cls-formulario').style.display = 'block'; document.getElementById('cls-formulario').scrollIntoView({behavior:'smooth'}); };
-
-        document.getElementById('cls-midia').addEventListener('change', e => {
-            const novos = Array.from(e.target.files);
-            if(clsArquivos.length + novos.length > 6) return alert('Máximo 6 arquivos!');
-            clsArquivos = [...clsArquivos,...novos]; clsShowPreview();
-            document.getElementById('cls-contador').textContent = clsArquivos.length+'/6 arquivos';
-            document.getElementById('cls-btnPublicar').disabled = false; e.target.value = '';
+function carregarAnunciosAtivos(){
+    return new Promise((resolve)=>{
+        const q=query(collection(fsdb,"anunciosLojas"),where("status","==","ativo"));
+        let primeiraVez=true;
+        onSnapshot(q,snap=>{
+            anunciosAtivos=[];snap.forEach(d=>anunciosAtivos.push({id:d.id,...d.data()}));
+            if(primeiraVez){primeiraVez=false;resolve();}else{carregarFeed();}
         });
+    });
+}
 
-        function clsShowPreview() {
-            const preview = document.getElementById('cls-preview'); preview.innerHTML = '';
-            clsArquivos.forEach((file,i) => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const isVideo = file.type.startsWith('video/');
-                    preview.innerHTML += `<div style="position:relative;">${isVideo ? `<video src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;"></video>` : `<img src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;">`}<button onclick="clsRemoverArquivo(${i})" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;">×</button></div>`;
-                };
-                reader.readAsDataURL(file);
+function gerarHtmlAnuncio(ad){
+    if(!ad)return"";
+    const bannerUrl=ad.imagemUrl||ad.imagem||"",isVideo=ad.isVideo||false;
+    const logoHtml=ad.logoUrl?`<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #ff0000;flex-shrink:0;">`:`<div style="width:42px;height:42px;border-radius:50%;background:#ff0000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;">${(ad.loja||'?')[0]}</div>`;
+    const bannerHtml=bannerUrl?(isVideo?`<video src="${bannerUrl}" muted loop playsinline preload="none" data-anuncio="true" style="width:100%;height:220px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>`:`<img src="${bannerUrl}" loading="lazy" style="width:100%;height:220px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`): '';
+    const linkHtml=ad.link?`<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(45deg,#ff0000,#cc0000);color:white;font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;">${ad.cta||'SAIBA MAIS'}</a>`:'';
+    return`<div style="background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);"><div style="background:rgba(255,0,0,0.9);color:white;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin:10px 10px 0 10px;">Patrocinado</div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:#ff6060;text-transform:uppercase;">${ad.loja||''}</span></div><div style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px;">${ad.titulo||''}</div><div style="font-size:14px;color:#aac;line-height:1.5;">${ad.descricao||''}</div>${linkHtml}</div></div>`;
+}
+
+function carregarFeed(filtroNome=null){
+    let q=query(collection(fsdb,"posts"),orderBy("data","desc"));
+    if(filtroNome)q=query(collection(fsdb,"posts"),where("nome","==",filtroNome),orderBy("data","desc"));
+    if(unsubFeed)unsubFeed();
+    unsubFeed=onSnapshot(q,snap=>{
+        const f=document.getElementById('feed');f.innerHTML="";
+        const postsValidos=[];
+        snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
+        let idxAd=0;
+        postsValidos.forEach((item,i)=>{
+            const{id,dados:p}=item;
+            let midiaHtml="";
+            if(p.midia){
+                if(p.tipo==='video'){
+                    midiaHtml=`<div class="video-wrapper">
+                        <div class="video-skeleton">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                        <video
+                            src="${p.midia}"
+                            loop
+                            playsinline
+                            preload="none"
+                            class="video-feed"
+                            style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"
+                            oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"
+                        ></video>
+                    </div>`;
+                } else {
+                    midiaHtml=`<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
+                }
+            }
+            const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
+            f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
+            if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
+        });
+        document.querySelectorAll('.video-feed').forEach(v=>{registrarVideo(v);});
+        document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{v.preload='none';preloadObserver.observe(v);});
+    });
+}
+
+function carregarUsuariosMenu(){
+    onSnapshot(collection(fsdb,"usuariosAprovados"),snap=>{
+        const lista=document.getElementById('lista-usuarios-menu');lista.innerHTML="";
+        snap.forEach(d=>{
+            const st=d.data().status;
+            if(st!=="aprovado"&&st!=="ativo")return;
+            lista.innerHTML+=`<div onclick="verPerfil('${d.id}')" class="flex items-center gap-3 p-3 hover:bg-red-900 rounded-lg cursor-pointer"><img src="${d.data().foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600"><span class="font-bold text-xs uppercase">${d.data().nome}</span></div>`;
+        });
+    });
+}
+
+window.verPerfil=async(idPerfil)=>{
+    if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();
+    const docSnap=await getDoc(doc(fsdb,"usuariosAprovados",idPerfil));
+    if(docSnap.exists()){
+        const p=docSnap.data();esconderTudo();document.getElementById('pv-iframe').src='';
+        document.getElementById('area-perfil').classList.remove('hidden');document.getElementById('caixa-post').classList.add('hidden');
+        document.getElementById('nome-perfil-view').innerText=p.nome;
+        document.getElementById('img-capa-view').src=p.capa||"https://images.unsplash.com/photo-1557683316-973673baf926";
+        idPerfil===idLogado?document.getElementById('label-capa').classList.remove('hidden'):document.getElementById('label-capa').classList.add('hidden');
+        carregarFeed(p.nome);window.scrollTo({top:0,behavior:'smooth'});
+    }
+};
+
+window.previaCapa=(input)=>{
+    const file=input.files[0];if(!file)return;arquivoCapaPendente=file;
+    const reader=new FileReader();
+    reader.onload=e=>{document.getElementById('img-capa-view').src=e.target.result;document.getElementById('btn-confirmar-capa').classList.remove('hidden');};
+    reader.readAsDataURL(file);
+};
+
+window.confirmarUploadCapa=async()=>{
+    const btn=document.getElementById('btn-confirmar-capa');btn.innerText="SALVANDO...";
+    try{
+        const sr=stRef(storage,'capas/'+idLogado);await uploadBytes(sr,arquivoCapaPendente);
+        const url=await getDownloadURL(sr);await updateDoc(doc(fsdb,"usuariosAprovados",idLogado),{capa:url});
+        alert("SUCESSO! SUA CAPA AGORA É VISÍVEL PARA TODOS.");btn.classList.add('hidden');btn.innerText="✅ SALVAR PARA TODOS";
+    }catch(err){alert("Erro ao salvar.");}
+};
+
+window.postar=async()=>{
+    const txt=document.getElementById('txt').value,file=document.getElementById('midia').files[0],btn=document.getElementById('btn-post');
+    if(!txt&&!file)return;btn.disabled=true;btn.innerText="POSTANDO...";
+    let url="",tipo="";
+    if(file){const sr=stRef(storage,'posts/'+Date.now());await uploadBytes(sr,file);url=await getDownloadURL(sr);tipo=file.type.includes('video')?'video':'foto';}
+    await addDoc(collection(fsdb,"posts"),{nome:userLogado.nome,foto:userLogado.foto,texto:txt,midia:url,tipo:tipo,data:new Date(),curtidas:0,comentarios:[]});
+    document.getElementById('txt').value="";document.getElementById('midia').value="";
+    document.getElementById('file-name').innerText="✨ ADICIONAR MÍDIA INCRÍVEL";btn.disabled=false;btn.innerText="Publicar";
+};
+
+window.curtirPost=async(id,btn)=>{
+    if(curtidasNestaSessao.has(id))return;
+    const refDoc=doc(fsdb,"posts",id),snap=await getDoc(refDoc),total=(snap.data().curtidas||0)+1;
+    await updateDoc(refDoc,{curtidas:total});curtidasNestaSessao.add(id);
+    btn.innerHTML=`❤️ <span class="num-curtidas text-xs ml-1">${total}</span>`;
+};
+
+window.salvarComentario=async(id)=>{
+    const input=document.getElementById(`input-coment-${id}`),texto=input.value.trim();if(!texto)return;
+    await updateDoc(doc(fsdb,"posts",id),{comentarios:arrayUnion({autor:userLogado.nome,texto,data:new Date().toLocaleString()})});
+    input.value="";
+};
+
+// ===== CLASSIFICADOS =====
+function clsIniciar(){
+    clsUpdateStatus('✅ CONECTADO! Pode anunciar.','ok');
+    document.getElementById('btnNovo').disabled=false;
+    const q=query(collection(fsdb,'posts'),where('publicado','==',true),where('tipo','==','classificado'),orderBy('data','desc'));
+    onSnapshot(q,snap=>{
+        const lista=document.getElementById('cls-listaAnuncios');
+        lista.innerHTML=snap.empty?'<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>':'';
+        snap.forEach(ds=>{
+            const d=ds.data(),midias=d.midia||[];
+            const nomeVeiculo=(d.nome||'')+(d.ano?' '+d.ano:'')+(d.categoria?' ('+d.categoria+')':'');
+            const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
+            lista.innerHTML+=`<div class="anuncio-cls"><span class="badge-publicado">✅ PUBLICADO</span><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;margin-top:10px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>{const isVid=url.includes('.mp4')||url.includes('.mov')||url.includes('.webm')||url.includes('video');return isVid?`<video src="${url}" loop playsinline preload="none" style="max-width:140px;height:110px;border-radius:8px;cursor:pointer;" onclick="this.muted=!this.muted;this.paused?this.play():this.pause()"></video>`:`<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')" title="Clique para ampliar">`;}).join('')}</div></div>`;
+        });
+    },()=>{
+        onSnapshot(query(collection(fsdb,'posts'),where('publicado','==',true),where('tipo','==','classificado')),snap2=>{
+            const lista=document.getElementById('cls-listaAnuncios');
+            lista.innerHTML=snap2.empty?'<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>':'';
+            snap2.forEach(ds=>{
+                const d=ds.data(),midias=d.midia||[];
+                const nomeVeiculo=(d.nome||'')+(d.ano?' '+d.ano:'')+(d.categoria?' ('+d.categoria+')':'');
+                const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
+                lista.innerHTML+=`<div class="anuncio-cls"><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>`<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')">`).join('')}</div></div>`;
             });
+        });
+    });
+}
+function clsUpdateStatus(msg,type){const el=document.getElementById('cls-status');el.textContent=msg;el.className='cls-status cls-status-'+(type||'ok');}
+window.clsAbrirGaleria=url=>{
+    const modal=document.createElement('div');
+    modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML=`<img src="${url}" style="max-width:90%;max-height:90%;border-radius:10px;">`;
+    modal.onclick=()=>document.body.removeChild(modal);document.body.appendChild(modal);
+};
+window.clsAbrirForm=()=>{document.getElementById('cls-formulario').style.display='block';document.getElementById('cls-formulario').scrollIntoView({behavior:'smooth'});};
+document.getElementById('cls-midia').addEventListener('change',e=>{
+    const novos=Array.from(e.target.files);
+    if(clsArquivos.length+novos.length>6)return alert('Máximo 6 arquivos!');
+    clsArquivos=[...clsArquivos,...novos];clsShowPreview();
+    document.getElementById('cls-contador').textContent=clsArquivos.length+'/6 arquivos';
+    document.getElementById('cls-btnPublicar').disabled=false;e.target.value='';
+});
+function clsShowPreview(){
+    const preview=document.getElementById('cls-preview');preview.innerHTML='';
+    clsArquivos.forEach((file,i)=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+            const isVideo=file.type.startsWith('video/');
+            preview.innerHTML+=`<div style="position:relative;">${isVideo?`<video src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;"></video>`:`<img src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;">`}<button onclick="clsRemoverArquivo(${i})" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;">×</button></div>`;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+window.clsRemoverArquivo=index=>{
+    clsArquivos.splice(index,1);clsShowPreview();
+    document.getElementById('cls-contador').textContent=clsArquivos.length+'/6 arquivos';
+    document.getElementById('cls-btnPublicar').disabled=clsArquivos.length===0;
+};
+window.clsAnunciar=async()=>{
+    if(clsIsSubmitting)return;clsIsSubmitting=true;
+    const btn=document.getElementById('cls-btnPublicar');btn.textContent='⏳ Enviando...';btn.disabled=true;
+    const dados={categoria:document.getElementById('cls-categoria').value,nome:document.getElementById('cls-nome').value.trim(),ano:document.getElementById('cls-ano').value,bairro:document.getElementById('cls-bairro').value.trim(),estado:document.getElementById('cls-estado').value.trim(),preco:document.getElementById('cls-preco').value,whatsapp:document.getElementById('cls-whatsapp').value.trim(),descricao:document.getElementById('cls-descricao').value.trim()};
+    if(!dados.categoria||!dados.nome||clsArquivos.length===0){alert('❌ Preencha categoria, nome e adicione pelo menos 1 foto!');clsIsSubmitting=false;btn.textContent='🚀 PUBLICAR ANÚNCIO';btn.disabled=false;return;}
+    try{
+        const urls=[];
+        for(let i=0;i<clsArquivos.length;i++){const file=clsArquivos[i];const sr=stRef(storage,`anuncios/${Date.now()}_${i}_${file.name}`);await uploadBytes(sr,file);urls.push(await getDownloadURL(sr));}
+        await addDoc(collection(fsdb,'posts'),{...dados,midia:urls,tipo:'classificado',publicado:false,data:serverTimestamp()});
+        alert('✅ ANÚNCIO ENVIADO! Aguarde aprovação.');clsFecharForm();
+    }catch(e){alert('❌ Erro: '+e.message);}
+    finally{clsIsSubmitting=false;btn.textContent='🚀 PUBLICAR ANÚNCIO';btn.disabled=false;}
+};
+function clsFecharForm(){
+    document.getElementById('cls-formulario').style.display='none';
+    ['cls-nome','cls-ano','cls-bairro','cls-estado','cls-preco','cls-whatsapp','cls-descricao'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('cls-categoria').value='';clsArquivos=[];
+    document.getElementById('cls-preview').innerHTML='';document.getElementById('cls-contador').textContent='0/6 arquivos';
+    document.getElementById('cls-btnPublicar').disabled=true;clsIsSubmitting=false;
+}
+
+// ===== LOJAS LOOK =====
+window.mascaraCPF=(i)=>{
+    let v=i.value;if(isNaN(v[v.length-1])){i.value=v.substring(0,v.length-1);return;}
+    i.setAttribute("maxlength","14");
+    if(v.length==3||v.length==7)i.value+=".";if(v.length==11)i.value+="-";
+};
+window.toggleCadastroLok=()=>{
+    const caixa=document.getElementById('caixa-cadastro-lok');caixa.classList.toggle('hidden');
+    if(!caixa.classList.contains('hidden'))caixa.scrollIntoView({behavior:'smooth'});
+};
+window.fecharSucessoLok=()=>{
+    document.getElementById('sucesso-lok').classList.add('hidden');
+    document.getElementById('formulario-lok').classList.remove('hidden');
+    document.getElementById('caixa-cadastro-lok').classList.add('hidden');
+};
+window.cadastrarLok=async()=>{
+    const btn=document.getElementById('lok-btn'),file=document.getElementById('lok-f').files[0];
+    if(!file)return alert("📸 Escolha sua foto!");
+    if(!document.getElementById('lok-p').value)return alert("🔧 Selecione sua profissão!");
+    btn.disabled=true;btn.innerText="⏳ PROCESSANDO...";
+    try{
+        const sRef=stRef(storage,'profissionais/'+Date.now()+"_"+file.name);
+        await uploadBytes(sRef,file);const url=await getDownloadURL(sRef);
+        await addDoc(collection(fsdb,"usuariosPendentes"),{nome:document.getElementById('lok-n').value,cpf:document.getElementById('lok-cpf').value,tel:document.getElementById('lok-t').value,endereco:document.getElementById('lok-end').value,profissao:document.getElementById('lok-p').value,foto:url,status:"pendente",dataCadastro:new Date()});
+        document.getElementById('formulario-lok').classList.add('hidden');
+        document.getElementById('sucesso-lok').classList.remove('hidden');
+    }catch(e){alert("❌ Erro: "+e.message);btn.disabled=false;btn.innerText="TENTAR NOVAMENTE";}
+};
+function lokCarregarProfissionais(){
+    const listaEl=document.getElementById('lok-listaAprovados'),totalEl=document.getElementById('lok-totalAprovados');
+    onSnapshot(collection(fsdb,"usuariosAprovados"),(snapshot)=>{
+        let totalSX=0;listaEl.innerHTML='';
+        snapshot.docs.forEach((d)=>{
+            const prof=d.data();if(!prof.profissao)return;totalSX++;
+            let telLimpo=prof.tel?prof.tel.replace(/\D/g,''):'';
+            if(telLimpo&&!telLimpo.startsWith('55'))telLimpo='55'+telLimpo;
+            const card=document.createElement('div');card.className='prof-card p-8 text-center hover:shadow-xl transition-all';
+            card.innerHTML=`<img src="${prof.foto||'https://via.placeholder.com/150'}" class="w-32 h-32 mx-auto rounded-full object-cover mb-6 border-4 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]"><h3 class="font-bold text-2xl mb-3">${prof.nome||'Sem Nome'}</h3><div class="text-2xl text-yellow-400 font-semibold mb-6">${prof.profissao}</div><a href="https://wa.me/${telLimpo}?text=Olá ${encodeURIComponent(prof.nome)}!%0AVi seu perfil no *SX Profissionais*!%0AVocê atende em domicílio?%0APreciso de: [descreva o serviço]" class="block bg-[#16a34a] text-white py-4 px-8 rounded-full font-bold text-lg mx-auto hover:bg-[#15803d] w-full max-w-[260px] shadow-lg shadow-green-900/20" target="_blank">💬 Contratar no WhatsApp</a>`;
+            listaEl.appendChild(card);
+        });
+        totalEl.textContent=`${totalSX} Profissionais SX Aprovados`;
+    });
+}
+
+// ===== PLAYER TV SX =====
+const TVSX_CHANNELS=[
+    {name:"Sony One Classicas", url:"https://spt-sonyoneclassicas-1-br.samsung.wurl.tv/playlist.m3u8"},
+    {name:"RT Arabic",          url:"https://run-rt-ra.otteravision.com/run/rt_ra/rt_ra_720.m3u8"},
+    {name:"Plex TV",            url:"https://amg00353-amg00353c29-plex-us-3205.playouts.now.amagi.tv/1080p-cc/index.m3u8"},
+    {name:"GLN Filmes",         url:"https://stmv8.samcast.com.br/glnfilmes/glnfilmes/playlist.m3u8"},
+    {name:"TV do Carro",        url:"https://tv03.zas.media:1936/tvdocarro/tvdocarro/playlist.m3u8"},
+    {name:"Wording TV",         url:"https://tv02.zas.media:1936/wordingtv/wordingtv/playlist.m3u8"},
+    {name:"MasterChef Brasil",  url:"https://amg00627-amg00627c9-runtime-latam-2613.playouts.now.amagi.tv/playlist/amg00627-banijayfast-masterchefbrazil-runtimelatam/playlist.m3u8"},
+    {name:"Globo / TCL",        url:"https://amg00716-globo-amg00716c3-tcl-br-9498.playouts.now.amagi.tv/1080p-cc/index.m3u8"},
+    {name:"Tastemade PT",       url:"https://amg00047-tastemade-amg00047c5-plex-us-2273.playouts.now.amagi.tv/playlist/amg00047-tastemadefast-tastemadeportuguesept16intl-plexus/playlist.m3u8"},
+    {name:"Tastemade ES",       url:"https://amg00047-amg00047c6-canelatv-international-5854.playouts.now.amagi.tv/playlist/amg00047-tastemadefast-tastemadeespanoles16us-canelatvinternational/playlist.m3u8"},
+    {name:"Canal 29",           url:"https://stmv1.srvif.com/canal29/canal29/playlist.m3u8"},
+    {name:"Jetson TV",          url:"https://stmv1.srvif.com/jetsontv/jetsontv/playlist.m3u8"},
+    {name:"Central TV Web",     url:"https://tv01.zas.media:1936/centraltvweb/centraltvweb/playlist.m3u8"},
+    {name:"AMG Canal",          url:"https://amg01391-amg01391c10-tcl-br-9630.playouts.now.amagi.tv/playlist.m3u8"},
+    {name:"NSport",             url:"https://ogc-nsprt-tcl-roku-syndication.otteravision.com/ogc/nsprt/nsprt_720p.m3u8"},
+    {name:"Top TV",             url:"https://isaocorp.cloudecast.com/toptv/index.m3u8"},
+    {name:"Lightning 80s",      url:"https://lightning-now80s-rakuten.amagi.tv/playlist.m3u8"},
+    {name:"New Kid TV",         url:"https://newidco-newkid-1-eu.xiaomi.wurl.tv/playlist.m3u8"},
+    {name:"Canal Mix",          url:"https://4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S35394734/Z6U2wGoDYANk/playlist.m3u8"},
+    {name:"Rock TV",            url:"https://tv.broadcasting.ro/rocktv/85c83a80-4f71-4f2d-a8d6-43f676896bcb.m3u8"},
+    {name:"TV Cidade Brasil",   url:"https://stmv2.samcast.com.br/tvcidadebrasil/tvcidadebrasil/playlist.m3u8"},
+    {name:"Redemundo TV",       url:"https://video04.logicahost.com.br/redemundotv/redemundotv/playlist.m3u8"},
+    {name:"RNW",                url:"https://run-rnw-rn.otteravision.com/rnw/rn/rnw_rn_720p_high.m3u8"},
+    {name:"TVI Reality",        url:"https://video-auth5.iol.pt/live_tvi_reality/live_tvi_reality/edge_servers/tvireality-720_passthrough/playlist.m3u8"},
+    {name:"Clube FM",           url:"https://clubefm1.brasilstream.com.br/hls/clubefm1/index.m3u8"},
+];
+
+const TVSX_PLAYLIST=[];
+TVSX_CHANNELS.forEach((_,i)=>{
+    TVSX_PLAYLIST.push({type:'channel',chIndex:i});
+    TVSX_PLAYLIST.push({type:'ad',chIndex:i});
+});
+const TVSX_TOTAL=TVSX_PLAYLIST.length;
+
+const tvsxVidA =document.getElementById('tvsx-vidA');
+const tvsxVidB =document.getElementById('tvsx-vidB');
+const tvsxBannerDiv =document.getElementById('tvsx-banner');
+const tvsxBannerImg =document.getElementById('tvsx-bannerImg');
+const tvsxAdSlot =document.getElementById('tvsx-adSlot');
+const tvsxAdEmpty =document.getElementById('tvsx-adEmpty');
+const tvsxAdImg =document.getElementById('tvsx-adImg');
+const tvsxAdVid =document.getElementById('tvsx-adVid');
+const tvsxAdBadge =document.getElementById('tvsx-adBadge');
+const tvsxLoader =document.getElementById('tvsx-loader');
+const tvsxErrMsg =document.getElementById('tvsx-errMsg');
+const tvsxErrName =document.getElementById('tvsx-errName');
+const tvsxErrCount =document.getElementById('tvsx-errCount');
+const tvsxChNum =document.getElementById('tvsx-chNum');
+const tvsxChName =document.getElementById('tvsx-chName');
+const tvsxInfo =document.getElementById('tvsx-info');
+const tvsxDotsEl =document.getElementById('tvsx-dots');
+const tvsxSoundHint =document.getElementById('tvsx-soundHint');
+
+let tvsxCurrentSlot =0;
+let tvsxIsChanging =false;
+let tvsxSoundUnlocked=false;
+let tvsxHlsA=null,tvsxHlsB=null;
+let tvsxInfoTimer=null,tvsxErrCountInterval=null;
+let tvsxBanners={};
+let tvsxActiveVid =tvsxVidA;
+let tvsxPreloadVid=tvsxVidB;
+let tvsxPreloadIdx=-1;
+let tvsxInAd=false;
+let tvsxInicializado=false;
+
+function tvsxIsVideoUrl(url){if(!url)return false;if(url.startsWith('data:video/'))return true;return/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url);}
+
+onValue(dbRef(rtdb,'banners'),snap=>{
+    const raw=snap.val()||{};
+    tvsxBanners={};Object.keys(raw).forEach(k=>{tvsxBanners[String(k)]=raw[k];});
+    const item=TVSX_PLAYLIST[tvsxCurrentSlot];
+    if(item&&tvsxInicializado){
+        if(item.type==='channel')tvsxRefreshWatermark(item.chIndex);
+        if(item.type==='ad')tvsxRefreshAdSlot(item.chIndex);
+    }
+});
+
+function tvsxRefreshWatermark(chIndex){
+    const b=tvsxBanners[String(chIndex)];
+    if(b&&b.url&&!tvsxIsVideoUrl(b.url)){tvsxBannerImg.src=b.url;tvsxBannerImg.onload=()=>tvsxBannerDiv.classList.add('show');tvsxBannerImg.onerror=()=>tvsxBannerDiv.classList.remove('show');}
+    else{tvsxBannerDiv.classList.remove('show');}
+}
+function tvsxRefreshAdSlot(chIndex){
+    const b=tvsxBanners[String(chIndex)];
+    tvsxAdBadge.style.display='block';
+    tvsxAdVid.pause();tvsxAdVid.src='';tvsxAdVid.style.display='none';
+    tvsxAdImg.style.display='none';tvsxAdEmpty.style.display='none';
+    if(b&&b.url){
+        if(tvsxIsVideoUrl(b.url)){tvsxAdVid.src=b.url;tvsxAdVid.style.display='block';tvsxAdVid.muted=true;tvsxAdVid.play().catch(()=>{});}
+        else{tvsxAdImg.src=b.url;tvsxAdImg.style.display='block';}
+    } else{tvsxAdEmpty.style.display='flex';}
+    tvsxAdSlot.classList.add('show');tvsxLoader.classList.add('hide');
+}
+function tvsxHideAd(){
+    tvsxInAd=false;tvsxAdSlot.classList.remove('show');
+    tvsxAdVid.pause();tvsxAdVid.src='';tvsxAdVid.style.display='none';
+    tvsxAdImg.src='';tvsxAdImg.style.display='none';
+    tvsxAdEmpty.style.display='none';tvsxAdBadge.style.display='none';
+    tvsxActiveVid.muted=!tvsxSoundUnlocked;tvsxActiveVid.volume=1;
+}
+function tvsxUpdateDots(i){document.querySelectorAll('.tvsx-dot').forEach((d,j)=>d.classList.toggle('active',j===i));}
+function tvsxShowInfo(){tvsxInfo.classList.remove('hide');clearTimeout(tvsxInfoTimer);tvsxInfoTimer=setTimeout(()=>tvsxInfo.classList.add('hide'),4000);}
+function tvsxTryUnlock(){
+    if(tvsxSoundUnlocked)return;
+    tvsxSoundUnlocked=true;tvsxSoundHint.classList.remove('show');
+    if(!tvsxInAd){tvsxActiveVid.muted=false;tvsxActiveVid.volume=1;tvsxActiveVid.play().catch(()=>{});}
+}
+document.getElementById('tvsx-wrap').addEventListener('touchstart',tvsxTryUnlock,{passive:true});
+document.getElementById('tvsx-wrap').addEventListener('mousedown',tvsxTryUnlock);
+
+function tvsxCreateHLS(vidEl,url,onReady,onErr){
+    let h=null;
+    if(Hls.isSupported()){
+        h=new Hls({
+            maxBufferLength:20,
+            maxMaxBufferLength:40,
+            lowLatencyMode:false,
+            fragLoadingTimeOut:20000,
+            fragLoadingMaxRetry:4,
+            fragLoadingRetryDelay:800,
+            manifestLoadingTimeOut:18000,
+            manifestLoadingMaxRetry:4,
+            manifestLoadingRetryDelay:800,
+            levelLoadingTimeOut:18000,
+            levelLoadingMaxRetry:4,
+            enableWorker:true,
+            startFragPrefetch:true,
+        });
+        h.loadSource(url);h.attachMedia(vidEl);
+        h.on(Hls.Events.MANIFEST_PARSED,()=>{
+            vidEl.play().catch(()=>{});
+            if(onReady)onReady();
+        });
+        h.on(Hls.Events.ERROR,(_,d)=>{
+            if(d.fatal){
+                if(d.type===Hls.ErrorTypes.NETWORK_ERROR){
+                    // tenta recuperar rede antes de desistir
+                    try{h.startLoad();}catch(e){ if(onErr)onErr(); }
+                } else {
+                    if(onErr)onErr();
+                }
+            }
+        });
+    } else if(vidEl.canPlayType('application/vnd.apple.mpegurl')){
+        vidEl.src=url;
+        const tOut=setTimeout(()=>{if(onErr)onErr();},18000);
+        vidEl.addEventListener('canplay',()=>{
+            clearTimeout(tOut);
+            vidEl.play().catch(()=>{});
+            if(onReady)onReady();
+        },{once:true});
+        vidEl.addEventListener('error',()=>{clearTimeout(tOut);if(onErr)onErr();},{once:true});
+        vidEl.load();
+    } else{if(onErr)onErr();}
+    return h;
+}
+function tvsxDestroyHLS(h,vidEl){
+    if(h){try{h.destroy();}catch(e){}}
+    try{vidEl.src='';vidEl.load();}catch(e){}
+}
+function tvsxPreloadNext(fromSlot){
+    let idx=((fromSlot%TVSX_TOTAL)+TVSX_TOTAL)%TVSX_TOTAL;
+    for(let s=0;s<TVSX_TOTAL;s++){if(TVSX_PLAYLIST[idx].type==='channel')break;idx=(idx+1)%TVSX_TOTAL;}
+    const ci=TVSX_PLAYLIST[idx].chIndex;
+    if(tvsxPreloadIdx===ci)return;
+    tvsxPreloadIdx=ci;
+    tvsxDestroyHLS(tvsxHlsB,tvsxPreloadVid);
+    tvsxPreloadVid.muted=true;
+    tvsxHlsB=tvsxCreateHLS(tvsxPreloadVid,TVSX_CHANNELS[ci].url,null,null);
+}
+function tvsxLoadSlot(slotIdx){
+    if(tvsxIsChanging)return;
+    tvsxIsChanging=true;
+    tvsxCurrentSlot=((slotIdx%TVSX_TOTAL)+TVSX_TOTAL)%TVSX_TOTAL;
+    const item=TVSX_PLAYLIST[tvsxCurrentSlot];
+    tvsxUpdateDots(tvsxCurrentSlot);tvsxShowInfo();
+    tvsxErrMsg.style.display='none';clearInterval(tvsxErrCountInterval);
+    if(item.type==='ad'){
+        tvsxInAd=true;
+        tvsxVidA.muted=true;tvsxVidB.muted=true;
+        tvsxChNum.textContent=`PUBLICIDADE ${item.chIndex+1} / ${TVSX_CHANNELS.length}`;
+        tvsxChName.textContent=TVSX_CHANNELS[item.chIndex].name;
+        tvsxRefreshAdSlot(item.chIndex);
+        tvsxIsChanging=false;
+        return;
+    }
+    tvsxHideAd();
+    tvsxBannerDiv.classList.remove('show');
+    const ch=TVSX_CHANNELS[item.chIndex];
+    tvsxChNum.textContent=`CANAL ${String(item.chIndex+1).padStart(2,'0')} / ${TVSX_CHANNELS.length}`;
+    tvsxChName.textContent=ch.name;
+    const preloadReady=(tvsxPreloadIdx===item.chIndex&&tvsxPreloadVid.readyState>=2);
+    if(preloadReady){
+        tvsxLoader.classList.add('hide');
+        const tH=tvsxHlsA,tV=tvsxActiveVid;
+        tvsxHlsA=tvsxHlsB;tvsxHlsB=tH;tvsxActiveVid=tvsxPreloadVid;tvsxPreloadVid=tV;
+        tvsxActiveVid.style.opacity='1';tvsxActiveVid.style.pointerEvents='auto';
+        tvsxPreloadVid.style.opacity='0';tvsxPreloadVid.style.pointerEvents='none';
+        tvsxActiveVid.muted=!tvsxSoundUnlocked;tvsxActiveVid.volume=1;
+        tvsxActiveVid.play().then(()=>tvsxSoundHint.classList.remove('show')).catch(()=>{tvsxActiveVid.muted=true;tvsxActiveVid.play().catch(()=>{});tvsxSoundHint.classList.add('show');});
+        tvsxPreloadIdx=-1;tvsxIsChanging=false;
+        tvsxRefreshWatermark(item.chIndex);
+        setTimeout(()=>tvsxPreloadNext(tvsxCurrentSlot+1),500);
+    } else{
+        tvsxLoader.classList.remove('hide');
+        tvsxDestroyHLS(tvsxHlsA,tvsxActiveVid);
+        tvsxActiveVid.muted=true;
+        // guarda slot atual para não aplicar callback de um canal antigo
+        const slotAtual=tvsxCurrentSlot;
+        const onReady=()=>{
+            if(tvsxCurrentSlot!==slotAtual)return;
+            tvsxActiveVid.muted=!tvsxSoundUnlocked;tvsxActiveVid.volume=1;
+            tvsxActiveVid.play().then(()=>tvsxSoundHint.classList.remove('show')).catch(()=>{tvsxActiveVid.muted=true;tvsxActiveVid.play().catch(()=>{});tvsxSoundHint.classList.add('show');});
+            tvsxLoader.classList.add('hide');tvsxIsChanging=false;
+            tvsxRefreshWatermark(item.chIndex);
+            setTimeout(()=>tvsxPreloadNext(tvsxCurrentSlot+1),800);
+        };
+        const onErr=()=>{
+            if(tvsxCurrentSlot!==slotAtual)return;
+            tvsxLoader.classList.add('hide');
+            tvsxIsChanging=false; // desbloqueia imediatamente para o usuário poder trocar
+            tvsxErrName.textContent=ch.name;tvsxErrMsg.style.display='flex';
+            let cd=3;tvsxErrCount.textContent=cd;
+            tvsxErrCountInterval=setInterval(()=>{
+                cd--;tvsxErrCount.textContent=cd;
+                if(cd<=0){
+                    clearInterval(tvsxErrCountInterval);
+                    tvsxErrMsg.style.display='none';
+                    tvsxLoadSlot(tvsxCurrentSlot+1);
+                }
+            },1000);
+        };
+        tvsxHlsA=tvsxCreateHLS(tvsxActiveVid,ch.url,onReady,onErr);
+        // timeout de segurança — se demorar mais de 22s, pula
+        setTimeout(()=>{
+            if(tvsxCurrentSlot===slotAtual&&tvsxIsChanging){
+                tvsxIsChanging=false;
+                onErr();
+            }
+        },22000);
+    }
+}
+window.tvsxNextSlot=()=>{if(!tvsxIsChanging)tvsxLoadSlot(tvsxCurrentSlot+1);};
+window.tvsxPrevSlot=()=>{if(!tvsxIsChanging)tvsxLoadSlot(tvsxCurrentSlot-1);};
+
+function tvsxIniciar(){
+    // Tenta travar orientação landscape via API (funciona em Android Chrome/PWA)
+    if(screen.orientation&&screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(()=>{});
+    }
+
+    tvsxDotsEl.innerHTML='';
+    TVSX_PLAYLIST.forEach((item,i)=>{
+        const d=document.createElement('div');
+        d.className='tvsx-dot'+(item.type==='ad'?' is-ad':'')+(i===0?' active':'');
+        tvsxDotsEl.appendChild(d);
+    });
+
+    const wrap=document.getElementById('tvsx-wrap');
+    const isPortraitRotated=()=>window.matchMedia('(orientation: portrait)').matches;
+
+    // ── Mouse drag (vertical = muda canal) ──
+    let mY=0,mX=0,mDown=false;
+    wrap.addEventListener('mousedown',e=>{mY=e.clientY;mX=e.clientX;mDown=true;});
+    wrap.addEventListener('mouseup',e=>{
+        if(!mDown)return; mDown=false;
+        const dy=e.clientY-mY, dx=e.clientX-mX;
+        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>30){dy<0?tvsxNextSlot():tvsxPrevSlot();}
+    });
+    wrap.addEventListener('mousemove',()=>tvsxShowInfo());
+
+    // ── Touch (quando rotacionado em portrait, X físico = Y lógico) ──
+    let tStartX=0,tStartY=0;
+    wrap.addEventListener('touchstart',e=>{
+        tStartX=e.touches[0].clientX;
+        tStartY=e.touches[0].clientY;
+        tvsxShowInfo();
+    },{passive:true});
+    wrap.addEventListener('touchend',e=>{
+        const endX=e.changedTouches[0].clientX;
+        const endY=e.changedTouches[0].clientY;
+        const dx=endX-tStartX;
+        const dy=endY-tStartY;
+
+        if(isPortraitRotated()){
+            // tela rotacionada: o eixo X físico corresponde a cima/baixo
+            // arrastar dedo para esquerda (dx<0) = próximo canal
+            // arrastar dedo para direita (dx>0) = canal anterior
+            if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>30){
+                dx<0?tvsxNextSlot():tvsxPrevSlot();
+            }
+        } else {
+            // landscape nativo: swipe vertical normal
+            if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>30){
+                dy<0?tvsxNextSlot():tvsxPrevSlot();
+            }
         }
+    },{passive:true});
 
-        window.clsRemoverArquivo = index => {
-            clsArquivos.splice(index,1); clsShowPreview();
-            document.getElementById('cls-contador').textContent = clsArquivos.length+'/6 arquivos';
-            document.getElementById('cls-btnPublicar').disabled = clsArquivos.length === 0;
-        };
+    wrap.addEventListener('wheel',e=>{e.preventDefault();e.deltaY>0?tvsxNextSlot():tvsxPrevSlot();},{passive:false});
+    document.addEventListener('keydown',e=>{
+        if(!document.getElementById('area-tvsx').classList.contains('show'))return;
+        if(e.key==='ArrowDown'||e.key==='ArrowRight')tvsxNextSlot();
+        if(e.key==='ArrowUp'||e.key==='ArrowLeft')tvsxPrevSlot();
+        if(e.key==='Escape')fecharTVSX();
+    });
+    tvsxLoadSlot(0);
+}
 
-        window.clsAnunciar = async () => {
-            if(clsIsSubmitting) return; clsIsSubmitting = true;
-            const btn = document.getElementById('cls-btnPublicar'); btn.textContent = '⏳ Enviando...'; btn.disabled = true;
-            const dados = {
-                categoria: document.getElementById('cls-categoria').value, nome: document.getElementById('cls-nome').value.trim(),
-                ano: document.getElementById('cls-ano').value, bairro: document.getElementById('cls-bairro').value.trim(),
-                estado: document.getElementById('cls-estado').value.trim(), preco: document.getElementById('cls-preco').value,
-                whatsapp: document.getElementById('cls-whatsapp').value.trim(), descricao: document.getElementById('cls-descricao').value.trim()
-            };
-            if(!dados.categoria||!dados.nome||clsArquivos.length===0){ alert('❌ Preencha categoria, nome e adicione pelo menos 1 foto!'); clsIsSubmitting=false; btn.textContent='🚀 PUBLICAR ANÚNCIO'; btn.disabled=false; return; }
-            try {
-                const urls=[];
-                for(let i=0;i<clsArquivos.length;i++){ const file=clsArquivos[i]; const sr=stRef(storage,`anuncios/${Date.now()}_${i}_${file.name}`); await uploadBytes(sr,file); urls.push(await getDownloadURL(sr)); }
-                await addDoc(collection(fsdb,'posts'),{...dados,midia:urls,tipo:'classificado',publicado:false,data:serverTimestamp()});
-                alert('✅ ANÚNCIO ENVIADO! Aguarde aprovação.'); clsFecharForm();
-            } catch(e){ alert('❌ Erro: '+e.message); }
-            finally{ clsIsSubmitting=false; btn.textContent='🚀 PUBLICAR ANÚNCIO'; btn.disabled=false; }
-        };
+inicializar();
 
-        function clsFecharForm() {
-            document.getElementById('cls-formulario').style.display='none';
-            ['cls-nome','cls-ano','cls-bairro','cls-estado','cls-preco','cls-whatsapp','cls-descricao'].forEach(id=>document.getElementById(id).value='');
-            document.getElementById('cls-categoria').value=''; clsArquivos=[];
-            document.getElementById('cls-preview').innerHTML=''; document.getElementById('cls-contador').textContent='0/6 arquivos';
-            document.getElementById('cls-btnPublicar').disabled=true; clsIsSubmitting=false;
-        }
-
-        // =============================================
-        // LOJAS LOOK
-        // =============================================
-        window.mascaraCPF = (i) => {
-            let v = i.value; if(isNaN(v[v.length-1])){ i.value = v.substring(0, v.length-1); return; }
-            i.setAttribute("maxlength", "14");
-            if (v.length == 3 || v.length == 7) i.value += "."; if (v.length == 11) i.value += "-";
-        };
-        window.toggleCadastroLok = () => {
-            const caixa = document.getElementById('caixa-cadastro-lok'); caixa.classList.toggle('hidden');
-            if(!caixa.classList.contains('hidden')) caixa.scrollIntoView({ behavior: 'smooth' });
-        };
-        window.fecharSucessoLok = () => {
-            document.getElementById('sucesso-lok').classList.add('hidden');
-            document.getElementById('formulario-lok').classList.remove('hidden');
-            document.getElementById('caixa-cadastro-lok').classList.add('hidden');
-        };
-        window.cadastrarLok = async () => {
-            const btn = document.getElementById('lok-btn'), file = document.getElementById('lok-f').files[0];
-            if(!file) return alert("📸 Escolha sua foto!");
-            if(!document.getElementById('lok-p').value) return alert("🔧 Selecione sua profissão!");
-            btn.disabled = true; btn.innerText = "⏳ PROCESSANDO...";
-            try {
-                const sRef = stRef(storage, 'profissionais/' + Date.now() + "_" + file.name);
-                await uploadBytes(sRef, file); const url = await getDownloadURL(sRef);
-                await addDoc(collection(fsdb, "usuariosPendentes"), {
-                    nome: document.getElementById('lok-n').value, cpf: document.getElementById('lok-cpf').value,
-                    tel: document.getElementById('lok-t').value, endereco: document.getElementById('lok-end').value,
-                    profissao: document.getElementById('lok-p').value, foto: url, status: "pendente", dataCadastro: new Date()
-                });
-                document.getElementById('formulario-lok').classList.add('hidden');
-                document.getElementById('sucesso-lok').classList.remove('hidden');
-            } catch (e) { alert("❌ Erro: " + e.message); btn.disabled = false; btn.innerText = "TENTAR NOVAMENTE"; }
-        };
-
-        function lokCarregarProfissionais() {
-            const listaEl = document.getElementById('lok-listaAprovados'), totalEl = document.getElementById('lok-totalAprovados');
-            onSnapshot(collection(fsdb, "usuariosAprovados"), (snapshot) => {
-                let totalSX = 0; listaEl.innerHTML = '';
-                snapshot.docs.forEach((d) => {
-                    const prof = d.data(); if (!prof.profissao) return; totalSX++;
-                    let telLimpo = prof.tel ? prof.tel.replace(/\D/g, '') : '';
-                    if (telLimpo && !telLimpo.startsWith('55')) telLimpo = '55' + telLimpo;
-                    const card = document.createElement('div'); card.className = 'prof-card p-8 text-center hover:shadow-xl transition-all';
-                    card.innerHTML = `<img src="${prof.foto || 'https://via.placeholder.com/150'}" class="w-32 h-32 mx-auto rounded-full object-cover mb-6 border-4 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]"><h3 class="font-bold text-2xl mb-3">${prof.nome || 'Sem Nome'}</h3><div class="text-2xl text-yellow-400 font-semibold mb-6">${prof.profissao}</div><a href="https://wa.me/${telLimpo}?text=Olá ${encodeURIComponent(prof.nome)}!%0AVi seu perfil no *SX Profissionais*!%0AVocê atende em domicílio?%0APreciso de: [descreva o serviço]" class="block bg-[#16a34a] text-white py-4 px-8 rounded-full font-bold text-lg mx-auto hover:bg-[#15803d] w-full max-w-[260px] shadow-lg shadow-green-900/20" target="_blank">💬 Contratar no WhatsApp</a>`;
-                    listaEl.appendChild(card);
-                });
-                totalEl.textContent = `${totalSX} Profissionais SX Aprovados`;
-            });
-        }
-
-        inicializar();
-    </script>
-
-    <script>
-    // ============ PWA SX Network ============
-    (function() {
-        var ICON = "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/wAARCAQABAADASIAAhEBAxEB/8QAHQABAQEAAgMBAQAAAAAAAAAAAAECBQYEBwkIA//9k=";
-        document.getElementById('apple-touch-icon').href = ICON;
-        var manifest = {name:"SX Network",short_name:"SX",description:"SX - Network Social",start_url:"./",display:"standalone",background_color:"#050a14",theme_color:"#050a14",orientation:"portrait",icons:[{src:ICON,sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:ICON,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
-        document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
-        if('serviceWorker' in navigator){var sw='self.addEventListener("install",function(e){self.skipWaiting();});self.addEventListener("activate",function(e){e.waitUntil(clients.claim());});self.addEventListener("fetch",function(e){});';navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})),{scope:'./'}).catch(function(){});}
-        var dp=null;
-        window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;show();});
-        function show(){
-            if(document.getElementById('btn-pwa-sx'))return;
-            document.head.insertAdjacentHTML('beforeend','<style>@keyframes sxp{0%,100%{box-shadow:0 4px 20px rgba(255,0,0,.5)}50%{box-shadow:0 6px 35px rgba(255,0,0,.9)}}</style>');
-            var b=document.createElement('button');b.id='btn-pwa-sx';b.innerHTML='&#128242; Instalar App SX';
-            b.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#ff0000,#cc0000);color:#fff;font-size:15px;font-weight:900;padding:14px 30px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,.5);cursor:pointer;z-index:9999;border:2px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;animation:sxp 2s infinite';
-            b.onclick=function(){if(!dp)return;dp.prompt();dp.userChoice.then(function(r){if(r.outcome==='accepted')b.remove();dp=null;});};
-            document.body.appendChild(b);
-        }
-        window.addEventListener('appinstalled',function(){var b=document.getElementById('btn-pwa-sx');if(b)b.remove();});
-    })();
-    </script>
+// PWA manifest
+(function(){
+    const icons=[{src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEX/AAD///9BHTCaAAAAIUlEQVR42mNk+M+ABtgYGBj+M6ABNgYGhv8MaACNAQAHjgEHnZiXhQAAAABJRU5ErkJggg==",sizes:"512x512",type:"image/png",purpose:"any"}];
+    const manifest={name:"SX Network",short_name:"SX",start_url:"./",display:"standalone",background_color:"#050a14",theme_color:"#050a14",icons};
+    const blob=new Blob([JSON.stringify(manifest)],{type:"application/json"});
+    document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
+})();
+</script>
 </body>
 </html>
