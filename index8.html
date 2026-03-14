@@ -937,36 +937,40 @@
                 ).catch(function(){});
             }
 
-            // Botão instalar
+            // Botão instalar — aparece imediatamente, sem esperar evento
             var dp = null;
-            window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                dp = e;
-                mostrarBotao();
-            });
 
-            function mostrarBotao() {
-                if (document.getElementById('btn-pwa-sx')) return;
-                var style = document.createElement('style');
-                style.textContent = '@keyframes sxp{0%,100%{box-shadow:0 4px 20px rgba(255,0,0,.5)}50%{box-shadow:0 6px 35px rgba(255,0,0,.9)}}';
-                document.head.appendChild(style);
-                var b = document.createElement('button');
-                b.id = 'btn-pwa-sx';
-                b.innerHTML = '&#128242; Instalar App SX';
-                b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#ff0000,#cc0000);color:#fff;font-size:15px;font-weight:900;padding:14px 30px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,.5);cursor:pointer;z-index:9999;border:2px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;animation:sxp 2s infinite';
-                b.onclick = function() {
-                    if (!dp) return;
+            var style = document.createElement('style');
+            style.textContent = '@keyframes sxp{0%,100%{box-shadow:0 4px 20px rgba(255,0,0,.5)}50%{box-shadow:0 6px 35px rgba(255,0,0,.9)}}';
+            document.head.appendChild(style);
+
+            var b = document.createElement('button');
+            b.id = 'btn-pwa-sx';
+            b.innerHTML = '&#128242; Instalar App SX';
+            b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#ff0000,#cc0000);color:#fff;font-size:15px;font-weight:900;padding:14px 30px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,.5);cursor:pointer;z-index:9999;border:2px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;animation:sxp 2s infinite';
+            b.onclick = function() {
+                if (dp) {
+                    // Tem o prompt nativo — usa ele
                     dp.prompt();
                     dp.userChoice.then(function(r) {
                         if (r.outcome === 'accepted') b.remove();
                         dp = null;
                     });
-                };
-                document.body.appendChild(b);
-            }
+                } else {
+                    // Ainda não tem prompt — orienta o usuário
+                    alert('Para instalar:\n\nAndroid: toque nos 3 pontinhos do Chrome → "Adicionar à tela inicial"\n\niOS Safari: toque em Compartilhar → "Adicionar à Tela de Início"');
+                }
+            };
+            document.body.appendChild(b);
 
+            // Quando o Chrome liberar o prompt nativo, captura
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                dp = e;
+            });
+
+            // Some após instalar
             window.addEventListener('appinstalled', function() {
-                var b = document.getElementById('btn-pwa-sx');
                 if (b) b.remove();
             });
         });
