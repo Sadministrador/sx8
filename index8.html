@@ -113,13 +113,7 @@
         .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .post-card-texto { padding: 0 16px 12px 16px; color: #e5e7eb; font-size: 1rem; }
         .post-card-footer { padding: 16px; border-top: 1px solid #1f2f4d; }
-        .video-wrapper { position: relative; width: 100vw; height: 100vh; background: #000; overflow: hidden; margin-left: calc(-50vw + 50%); }
-        .video-skeleton { position: absolute; inset: 0; background: linear-gradient(90deg, #112240 25%, #1d2d50 50%, #112240 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; display: flex; align-items: center; justify-content: center; z-index: 1; }
-        .video-skeleton svg { opacity: 0.4; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .btn-som-video { position: absolute; bottom: 18px; right: 18px; z-index: 10; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
-        .btn-som-video:active { background: rgba(255,0,0,0.5); }
-        .video-progress { position: absolute; bottom: 0; left: 0; width: 0%; height: 3px; background: #ff0000; z-index: 10; transition: width 0.5s linear; pointer-events: none; }
+        .video-feed { width: 100%; border-radius: 12px; margin-top: 16px; display: block; max-height: 480px; object-fit: cover; }
 
         /* ══════════════════════════════════════════
            TV SX — iframe fullscreen landscape
@@ -451,19 +445,7 @@
 
         function registrarVideo(v){
             v.preload='none'; v.muted=true;
-            const w=v.closest('.video-wrapper');
-            if(w&&!w.querySelector('.video-progress')){
-                const b=document.createElement('div');b.className='video-progress';w.appendChild(b);
-                v.addEventListener('timeupdate',()=>{if(v.duration)b.style.width=((v.currentTime/v.duration)*100)+'%';});
-            }
             preloadObserver.observe(v); videoObserver.observe(v);
-        }
-        function criarBotaoSom(w,video){
-            if(w.querySelector('.btn-som-video'))return;
-            const btn=document.createElement('button');btn.className='btn-som-video';btn.innerHTML='🔊';
-            btn.addEventListener('click',e=>{e.stopPropagation();video.muted=!video.muted;btn.innerHTML=video.muted?'🔇':'🔊';});
-            video.addEventListener('volumechange',()=>{btn.innerHTML=video.muted?'🔇':'🔊';});
-            w.appendChild(btn);
         }
 
         // ── TV SX ──
@@ -681,7 +663,7 @@
                     let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){
-                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;
+                            midiaHtml=`<video src="${p.midia}" loop playsinline preload="none" class="video-feed"></video>`;
                         } else {
                             midiaHtml=`<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
                         }
@@ -690,7 +672,7 @@
                     f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
-                document.querySelectorAll('.video-feed').forEach(v=>{registrarVideo(v);const w=v.closest('.video-wrapper');if(w)criarBotaoSom(w,v);});
+                document.querySelectorAll('.video-feed').forEach(v=>{registrarVideo(v);});
                 document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{v.preload='none';preloadObserver.observe(v);});
             });
         }
