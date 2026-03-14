@@ -644,15 +644,18 @@ loadSlot(0);
 </html>`;
 
         // Expõe globalmente para os botões inline
+        let tvBlobUrl = null;
         window.abrirTvSx = () => {
             const modal = document.getElementById('tv-sx-modal');
             const iframe = document.getElementById('tv-sx-iframe');
             const btnFechar = document.getElementById('btn-fechar-tv');
 
-            // Injeta o conteúdo via srcdoc (não precisa de arquivo externo)
-            if (!iframe.srcdoc) {
-                iframe.srcdoc = TV_SX_HTML;
+            // Usa Blob URL para evitar conflito de template literal com srcdoc
+            if (!tvBlobUrl) {
+                const blob = new Blob([TV_SX_HTML], {type: 'text/html'});
+                tvBlobUrl = URL.createObjectURL(blob);
             }
+            iframe.src = tvBlobUrl;
 
             modal.classList.add('open');
             btnFechar.classList.add('open');
@@ -706,10 +709,14 @@ loadSlot(0);
                     videoAtual = video;
                     const skeleton = video.parentElement?.querySelector('.video-skeleton');
                     if (video.readyState < 2) { video.preload = 'auto'; video.load(); }
+                    // Tenta tocar com som; se browser bloquear, cai para mudo
                     video.muted = false;
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
-                        playPromise.catch(() => { video.muted = true; video.play().catch(() => {}); });
+                        playPromise.catch(() => {
+                            video.muted = true;
+                            video.play().catch(() => {});
+                        });
                     }
                     if (skeleton) {
                         const onReady = () => { skeleton.style.opacity = '0'; setTimeout(() => { if (skeleton) skeleton.style.display = 'none'; }, 300); video.removeEventListener('canplay', onReady); };
@@ -742,12 +749,23 @@ loadSlot(0);
             });
         }, { rootMargin: '600px 0px', threshold: 0 });
 
-        const desbloqueioSom = () => { document.querySelectorAll('video').forEach(v => { v.muted = false; }); };
-        document.addEventListener('click', desbloqueioSom, { once: true });
-        document.addEventListener('touchstart', desbloqueioSom, { once: true });
+        // Desbloqueia som em qualquer interação do usuário
+        let somDesbloqueado = false;
+        const desbloqueioSom = () => {
+            if (somDesbloqueado) return;
+            somDesbloqueado = true;
+            document.querySelectorAll('video.video-feed').forEach(v => {
+                v.muted = false;
+                if (!v.paused) v.play().catch(() => {});
+            });
+        };
+        document.addEventListener('click', desbloqueioSom, { passive: true });
+        document.addEventListener('touchstart', desbloqueioSom, { passive: true });
+        document.addEventListener('scroll', desbloqueioSom, { once: true, passive: true });
 
         function registrarVideo(v) {
-            v.preload = 'none'; v.muted = true;
+            v.preload = 'none';
+            v.muted = false; // tenta com som; só muta se browser bloquear
             const wrapper = v.closest('.video-wrapper');
             if (wrapper && !wrapper.querySelector('.video-progress')) {
                 const barra = document.createElement('div'); barra.className = 'video-progress'; wrapper.appendChild(barra);
