@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="manifest" id="pwa-manifest">
+    <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -605,74 +605,43 @@
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting) {
+                    // Para todos os outros
                     document.querySelectorAll('video.video-feed').forEach(v => {
                         if (v !== video) { v.pause(); v.muted = true; }
                     });
                     videoAtual = video;
-                    const skeleton = video.parentElement?.querySelector('.video-skeleton');
-                    if (video.readyState < 2) { video.preload = 'auto'; video.load(); }
-                    // Som alto automático se usuário já interagiu, senão tenta com som e fallback mudo
-                    video.muted = false;
+                    video.preload = 'auto';
                     video.volume = 1;
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(() => {
-                            // Browser bloqueou autoplay com som — toca mudo e mostra botão
-                            video.muted = true;
-                            video.play().catch(() => {});
-                        });
-                    }
-                    if (skeleton) {
-                        const onReady = () => {
-                            skeleton.style.opacity = '0';
-                            setTimeout(() => { if (skeleton) skeleton.style.display = 'none'; }, 200);
-                            video.removeEventListener('canplay', onReady);
-                        };
-                        if (video.readyState >= 3) {
-                            skeleton.style.opacity = '0';
-                            setTimeout(() => { if (skeleton) skeleton.style.display = 'none'; }, 200);
-                        } else { video.addEventListener('canplay', onReady); }
-                    }
+                    video.muted = false;
+                    // Tenta play com som; se browser bloquear, toca mudo
+                    const p = video.play();
+                    if (p) p.catch(() => { video.muted = true; video.play().catch(()=>{}); });
                 } else {
-                    video.pause(); video.muted = true;
-                    const skeleton = video.parentElement?.querySelector('.video-skeleton');
-                    if (skeleton && video.readyState < 2) { skeleton.style.display = 'flex'; skeleton.style.opacity = '1'; }
+                    video.pause();
+                    video.muted = true;
                 }
             });
-        }, { threshold: 0.4 }); // reduzido de 0.6 para 0.4 — ativa mais cedo
+        }, { threshold: 0.3 });
 
-        const preloadObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const v = entry.target;
-                    // Preload agressivo: carrega tudo, não só metadata
-                    v.preload = 'auto';
-                    if (!videoCache.has(v.src)) {
-                        videoCache.add(v.src);
-                        const link = document.createElement('link');
-                        link.rel = 'prefetch'; link.as = 'video'; link.href = v.src;
-                        document.head.appendChild(link);
-                    }
-                    preloadObserver.unobserve(v);
-                }
+        // preloadObserver removido — usando preload=auto direto
+
+        // Ao primeiro toque: garante som em todos os vídeos
+        document.addEventListener('touchstart', () => {
+            document.querySelectorAll('video.video-feed').forEach(v => {
+                v.muted = false; v.volume = 1;
+                if (v === videoAtual) v.play().catch(()=>{});
             });
-        }, { rootMargin: '1200px 0px', threshold: 0 }); // margem maior = carrega antes
-
-        // Som desbloqueado desde o primeiro toque/clique na página
-        let somDesbloqueado = false;
-        const desbloqueioSom = () => {
-            if (somDesbloqueado) return;
-            somDesbloqueado = true;
-            document.querySelectorAll('video').forEach(v => { v.muted = false; v.volume = 1; });
-        };
-        document.addEventListener('click', desbloqueioSom, { once: true });
-        document.addEventListener('touchstart', desbloqueioSom, { once: true });
+        }, { once: true });
+        document.addEventListener('click', () => {
+            document.querySelectorAll('video.video-feed').forEach(v => {
+                v.muted = false; v.volume = 1;
+            });
+        }, { once: true });
 
         function registrarVideo(v) {
-            // Preload auto desde o início para carregar mais rápido
             v.preload = 'auto';
-            v.muted = !somDesbloqueado; // sem som só se ainda não houve interação
             v.volume = 1;
+            v.muted = false; // tenta com som direto
             const wrapper = v.closest('.video-wrapper');
             if (wrapper && !wrapper.querySelector('.video-progress')) {
                 const barra = document.createElement('div');
@@ -682,15 +651,20 @@
                     if (v.duration) barra.style.width = ((v.currentTime / v.duration) * 100) + '%';
                 });
             }
-            preloadObserver.observe(v);
             videoObserver.observe(v);
         }
 
         function criarBotaoSom(wrapper, video) {
             if (wrapper.querySelector('.btn-som-video')) return;
             const btn = document.createElement('button');
-            btn.className = 'btn-som-video'; btn.innerHTML = '🔊'; btn.title = 'Ligar/desligar som';
-            btn.addEventListener('click', (e) => { e.stopPropagation(); video.muted = !video.muted; btn.innerHTML = video.muted ? '🔇' : '🔊'; });
+            btn.className = 'btn-som-video';
+            btn.innerHTML = video.muted ? '🔇' : '🔊';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                video.muted = !video.muted;
+                video.volume = 1;
+                btn.innerHTML = video.muted ? '🔇' : '🔊';
+            });
             video.addEventListener('volumechange', () => { btn.innerHTML = video.muted ? '🔇' : '🔊'; });
             wrapper.appendChild(btn);
         }
@@ -925,17 +899,13 @@
                     if(p.midia){
                         if (p.tipo === 'video') {
                             midiaHtml = `<div class="video-wrapper">
-                                <div class="video-skeleton">
-                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
                                 <video
                                     src="${p.midia}"
                                     loop
                                     playsinline
-                                    preload="none"
+                                    preload="auto"
                                     class="video-feed"
                                     style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"
-                                    oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"
                                 ></video>
                             </div>`;
                         } else {
@@ -952,7 +922,7 @@
                     if (wrapper) criarBotaoSom(wrapper, v);
                 });
                 document.querySelectorAll('video[data-anuncio="true"]').forEach(v => {
-                    v.preload = 'none'; preloadObserver.observe(v);
+                    v.preload = 'auto';
                 });
             });
         }
@@ -1466,162 +1436,52 @@
     </script>
 
     <script>
-    // ============ PWA SX Network — Versão Completa ============
-    // O PWA instalado remove a barra do browser completamente
-    (function() {
-        // Ícone SX em SVG convertido para base64 PNG via canvas
-        function gerarIconeSX() {
-            var canvas = document.createElement('canvas');
-            canvas.width = 192; canvas.height = 192;
-            var ctx = canvas.getContext('2d');
-            // Fundo
-            ctx.fillStyle = '#050a14';
-            ctx.fillRect(0, 0, 192, 192);
-            // Borda arredondada vermelha
-            ctx.strokeStyle = '#ff0000';
-            ctx.lineWidth = 8;
-            ctx.beginPath();
-            ctx.roundRect(10, 10, 172, 172, 24);
-            ctx.stroke();
-            // Letra S vermelha
-            ctx.fillStyle = '#ff0000';
-            ctx.font = 'bold 110px Arial Black, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('S', 72, 100);
-            // Letra X branca
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('X', 130, 100);
-            return canvas.toDataURL('image/png');
-        }
+    // ============ PWA SX Network ============
+    // Registra service worker para tornar o app instalável (sem barra do browser)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    }
 
-        var ICON;
-        try { ICON = gerarIconeSX(); } catch(e) { ICON = ''; }
+    // Banner de instalação Android/Chrome
+    var _pwaPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        _pwaPrompt = e;
+        setTimeout(mostrarBannerPWA, 2500);
+    });
 
-        var link = document.getElementById('apple-touch-icon');
-        if (link && ICON) link.href = ICON;
-
-        var manifest = {
-            name: "SX Network",
-            short_name: "SX",
-            description: "Plataforma SX Network",
-            icons: [
-                { src: ICON, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-                { src: ICON, sizes: "512x512", type: "image/png", purpose: "any maskable" }
-            ],
-            start_url: "./",
-            scope: "./",
-            display: "standalone",       // <- REMOVE a barra do browser
-            orientation: "portrait",
-            background_color: "#050a14",
-            theme_color: "#050a14"
+    function mostrarBannerPWA() {
+        if (!_pwaPrompt) return;
+        if (window.matchMedia('(display-mode: standalone)').matches) return;
+        if (localStorage.getItem('sx_pwa_ok')) return;
+        var b = document.createElement('div');
+        b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#0a192f;border-top:3px solid #ff0000;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 -4px 20px rgba(255,0,0,0.4)';
+        b.innerHTML='<div style="flex:1"><b style="color:#fff;font-size:15px"><span style="color:#ff0000">S</span>X Network</b><div style="color:#aaa;font-size:12px;margin-top:2px">Instale para usar SEM a barra do navegador</div></div>'
+            +'<button id="sx-inst-btn" style="background:#ff0000;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:900;font-size:13px;cursor:pointer">INSTALAR</button>'
+            +'<button id="sx-inst-x" style="background:none;border:none;color:#555;font-size:22px;cursor:pointer;padding:4px">✕</button>';
+        document.body.appendChild(b);
+        document.getElementById('sx-inst-btn').onclick = function() {
+            _pwaPrompt.prompt();
+            _pwaPrompt.userChoice.then(function(r){
+                if(r.outcome==='accepted') localStorage.setItem('sx_pwa_ok','1');
+                _pwaPrompt=null; b.remove();
+            });
         };
+        document.getElementById('sx-inst-x').onclick = function() {
+            localStorage.setItem('sx_pwa_ok','1'); b.remove();
+        };
+    }
 
-        var blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
-        var url = URL.createObjectURL(blob);
-        var mlink = document.getElementById('pwa-manifest');
-        if (mlink) mlink.href = url;
-
-        // Service Worker inline para o PWA funcionar offline e ser instalável
-        var swCode = `
-self.addEventListener('install', e => self.skipWaiting());
-self.addEventListener('activate', e => clients.claim());
-self.addEventListener('fetch', e => {
-    if (e.request.method !== 'GET') return;
-    e.respondWith(
-        fetch(e.request).catch(() => new Response('', {status: 200}))
-    );
-});
-`;
-        try {
-            var swBlob = new Blob([swCode], { type: 'application/javascript' });
-            var swUrl = URL.createObjectURL(swBlob);
-            navigator.serviceWorker && navigator.serviceWorker.register(swUrl);
-        } catch(e) {}
-
-        // Banner de instalação — aparece automaticamente após 3 segundos
-        var deferredPrompt = null;
-        window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Mostra banner após 3s
-            setTimeout(mostrarBannerInstall, 3000);
-        });
-
-        function mostrarBannerInstall() {
-            if (!deferredPrompt) return;
-            if (window.matchMedia('(display-mode: standalone)').matches) return; // já instalado
-            if (localStorage.getItem('sx_pwa_dispensado')) return;
-
-            var banner = document.createElement('div');
-            banner.id = 'sx-install-banner';
-            banner.style.cssText = [
-                'position:fixed;bottom:0;left:0;right:0;z-index:99999',
-                'background:linear-gradient(135deg,#0a192f,#112240)',
-                'border-top:2px solid #ff0000',
-                'padding:16px 20px',
-                'display:flex;align-items:center;gap:14px',
-                'box-shadow:0 -4px 20px rgba(255,0,0,0.3)',
-                'animation:slideUp 0.4s ease'
-            ].join(';');
-
-            banner.innerHTML = `
-                <style>@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
-                <div style="flex:1">
-                    <div style="font-weight:900;font-size:15px;color:#fff">
-                        <span style="color:#ff0000">S</span>X Network
-                    </div>
-                    <div style="font-size:12px;color:#aaa;margin-top:2px">
-                        Instale para usar sem barra do navegador
-                    </div>
-                </div>
-                <button id="sx-btn-instalar" style="background:#ff0000;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:900;font-size:13px;cursor:pointer;white-space:nowrap">
-                    INSTALAR
-                </button>
-                <button id="sx-btn-dispensar" style="background:transparent;color:#555;border:none;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">
-                    ✕
-                </button>
-            `;
-
-            document.body.appendChild(banner);
-
-            document.getElementById('sx-btn-instalar').onclick = function() {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(function(r) {
-                    deferredPrompt = null;
-                    banner.remove();
-                });
-            };
-            document.getElementById('sx-btn-dispensar').onclick = function() {
-                localStorage.setItem('sx_pwa_dispensado', '1');
-                banner.remove();
-            };
-        }
-
-        // iOS: instrução manual pois iOS não suporta beforeinstallprompt
-        var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        var isStandalone = window.navigator.standalone === true;
-        if (isIOS && !isStandalone && !localStorage.getItem('sx_ios_dispensado')) {
-            setTimeout(function() {
-                var tip = document.createElement('div');
-                tip.style.cssText = [
-                    'position:fixed;bottom:0;left:0;right:0;z-index:99999',
-                    'background:#112240;border-top:2px solid #ff0000',
-                    'padding:16px 20px;text-align:center',
-                    'font-size:13px;color:#ccc'
-                ].join(';');
-                tip.innerHTML = `
-                    Toque em <b style="color:#fff">Compartilhar</b> ⬆️ depois em
-                    <b style="color:#fff">"Adicionar à Tela de Início"</b> para usar sem barra.
-                    <button onclick="localStorage.setItem('sx_ios_dispensado','1');this.parentElement.remove()"
-                        style="display:block;margin:10px auto 0;background:#ff0000;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-weight:bold;cursor:pointer">
-                        OK
-                    </button>
-                `;
-                document.body.appendChild(tip);
-            }, 4000);
-        }
-    })();
+    // iOS: instrução manual
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone && !localStorage.getItem('sx_pwa_ok')) {
+        setTimeout(function(){
+            var t=document.createElement('div');
+            t.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#0a192f;border-top:3px solid #ff0000;padding:16px;text-align:center;font-size:13px;color:#ccc';
+            t.innerHTML='Toque em <b style="color:#fff">⬆️ Compartilhar</b> → <b style="color:#fff">"Adicionar à Tela de Início"</b><br>para usar <b style="color:#ff0000">sem barra do navegador</b>'
+                +'<button onclick="localStorage.setItem('sx_pwa_ok','1');this.parentElement.remove()" style="display:block;margin:10px auto 0;background:#ff0000;color:#fff;border:none;padding:8px 24px;border-radius:6px;font-weight:bold;cursor:pointer">OK</button>';
+            document.body.appendChild(t);
+        }, 3000);
+    }
     </script>
 </body>
 </html>
