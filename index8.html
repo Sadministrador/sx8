@@ -871,24 +871,106 @@
     </script>
 
     <script>
-    // ── PWA SX Network (original inalterado) ──
+    // ── PWA SX Network ──
     (function() {
-        var ICON = "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH//8=";
-        document.getElementById('apple-touch-icon').href = ICON;
-        var manifest = {name:"SX Network",short_name:"SX",description:"SX - Network Social",start_url:"./",display:"standalone",background_color:"#050a14",theme_color:"#050a14",orientation:"portrait",icons:[{src:ICON,sizes:"192x192",type:"image/png",purpose:"any maskable"},{src:ICON,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
-        document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
-        if('serviceWorker' in navigator){var sw='self.addEventListener("install",function(e){self.skipWaiting();});self.addEventListener("activate",function(e){e.waitUntil(clients.claim());});self.addEventListener("fetch",function(e){});';navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})),{scope:'./'}).catch(function(){});}
-        var dp=null;
-        window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;show();});
-        function show(){
-            if(document.getElementById('btn-pwa-sx'))return;
-            document.head.insertAdjacentHTML('beforeend','<style>@keyframes sxp{0%,100%{box-shadow:0 4px 20px rgba(255,0,0,.5)}50%{box-shadow:0 6px 35px rgba(255,0,0,.9)}}</style>');
-            var b=document.createElement('button');b.id='btn-pwa-sx';b.innerHTML='&#128242; Instalar App SX';
-            b.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#ff0000,#cc0000);color:#fff;font-size:15px;font-weight:900;padding:14px 30px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,.5);cursor:pointer;z-index:9999;border:2px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;animation:sxp 2s infinite';
-            b.onclick=function(){if(!dp)return;dp.prompt();dp.userChoice.then(function(r){if(r.outcome==='accepted')b.remove();dp=null;});};
-            document.body.appendChild(b);
+
+        // Gera ícone SX como PNG via Canvas (512x512, sem arquivo externo)
+        function gerarIcone(cb) {
+            var c = document.createElement('canvas');
+            c.width = 512; c.height = 512;
+            var ctx = c.getContext('2d');
+            // Fundo preto
+            ctx.fillStyle = '#050a14';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 512, 512, 80);
+            ctx.fill();
+            // Borda vermelha
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 18;
+            ctx.beginPath();
+            ctx.roundRect(9, 9, 494, 494, 74);
+            ctx.stroke();
+            // Letra S vermelha
+            ctx.fillStyle = '#ff0000';
+            ctx.font = 'bold 320px Arial Black, Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('S', 145, 270);
+            // Letra X branca
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('X', 368, 270);
+            cb(c.toDataURL('image/png'));
         }
-        window.addEventListener('appinstalled',function(){var b=document.getElementById('btn-pwa-sx');if(b)b.remove();});
+
+        gerarIcone(function(ICON) {
+            // Apple touch icon
+            document.getElementById('apple-touch-icon').href = ICON;
+
+            // Manifest com ícone válido
+            var manifest = {
+                name: "SX Network",
+                short_name: "SX",
+                description: "SX - Network Social",
+                start_url: "./",
+                display: "standalone",
+                background_color: "#050a14",
+                theme_color: "#ff0000",
+                orientation: "portrait",
+                icons: [
+                    {src: ICON, sizes: "192x192", type: "image/png", purpose: "any maskable"},
+                    {src: ICON, sizes: "512x512", type: "image/png", purpose: "any maskable"}
+                ]
+            };
+            var manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                var sw = [
+                    'self.addEventListener("install",function(e){self.skipWaiting();});',
+                    'self.addEventListener("activate",function(e){e.waitUntil(clients.claim());});',
+                    'self.addEventListener("fetch",function(e){});'
+                ].join('');
+                navigator.serviceWorker.register(
+                    URL.createObjectURL(new Blob([sw], {type: 'application/javascript'})),
+                    {scope: './'}
+                ).catch(function(){});
+            }
+
+            // Botão instalar
+            var dp = null;
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                dp = e;
+                mostrarBotao();
+            });
+
+            function mostrarBotao() {
+                if (document.getElementById('btn-pwa-sx')) return;
+                var style = document.createElement('style');
+                style.textContent = '@keyframes sxp{0%,100%{box-shadow:0 4px 20px rgba(255,0,0,.5)}50%{box-shadow:0 6px 35px rgba(255,0,0,.9)}}';
+                document.head.appendChild(style);
+                var b = document.createElement('button');
+                b.id = 'btn-pwa-sx';
+                b.innerHTML = '&#128242; Instalar App SX';
+                b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#ff0000,#cc0000);color:#fff;font-size:15px;font-weight:900;padding:14px 30px;border-radius:50px;box-shadow:0 4px 20px rgba(255,0,0,.5);cursor:pointer;z-index:9999;border:2px solid rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;animation:sxp 2s infinite';
+                b.onclick = function() {
+                    if (!dp) return;
+                    dp.prompt();
+                    dp.userChoice.then(function(r) {
+                        if (r.outcome === 'accepted') b.remove();
+                        dp = null;
+                    });
+                };
+                document.body.appendChild(b);
+            }
+
+            window.addEventListener('appinstalled', function() {
+                var b = document.getElementById('btn-pwa-sx');
+                if (b) b.remove();
+            });
+        });
+
     })();
     </script>
 </body>
