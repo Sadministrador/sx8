@@ -396,30 +396,48 @@
         let isAdmin=false, anunciosAtivos=[], lokListaCarregada=false, intervaloVerificacao=null;
 
         const videoCache=new Set();
+        const videosRegistrados=new WeakSet();
         let videoAtual=null;
+        let somDesbloqueado=false;
 
         const videoObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 const video=entry.target;
                 if(document.getElementById('area-tvsx').classList.contains('show')) return;
                 if(entry.isIntersecting){
-                    document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();v.muted=true;} });
+                    // pausa todos os outros sem causar reflow
+                    document.querySelectorAll('video.video-feed').forEach(v=>{
+                        if(v!==video && !v.paused){v.pause();v.muted=true;}
+                    });
                     videoAtual=video;
                     if(video.readyState<2){video.preload='auto';video.load();}
-                    video.muted=false;
-                    video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
+                    // esconde skeleton assim que tiver dados suficientes
                     const sk=video.parentElement?.querySelector('.video-skeleton');
-                    if(sk){
-                        const hide=()=>{sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},300);video.removeEventListener('canplay',hide);};
-                        video.readyState>=3?hide():video.addEventListener('canplay',hide);
+                    const esconderSk=()=>{
+                        if(sk){sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},200);}
+                    };
+                    if(video.readyState>=2){
+                        esconderSk();
+                    } else {
+                        video.addEventListener('loadeddata',esconderSk,{once:true});
                     }
+                    // tenta com som; se bloqueado pelo browser, toca mudo
+                    video.muted=false;
+                    const tentarPlay=()=>{
+                        video.play().catch(()=>{
+                            video.muted=true;
+                            video.play().catch(()=>{});
+                        });
+                    };
+                    tentarPlay();
                 } else {
-                    video.pause(); video.muted=true;
+                    if(!video.paused) video.pause();
+                    video.muted=true;
                     const sk=video.parentElement?.querySelector('.video-skeleton');
-                    if(sk&&video.readyState<2){sk.style.display='flex';sk.style.opacity='1';}
+                    if(sk && video.readyState<2){sk.style.display='flex';sk.style.opacity='1';}
                 }
             });
-        },{threshold:0.6});
+        },{threshold:0.5});
 
         const preloadObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
@@ -437,11 +455,22 @@
             });
         },{rootMargin:'1200px 0px',threshold:0});
 
-        const desbloqueioSom=()=>{ document.querySelectorAll('video.video-feed').forEach(v=>{v.muted=false;}); };
+        // desbloqueia som no primeiro toque/clique do usuário
+        const desbloqueioSom=()=>{
+            if(somDesbloqueado) return;
+            somDesbloqueado=true;
+            if(videoAtual && videoAtual.paused===false){
+                videoAtual.muted=false;
+            }
+            document.querySelectorAll('video.video-feed').forEach(v=>{v.muted=false;});
+        };
         document.addEventListener('click',desbloqueioSom,{once:true});
         document.addEventListener('touchstart',desbloqueioSom,{once:true});
 
         function registrarVideo(v){
+            // evita registrar o mesmo elemento duas vezes (evita tremida por re-observe)
+            if(videosRegistrados.has(v)) return;
+            videosRegistrados.add(v);
             v.preload='none'; v.muted=true;
             preloadObserver.observe(v); videoObserver.observe(v);
         }
