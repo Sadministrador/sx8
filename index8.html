@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -87,7 +86,9 @@
         .alerta-email { display:none; background:#4a0000; border:1px solid #ff0000; color:#ff6060; border-radius:8px; padding:12px 16px; margin-bottom:12px; font-size:14px; font-weight:bold; text-align:center; }
         .alerta-email.visivel { display:block; }
         .input-erro { border-color:#ff0000 !important; }
-        .post-card { background: #112240; border-radius: 16px; border: 1px solid #1d2d50; border-left: 4px solid #ff0000; margin-bottom: 24px; overflow: hidden; }
+        .post-card { background: #112240; border-radius: 16px; border: none; margin-bottom: 24px; overflow: hidden; }
+        .post-card img, .post-card-ouro img.w-full, .post-card-prata img.w-full, .post-card-bronze img.w-full { border: none !important; outline: none !important; box-shadow: none !important; }
+        img.w-full { border: none !important; outline: none !important; box-shadow: none !important; }
         .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .post-card-texto { padding: 0 16px 12px 16px; color: #e5e7eb; font-size: 1rem; }
         .post-card-footer { padding: 16px; border-top: 1px solid #1f2f4d; }
@@ -119,40 +120,25 @@
         /* ══ MEDALHAS ══ */
         .post-card-ouro {
             position: relative; background: #112240; border-radius: 16px; margin-bottom: 24px; overflow: visible !important;
-            border: 3px solid #FFD700 !important;
-            box-shadow: 0 0 18px 4px rgba(255,215,0,0.55), 0 0 40px 8px rgba(255,215,0,0.22);
-            animation: brilhoOuro 2.5s ease-in-out infinite alternate;
+            border: none !important;
+            box-shadow: none !important;
         }
         .post-card-prata {
             position: relative; background: #112240; border-radius: 16px; margin-bottom: 24px; overflow: visible !important;
-            border: 3px solid #C0C0C0 !important;
-            box-shadow: 0 0 16px 4px rgba(192,192,192,0.5), 0 0 35px 7px rgba(192,192,192,0.18);
-            animation: brilhoPrata 2.5s ease-in-out infinite alternate;
+            border: none !important;
+            box-shadow: none !important;
         }
         .post-card-bronze {
             position: relative; background: #112240; border-radius: 16px; margin-bottom: 24px; overflow: visible !important;
-            border: 3px solid #CD7F32 !important;
-            box-shadow: 0 0 14px 3px rgba(205,127,50,0.48), 0 0 30px 6px rgba(205,127,50,0.18);
-            animation: brilhoBronze 2.5s ease-in-out infinite alternate;
-        }
-        @keyframes brilhoOuro {
-            from { box-shadow: 0 0 16px 3px rgba(255,215,0,0.5), 0 0 35px 7px rgba(255,215,0,0.18); }
-            to   { box-shadow: 0 0 30px 10px rgba(255,215,0,0.9), 0 0 60px 16px rgba(255,215,0,0.38); }
-        }
-        @keyframes brilhoPrata {
-            from { box-shadow: 0 0 14px 3px rgba(192,192,192,0.45), 0 0 30px 6px rgba(192,192,192,0.15); }
-            to   { box-shadow: 0 0 26px 8px rgba(192,192,192,0.8), 0 0 50px 14px rgba(192,192,192,0.3); }
-        }
-        @keyframes brilhoBronze {
-            from { box-shadow: 0 0 12px 3px rgba(205,127,50,0.42), 0 0 28px 5px rgba(205,127,50,0.15); }
-            to   { box-shadow: 0 0 24px 7px rgba(205,127,50,0.75), 0 0 46px 12px rgba(205,127,50,0.28); }
+            border: none !important;
+            box-shadow: none !important;
         }
 
         /* ══ BANNER PREMIAÇÃO: letras maiores ══ */
         .banner-premiacao {
-            width: 100%; padding: 14px 16px; font-size: 17px; font-weight: 900; text-align: center;
+            width: 100%; padding: 14px 16px; font-size: 20px; font-weight: 900; text-align: center;
             letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center;
-            gap: 8px; border-radius: 12px 12px 0 0;
+            gap: 10px; border-radius: 12px 12px 0 0;
         }
         .banner-ouro {
             background: linear-gradient(90deg,#7a5800,#FFD700,#b8860b,#FFD700,#7a5800);
@@ -667,9 +653,9 @@
 
         function gerarCardComMedalha(id, p, midiaHtml, comentsHtml, medalha) {
             const configs = {
-                ouro:   { classe:'post-card-ouro',   emoji:'&#x1F947;', banner:'banner-ouro',   pix:'R$50,00' },
-                prata:  { classe:'post-card-prata',  emoji:'&#x1F948;', banner:'banner-prata',  pix:'R$20,00' },
-                bronze: { classe:'post-card-bronze', emoji:'&#x1F949;', banner:'banner-bronze', pix:'R$10,00' },
+                ouro:   { classe:'post-card-ouro',   emoji:'&#x1F947;', banner:'banner-ouro',   valor:'R$ 50,00' },
+                prata:  { classe:'post-card-prata',  emoji:'&#x1F948;', banner:'banner-prata',  valor:'R$ 20,00' },
+                bronze: { classe:'post-card-bronze', emoji:'&#x1F949;', banner:'banner-bronze', valor:'R$ 10,00' },
             };
             const footerHtml = `<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div>`;
             const headerHtml = `<div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">&#x2764;&#xFE0F; <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>`;
@@ -683,9 +669,7 @@
             return `<div class="${cfg.classe}" style="margin-left:8px;margin-right:8px;">
                 <span class="medalha-badge">${cfg.emoji}</span>
                 <div class="banner-premiacao ${cfg.banner}">
-                    <span>${cfg.emoji}</span>
-                    <span>&#x1F389; Voc&#234; est&#225; ganhando <strong>${cfg.pix} via PIX!</strong></span>
-                    <span>${cfg.emoji}</span>
+                    <span>Voc&#234; est&#225; ganhando <strong>${cfg.valor}</strong></span>
                 </div>
                 ${headerHtml}${textoHtml}${midiaHtml}${footerHtml}
             </div>`;
@@ -706,8 +690,8 @@
                     let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){
-                            /* Vídeo: sem borda, sem outline, largura 100vw */
-                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;border:none;outline:none;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;
+                            /* Vídeo: sem borda, sem outline, largura 100vw, sem piscada */
+                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;border:none;outline:none;"></video></div>`;
                         } else {
                             midiaHtml=`<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
                         }
