@@ -19,15 +19,14 @@
         .logo-x { color: #ffffff; font-weight: 900; font-size: 3.5rem; line-height: 1; }
         .btn-vermelho { background-color: #ff0000 !important; transition: 0.3s; color: white; font-weight: 800; border: none; }
         .capa-container { height: 280px; width: 100%; position: relative; background: #0a192f; overflow: hidden; border-bottom: 4px solid #ff0000; }
-        .capa-img { width: 100%; height: 100%; object-fit: cover; display: block; image-rendering: high-quality; }
+        .capa-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .btn-editar-capa { position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 10; border: 1px solid #ff0000; }
         .sidebar { transition: 0.3s; width: 280px; background: #0a192f; border-right: 1px solid #ff0000; height: 100vh; position: fixed; left: -280px; z-index: 100; display: flex; flex-direction: column; }
         .sidebar.open { left: 0; }
         .sidebar-content { flex: 1; overflow-y: auto; padding: 1rem; scrollbar-width: thin; }
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 90; }
         .overlay.active { display: block; }
-        /* MELHORIA: vídeos com alta qualidade de renderização */
-        .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; image-rendering: high-quality; }
+        .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; }
         .hidden { display: none; }
 
         .nav-rapida {
@@ -85,7 +84,7 @@
         .preview-cls img:hover { transform:scale(1.5); }
         .preview-cls video { width:100px; height:80px; object-fit:cover; border-radius:8px; }
         .midia-grid-cls { display:flex; gap:10px; flex-wrap:wrap; margin-top:15px; }
-        .midia-grid-cls img { max-width:140px; height:110px; object-fit:cover; border-radius:8px; cursor:pointer; transition:transform 0.3s; }
+        .midia-grid-cls img { max-width:140px; height:110px; object-fit:cover; border-radius:8px; cursor:pointer; transition:transform 0.3s; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
         .midia-grid-cls img:hover { transform:scale(1.2); }
         .midia-grid-cls video { max-width:140px; height:110px; object-fit:cover; border-radius:8px; }
         .cls-status { padding:12px; margin:12px 0; border-radius:8px; font-weight:bold; text-align:center; }
@@ -112,18 +111,77 @@
         .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .post-card-texto { padding: 0 16px 12px 16px; color: #e5e7eb; font-size: 1rem; }
         .post-card-footer { padding: 16px; border-top: 1px solid #1f2f4d; }
-        .video-wrapper { position: relative; width: 100vw; height: 100vh; background: #000; overflow: hidden; margin-left: calc(-50vw + 50%); }
-        .video-skeleton { position: absolute; inset: 0; background: linear-gradient(90deg, #112240 25%, #1d2d50 50%, #112240 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; display: flex; align-items: center; justify-content: center; z-index: 1; }
+
+        /* ── MELHORIAS DE VÍDEO E IMAGEM ── */
+        .video-feed {
+            width: 100%;
+            height: 100vh;
+            background: black;
+            object-fit: cover;
+            display: block;
+            /* Qualidade máxima de renderização */
+            image-rendering: -webkit-optimize-contrast;
+            will-change: transform;
+            /* Aceleração de hardware */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .video-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            overflow: hidden;
+            margin-left: calc(-50vw + 50%);
+            /* Aceleração de hardware para o container */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        .video-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #112240 25%, #1d2d50 50%, #112240 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
         .video-skeleton svg { opacity: 0.4; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* MELHORIA: imagens do feed com alta qualidade */
+        /* Imagens do feed com qualidade máxima */
         .post-card img.w-full {
-            image-rendering: high-quality;
             width: 100%;
             border-radius: 12px;
             margin-top: 16px;
             object-fit: cover;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+
+        /* Fotos de perfil nítidas */
+        .post-card img.rounded-full,
+        #perfil-status img,
+        #mini-foto-post img {
+            image-rendering: -webkit-optimize-contrast;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+
+        /* Capa do perfil nítida */
+        .capa-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            transform: translateZ(0);
         }
 
         #area-tvsx {
@@ -185,25 +243,6 @@
         @media screen and (orientation: portrait) {
             #btn-fechar-tvsx.show { bottom: 12px; right: 12px; top: auto; left: auto; }
         }
-
-        /* MELHORIA: indicador de som mudo visível para o usuário tocar */
-        .som-mudo-aviso {
-            position: absolute;
-            bottom: 80px;
-            right: 16px;
-            background: rgba(0,0,0,0.75);
-            border: 2px solid #ff0000;
-            color: white;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 8px 14px;
-            border-radius: 50px;
-            z-index: 10;
-            cursor: pointer;
-            display: none;
-            animation: piscar 1.5s infinite;
-        }
-        @keyframes piscar { 0%,100%{opacity:1} 50%{opacity:0.5} }
     </style>
 </head>
 <body>
@@ -286,8 +325,7 @@
         <div id="area-perfil" class="hidden w-full mb-6 relative">
             <button id="btn-confirmar-capa" class="hidden" onclick="confirmarUploadCapa()">✅ SALVAR PARA TODOS</button>
             <div class="capa-container">
-                <!-- MELHORIA: imagem de capa com alta qualidade e carregamento prioritário -->
-                <img id="img-capa-view" src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=90&fm=webp" class="capa-img" fetchpriority="high">
+                <img id="img-capa-view" src="https://images.unsplash.com/photo-1557683316-973673baf926" class="capa-img">
                 <label id="label-capa" class="btn-editar-capa hidden">
                     <span>📷 Mudar Capa</span>
                     <input type="file" id="input-capa" accept="image/*" class="hidden" onchange="previaCapa(this)">
@@ -426,96 +464,64 @@
         const videoCache=new Set();
         let videoAtual=null;
 
-        // ─────────────────────────────────────────────────────────────
-        // MELHORIA: controle de áudio
-        // Navegadores bloqueiam autoplay com áudio sem interação do usuário.
-        // Estratégia: tenta sem mudo; se falhar, silencia e tenta de novo.
-        // Assim que o usuário tocar/clicar na tela, todos os vídeos ganham som.
-        // ─────────────────────────────────────────────────────────────
-        let somDesbloqueado = false;
+        // ── FLAG: usuário já interagiu (toque/clique) ──
+        let usuarioInteragiu = false;
 
-        function tentarPlayComSom(video) {
-            video.muted = false;
-            return video.play().then(() => {
-                somDesbloqueado = true;
-                esconderAvisoBotao();
-            }).catch(() => {
-                // Navegador bloqueou áudio — toca mudo e mostra aviso
-                video.muted = true;
-                return video.play().catch(() => {});
-                // O aviso já aparece pelo observer abaixo
-            });
-        }
-
-        function mostrarAvisoSom(videoWrapper) {
-            if (somDesbloqueado) return;
-            let aviso = videoWrapper.querySelector('.som-mudo-aviso');
-            if (!aviso) {
-                aviso = document.createElement('div');
-                aviso.className = 'som-mudo-aviso';
-                aviso.innerHTML = '🔇 Toque para ativar o som';
-                aviso.onclick = () => {
-                    somDesbloqueado = true;
-                    document.querySelectorAll('video.video-feed').forEach(v => {
-                        if (!v.paused) {
-                            v.muted = false;
-                        }
-                    });
-                    document.querySelectorAll('.som-mudo-aviso').forEach(a => a.style.display = 'none');
-                };
-                videoWrapper.appendChild(aviso);
-            }
-            aviso.style.display = 'block';
-        }
-
-        function esconderAvisoBotao() {
-            document.querySelectorAll('.som-mudo-aviso').forEach(a => a.style.display = 'none');
-        }
-
-        // Desbloqueia som ao primeiro toque/clique em qualquer lugar
-        const desbloqueioGlobal = () => {
-            if (somDesbloqueado) return;
-            somDesbloqueado = true;
+        // ── Captura a primeira interação do usuário ──
+        const capturarInteracao = () => {
+            if (usuarioInteragiu) return;
+            usuarioInteragiu = true;
+            // Desbloqueia todos os vídeos existentes
             document.querySelectorAll('video.video-feed').forEach(v => {
+                v.muted = false;
                 if (!v.paused) {
-                    v.muted = false;
+                    v.play().catch(() => {});
                 }
             });
-            esconderAvisoBotao();
         };
-        document.addEventListener('click', desbloqueioGlobal, { once: true });
-        document.addEventListener('touchstart', desbloqueioGlobal, { once: true });
+        document.addEventListener('click', capturarInteracao, { passive: true });
+        document.addEventListener('touchstart', capturarInteracao, { passive: true });
+        document.addEventListener('touchend', capturarInteracao, { passive: true });
+        document.addEventListener('scroll', capturarInteracao, { passive: true });
 
-        // ─────────────────────────────────────────────────────────────
-        // MELHORIA: IntersectionObserver com áudio automático real
-        // ─────────────────────────────────────────────────────────────
+        // ── IntersectionObserver para vídeos ──
         const videoObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (document.getElementById('area-tvsx').classList.contains('show')) return;
 
                 if (entry.isIntersecting) {
-                    // Pausa todos os outros vídeos
+                    // Pausa e muta todos os outros
                     document.querySelectorAll('video.video-feed').forEach(v => {
                         if (v !== video) { v.pause(); v.muted = true; }
                     });
                     videoAtual = video;
 
-                    // MELHORIA: carrega logo (metadata já pré-carregado)
+                    // Começa a carregar se ainda não carregou
                     if (video.readyState < 2) {
                         video.preload = 'auto';
                         video.load();
                     }
 
-                    const wrapper = video.closest('.video-wrapper');
+                    // ── ÁUDIO: abre com som se o usuário já interagiu ──
+                    video.muted = !usuarioInteragiu;
 
-                    // Tenta reproduzir COM áudio imediatamente
-                    tentarPlayComSom(video).then(() => {
-                        // Se ainda mudo (bloqueio do navegador), mostra aviso
-                        if (video.muted && wrapper) {
-                            mostrarAvisoSom(wrapper);
-                        }
-                    });
+                    // Tenta dar play
+                    const tentarPlay = () => {
+                        video.play().then(() => {
+                            // Se conseguiu play com som, mantém
+                        }).catch(() => {
+                            // Navegador bloqueou: tenta mudo
+                            video.muted = true;
+                            video.play().catch(() => {});
+                        });
+                    };
+
+                    if (video.readyState >= 3) {
+                        tentarPlay();
+                    } else {
+                        video.addEventListener('canplay', tentarPlay, { once: true });
+                    }
 
                     // Esconde skeleton quando pronto
                     const sk = video.parentElement?.querySelector('.video-skeleton');
@@ -523,10 +529,10 @@
                         const hide = () => {
                             sk.style.opacity = '0';
                             setTimeout(() => { if (sk) sk.style.display = 'none'; }, 300);
-                            video.removeEventListener('canplay', hide);
                         };
-                        video.readyState >= 3 ? hide() : video.addEventListener('canplay', hide);
+                        video.readyState >= 3 ? hide() : video.addEventListener('canplay', hide, { once: true });
                     }
+
                 } else {
                     video.pause();
                     video.muted = true;
@@ -536,45 +542,39 @@
             });
         }, { threshold: 0.6 });
 
-        // ─────────────────────────────────────────────────────────────
-        // MELHORIA: preload mais agressivo — metadata primeiro, depois auto
-        // ─────────────────────────────────────────────────────────────
+        // ── Preload agressivo: começa a carregar vídeos próximos ──
         const preloadObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const v = entry.target;
-                    // MELHORIA: usa 'metadata' primeiro (mais rápido que 'none')
-                    // e 'auto' quando muito perto
+                    // Preload imediato com metadata primeiro, depois auto
                     v.preload = 'metadata';
+                    requestIdleCallback(() => {
+                        v.preload = 'auto';
+                    }, { timeout: 1000 });
                     if (!videoCache.has(v.src)) {
                         videoCache.add(v.src);
+                        // Prefetch via link para o browser cachear
                         const l = document.createElement('link');
-                        l.rel = 'preload'; l.as = 'video'; l.href = v.src;
+                        l.rel = 'prefetch';
+                        l.as = 'video';
+                        l.href = v.src;
                         document.head.appendChild(l);
                     }
                     preloadObserver.unobserve(v);
                 }
             });
-        }, { rootMargin: '1200px 0px', threshold: 0 });
-
-        // Observer próximo: carrega totalmente vídeos quase visíveis
-        const nearObserver = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const v = entry.target;
-                    v.preload = 'auto';
-                    nearObserver.unobserve(v);
-                }
-            });
-        }, { rootMargin: '300px 0px', threshold: 0 });
+        }, { rootMargin: '1500px 0px', threshold: 0 });
 
         function registrarVideo(v) {
-            // MELHORIA: começa com 'metadata' (não 'none') para carregar mais rápido
+            // Começa com preload metadata (mais rápido que none para iniciar)
             v.preload = 'metadata';
-            v.muted = true; // começa mudo por precaução (browser policy)
-            v.setAttribute('playsinline', '');
+            v.muted = true;
+            // Aceleração de hardware
+            v.style.willChange = 'transform';
+            v.style.transform = 'translateZ(0)';
+            v.style.webkitTransform = 'translateZ(0)';
             preloadObserver.observe(v);
-            nearObserver.observe(v);
             videoObserver.observe(v);
         }
 
@@ -657,9 +657,8 @@
             isAdmin=(userLogado.email==="admin@sx.com");
             document.getElementById('login-box').classList.add('hidden');
             document.getElementById('main-box').classList.remove('hidden');
-            // MELHORIA: foto de perfil com alta qualidade
-            document.getElementById('perfil-status').innerHTML=`<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600" style="image-rendering:high-quality;">`;
-            document.getElementById('mini-foto-post').innerHTML=`<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600" style="image-rendering:high-quality;">`;
+            document.getElementById('perfil-status').innerHTML=`<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600" style="image-rendering:-webkit-optimize-contrast;">`;
+            document.getElementById('mini-foto-post').innerHTML=`<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600" style="image-rendering:-webkit-optimize-contrast;">`;
             document.getElementById('btn-me-perfil').onclick=()=>verPerfil(idLogado);
             if(isAdmin)document.getElementById('btn-flutuante-admin').style.display='flex';
             carregarUsuariosMenu();
@@ -768,9 +767,8 @@
         function gerarHtmlAnuncio(ad){
             if(!ad)return"";
             const bannerUrl=ad.imagemUrl||ad.imagem||"",isVideo=ad.isVideo||false;
-            const logoHtml=ad.logoUrl?`<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #ff0000;flex-shrink:0;image-rendering:high-quality;">`:`<div style="width:42px;height:42px;border-radius:50%;background:#ff0000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;">${(ad.loja||'?')[0]}</div>`;
-            // MELHORIA: imagens de anúncio com alta qualidade e carregamento eager
-            const bannerHtml=bannerUrl?(isVideo?`<video src="${bannerUrl}" muted loop playsinline preload="metadata" data-anuncio="true" style="width:100%;height:220px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>`:`<img src="${bannerUrl}" loading="eager" fetchpriority="high" style="width:100%;height:220px;object-fit:cover;display:block;image-rendering:high-quality;" alt="${ad.titulo||''}">`): '';
+            const logoHtml=ad.logoUrl?`<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #ff0000;flex-shrink:0;image-rendering:-webkit-optimize-contrast;">`:`<div style="width:42px;height:42px;border-radius:50%;background:#ff0000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;">${(ad.loja||'?')[0]}</div>`;
+            const bannerHtml=bannerUrl?(isVideo?`<video src="${bannerUrl}" muted loop playsinline preload="metadata" data-anuncio="true" style="width:100%;height:220px;object-fit:cover;display:block;cursor:pointer;transform:translateZ(0);" onclick="this.muted=!this.muted"></video>`:`<img src="${bannerUrl}" loading="eager" decoding="async" style="width:100%;height:220px;object-fit:cover;display:block;image-rendering:-webkit-optimize-contrast;" alt="${ad.titulo||''}">`): '';
             const linkHtml=ad.link?`<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:linear-gradient(45deg,#ff0000,#cc0000);color:white;font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;">${ad.cta||'SAIBA MAIS'}</a>`:'';
             return`<div style="background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);"><div style="background:rgba(255,0,0,0.9);color:white;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin:10px 10px 0 10px;">Patrocinado</div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:#ff6060;text-transform:uppercase;">${ad.loja||''}</span></div><div style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px;">${ad.titulo||''}</div><div style="font-size:14px;color:#aac;line-height:1.5;">${ad.descricao||''}</div>${linkHtml}</div></div>`;
         }
@@ -788,19 +786,9 @@
                 const videoPosts=postsValidos.filter(x=>x.dados.tipo==='video');
                 videoPosts.sort((a,b)=>(b.dados.curtidas||0)-(a.dados.curtidas||0));
                 const medalhaMap={};
-                if(videoPosts.length>=1) medalhaMap[videoPosts[0].id]={
-                    bar:'linear-gradient(90deg,#f59e0b,#d97706)',
-                    icon:'🥇', premio:'Você está ganhando R$50,00', borda:'#f59e0b'
-                };
-                if(videoPosts.length>=2) medalhaMap[videoPosts[1].id]={
-                    bar:'linear-gradient(90deg,#94a3b8,#64748b)',
-                    icon:'🥈', premio:'Você está ganhando R$20,00', borda:'#94a3b8'
-                };
-                if(videoPosts.length>=3) medalhaMap[videoPosts[2].id]={
-                    bar:'linear-gradient(90deg,#b45309,#92400e)',
-                    icon:'🥉', premio:'Você está ganhando R$10,00', borda:'#b45309'
-                };
-                // ──────────────────────────────────────────
+                if(videoPosts.length>=1) medalhaMap[videoPosts[0].id]={bar:'linear-gradient(90deg,#f59e0b,#d97706)',icon:'🥇',premio:'Você está ganhando R$50,00',borda:'#f59e0b'};
+                if(videoPosts.length>=2) medalhaMap[videoPosts[1].id]={bar:'linear-gradient(90deg,#94a3b8,#64748b)',icon:'🥈',premio:'Você está ganhando R$20,00',borda:'#94a3b8'};
+                if(videoPosts.length>=3) medalhaMap[videoPosts[2].id]={bar:'linear-gradient(90deg,#b45309,#92400e)',icon:'🥉',premio:'Você está ganhando R$10,00',borda:'#b45309'};
 
                 let idxAd=0;
                 postsValidos.forEach((item,i)=>{
@@ -810,29 +798,26 @@
                         if(p.tipo==='video'){
                             const med=medalhaMap[id];
                             const medalhaBarHtml=med
-                                ? `<div style="background:${med.bar};padding:9px 14px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:13px;color:#fff;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4);">${med.icon} <span>${med.premio}</span></div>`
-                                : '';
-                            // MELHORIA: preload="metadata" em vez de "none" para começar mais rápido
+                                ?`<div style="background:${med.bar};padding:9px 14px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:13px;color:#fff;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4);">${med.icon} <span>${med.premio}</span></div>`
+                                :'';
+                            // ── VÍDEO: preload="metadata" para começar rápido ──
                             midiaHtml=`<div class="video-wrapper" style="${med?'border:2px solid '+med.borda+';border-radius:0;overflow:hidden;':''}">`
                                 +`<div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>`
-                                +`<video src="${p.midia}" loop playsinline preload="metadata" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video>`
+                                +`<video src="${p.midia}" loop playsinline preload="metadata" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;object-fit:cover;will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0);" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',200);"></video>`
                                 +`</div>${medalhaBarHtml}`;
                         } else {
-                            // MELHORIA: primeiras imagens carregam eager, resto lazy
-                            const loadMode = i < 2 ? 'eager' : 'lazy';
-                            const fetchPri = i < 2 ? 'fetchpriority="high"' : '';
-                            midiaHtml=`<img src="${p.midia}" loading="${loadMode}" ${fetchPri} class="w-full rounded-xl mt-4 object-cover" style="image-rendering:high-quality;max-height:600px;">`;
+                            // ── IMAGEM: eager + decoding async para máxima qualidade ──
+                            midiaHtml=`<img src="${p.midia}" loading="eager" decoding="async" class="w-full rounded-xl mt-4 object-cover" style="image-rendering:-webkit-optimize-contrast;transform:translateZ(0);">`;
                         }
                     }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    // MELHORIA: foto do usuário no post com alta qualidade
-                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600" style="image-rendering:high-quality;" loading="eager"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
+                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600" loading="eager" decoding="async" style="image-rendering:-webkit-optimize-contrast;"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
 
                 // Registra todos os vídeos do feed
                 document.querySelectorAll('.video-feed').forEach(v=>{ registrarVideo(v); });
-                // Vídeos de anúncios: preload metadata
+                // Vídeos de anúncio: preload metadata
                 document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{
                     v.preload='metadata';
                     preloadObserver.observe(v);
@@ -846,7 +831,7 @@
                 snap.forEach(d=>{
                     const st=d.data().status;
                     if(st!=="aprovado"&&st!=="ativo")return;
-                    lista.innerHTML+=`<div onclick="verPerfil('${d.id}')" class="flex items-center gap-3 p-3 hover:bg-red-900 rounded-lg cursor-pointer"><img src="${d.data().foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600" style="image-rendering:high-quality;"><span class="font-bold text-xs uppercase">${d.data().nome}</span></div>`;
+                    lista.innerHTML+=`<div onclick="verPerfil('${d.id}')" class="flex items-center gap-3 p-3 hover:bg-red-900 rounded-lg cursor-pointer"><img src="${d.data().foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600" loading="eager" decoding="async" style="image-rendering:-webkit-optimize-contrast;"><span class="font-bold text-xs uppercase">${d.data().nome}</span></div>`;
                 });
             });
         }
@@ -858,9 +843,7 @@
                 const p=docSnap.data();esconderTudo();document.getElementById('pv-iframe').src='';
                 document.getElementById('area-perfil').classList.remove('hidden');document.getElementById('caixa-post').classList.add('hidden');
                 document.getElementById('nome-perfil-view').innerText=p.nome;
-                // MELHORIA: capa com alta qualidade
-                const capaUrl = p.capa || "https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=90&fm=webp";
-                document.getElementById('img-capa-view').src = capaUrl;
+                document.getElementById('img-capa-view').src=p.capa||"https://images.unsplash.com/photo-1557683316-973673baf926";
                 idPerfil===idLogado?document.getElementById('label-capa').classList.remove('hidden'):document.getElementById('label-capa').classList.add('hidden');
                 carregarFeed(p.nome);window.scrollTo({top:0,behavior:'smooth'});
             }
@@ -916,8 +899,7 @@
                     const d=ds.data(),midias=d.midia||[];
                     const nomeVeiculo=(d.nome||'')+(d.ano?' '+d.ano:'')+(d.categoria?' ('+d.categoria+')':'');
                     const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
-                    // MELHORIA: imagens dos classificados com alta qualidade
-                    lista.innerHTML+=`<div class="anuncio-cls"><span class="badge-publicado">✅ PUBLICADO</span><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;margin-top:10px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>{const isVid=url.includes('.mp4')||url.includes('.mov')||url.includes('.webm')||url.includes('video');return isVid?`<video src="${url}" loop playsinline preload="metadata" style="max-width:140px;height:110px;border-radius:8px;cursor:pointer;" onclick="this.muted=!this.muted;this.paused?this.play():this.pause()"></video>`:`<img src="${url}" loading="lazy" style="image-rendering:high-quality;" onclick="clsAbrirGaleria('${url}')" title="Clique para ampliar">`;}).join('')}</div></div>`;
+                    lista.innerHTML+=`<div class="anuncio-cls"><span class="badge-publicado">✅ PUBLICADO</span><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;margin-top:10px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>{const isVid=url.includes('.mp4')||url.includes('.mov')||url.includes('.webm')||url.includes('video');return isVid?`<video src="${url}" loop playsinline preload="metadata" style="max-width:140px;height:110px;border-radius:8px;cursor:pointer;object-fit:cover;" onclick="this.muted=!this.muted;this.paused?this.play():this.pause()"></video>`:`<img src="${url}" loading="eager" decoding="async" onclick="clsAbrirGaleria('${url}')" style="image-rendering:-webkit-optimize-contrast;" title="Clique para ampliar">`;}).join('')}</div></div>`;
                 });
             },()=>{
                 onSnapshot(query(collection(fsdb,'posts'),where('publicado','==',true),where('tipo','==','classificado')),snap2=>{
@@ -927,7 +909,7 @@
                         const d=ds.data(),midias=d.midia||[];
                         const nomeVeiculo=(d.nome||'')+(d.ano?' '+d.ano:'')+(d.categoria?' ('+d.categoria+')':'');
                         const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
-                        lista.innerHTML+=`<div class="anuncio-cls"><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>`<img src="${url}" loading="lazy" style="image-rendering:high-quality;" onclick="clsAbrirGaleria('${url}')">`).join('')}</div></div>`;
+                        lista.innerHTML+=`<div class="anuncio-cls"><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>`<img src="${url}" loading="eager" decoding="async" onclick="clsAbrirGaleria('${url}')" style="image-rendering:-webkit-optimize-contrast;">`).join('')}</div></div>`;
                     });
                 });
             });
@@ -936,8 +918,7 @@
         window.clsAbrirGaleria=url=>{
             const modal=document.createElement('div');
             modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;';
-            // MELHORIA: modal de galeria com imagem em alta qualidade
-            modal.innerHTML=`<img src="${url}" style="max-width:90%;max-height:90%;border-radius:10px;image-rendering:high-quality;">`;
+            modal.innerHTML=`<img src="${url}" style="max-width:90%;max-height:90%;border-radius:10px;image-rendering:-webkit-optimize-contrast;">`;
             modal.onclick=()=>document.body.removeChild(modal);document.body.appendChild(modal);
         };
         window.clsAbrirForm=()=>{document.getElementById('cls-formulario').style.display='block';document.getElementById('cls-formulario').scrollIntoView({behavior:'smooth'});};
@@ -954,7 +935,7 @@
                 const reader=new FileReader();
                 reader.onload=e=>{
                     const isVideo=file.type.startsWith('video/');
-                    preview.innerHTML+=`<div style="position:relative;">${isVideo?`<video src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;"></video>`:`<img src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;image-rendering:high-quality;">`}<button onclick="clsRemoverArquivo(${i})" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;">×</button></div>`;
+                    preview.innerHTML+=`<div style="position:relative;">${isVideo?`<video src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;"></video>`:`<img src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;image-rendering:-webkit-optimize-contrast;">`}<button onclick="clsRemoverArquivo(${i})" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;">×</button></div>`;
                 };
                 reader.readAsDataURL(file);
             });
@@ -1021,8 +1002,7 @@
                     let telLimpo=prof.tel?prof.tel.replace(/\D/g,''):'';
                     if(telLimpo&&!telLimpo.startsWith('55'))telLimpo='55'+telLimpo;
                     const card=document.createElement('div');card.className='prof-card p-8 text-center hover:shadow-xl transition-all';
-                    // MELHORIA: foto do profissional com alta qualidade
-                    card.innerHTML=`<img src="${prof.foto||'https://via.placeholder.com/150'}" class="w-32 h-32 mx-auto rounded-full object-cover mb-6 border-4 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]" style="image-rendering:high-quality;" loading="lazy"><h3 class="font-bold text-2xl mb-3">${prof.nome||'Sem Nome'}</h3><div class="text-2xl text-yellow-400 font-semibold mb-6">${prof.profissao}</div><a href="https://wa.me/${telLimpo}?text=Olá ${encodeURIComponent(prof.nome)}!%0AVi seu perfil no *SX Profissionais*!%0AVocê atende em domicílio?%0APreciso de: [descreva o serviço]" class="block bg-[#16a34a] text-white py-4 px-8 rounded-full font-bold text-lg mx-auto hover:bg-[#15803d] w-full max-w-[260px] shadow-lg shadow-green-900/20" target="_blank">💬 Contratar no WhatsApp</a>`;
+                    card.innerHTML=`<img src="${prof.foto||'https://via.placeholder.com/150'}" class="w-32 h-32 mx-auto rounded-full object-cover mb-6 border-4 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]" loading="eager" decoding="async" style="image-rendering:-webkit-optimize-contrast;"><h3 class="font-bold text-2xl mb-3">${prof.nome||'Sem Nome'}</h3><div class="text-2xl text-yellow-400 font-semibold mb-6">${prof.profissao}</div><a href="https://wa.me/${telLimpo}?text=Olá ${encodeURIComponent(prof.nome)}!%0AVi seu perfil no *SX Profissionais*!%0AVocê atende em domicílio?%0APreciso de: [descreva o serviço]" class="block bg-[#16a34a] text-white py-4 px-8 rounded-full font-bold text-lg mx-auto hover:bg-[#15803d] w-full max-w-[260px] shadow-lg shadow-green-900/20" target="_blank">💬 Contratar no WhatsApp</a>`;
                     listaEl.appendChild(card);
                 });
                 totalEl.textContent=`${totalSX} Profissionais SX Aprovados`;
