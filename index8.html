@@ -29,6 +29,7 @@
         .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; }
         .hidden { display: none; }
 
+        /* ══ NAV: 5 botões sempre visíveis sem scroll ══ */
         .nav-rapida {
             display: flex;
             gap: 4px;
@@ -56,6 +57,7 @@
         }
         .btn-nav-item:hover { border-color: #ff0000; color: #ff0000; }
 
+        /* Cores TV SX: TV=branco, S=vermelho, X=branco */
         .tvsx-tv { color: #ffffff; font-weight: 900; }
         .tvsx-s  { color: #ff0000; font-weight: 900; }
         .tvsx-x  { color: #ffffff; font-weight: 900; }
@@ -117,6 +119,9 @@
         .video-skeleton svg { opacity: 0.4; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+        /* ══════════════════════════════════════════
+           TV SX — iframe fullscreen landscape
+           ══════════════════════════════════════════ */
         #area-tvsx {
             display: none;
             position: fixed;
@@ -125,65 +130,171 @@
             background: #000;
         }
         #area-tvsx.show { display: block; }
-
         @media screen and (orientation: landscape) {
-            #area-tvsx.show {
-                width: 100vw;
-                height: 100vh;
-                transform: none;
-            }
+            #area-tvsx.show { width: 100vw; height: 100vh; transform: none; }
         }
-
         @media screen and (orientation: portrait) {
-            #area-tvsx.show {
-                width: 100vh;
-                height: 100vw;
-                top: 0;
-                left: 0;
-                transform-origin: top left;
-                transform: rotate(90deg) translateX(0%) translateY(-100%);
-            }
+            #area-tvsx.show { width: 100vh; height: 100vw; top: 0; left: 0; transform-origin: top left; transform: rotate(90deg) translateX(0%) translateY(-100%); }
         }
-
-        #tvsx-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        #btn-fechar-tvsx {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            background: rgba(0,0,0,0.85);
-            border: 2px solid #ff0000;
-            color: #ff0000;
-            font-size: 17px;
-            font-weight: 900;
-            width: 38px; height: 38px;
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            line-height: 1;
-        }
+        #tvsx-iframe { width: 100%; height: 100%; border: none; display: block; }
+        #btn-fechar-tvsx { display: none; position: fixed; z-index: 9999; background: rgba(0,0,0,0.85); border: 2px solid #ff0000; color: #ff0000; font-size: 17px; font-weight: 900; width: 38px; height: 38px; border-radius: 50%; align-items: center; justify-content: center; cursor: pointer; line-height: 1; }
         #btn-fechar-tvsx.show { display: flex; }
+        @media screen and (orientation: landscape) { #btn-fechar-tvsx.show { top: 12px; right: 12px; bottom: auto; left: auto; } }
+        @media screen and (orientation: portrait) { #btn-fechar-tvsx.show { bottom: 12px; right: 12px; top: auto; left: auto; } }
 
-        @media screen and (orientation: landscape) {
-            #btn-fechar-tvsx.show { top: 12px; right: 12px; bottom: auto; left: auto; }
+        /* ══════════════════════════════════════════
+           SISTEMA DE MEDALHAS SX
+           ══════════════════════════════════════════ */
+
+        /* Animação de brilho para as barrinhas */
+        @keyframes sx-shine-ouro {
+            0%   { box-shadow: 0 0 8px #ffd700, 0 0 18px #ffd70088; }
+            50%  { box-shadow: 0 0 18px #ffe066, 0 0 36px #ffd700bb; }
+            100% { box-shadow: 0 0 8px #ffd700, 0 0 18px #ffd70088; }
         }
-        @media screen and (orientation: portrait) {
-            #btn-fechar-tvsx.show { bottom: 12px; right: 12px; top: auto; left: auto; }
+        @keyframes sx-shine-prata {
+            0%   { box-shadow: 0 0 8px #b0b8c8, 0 0 18px #c0c8d888; }
+            50%  { box-shadow: 0 0 18px #dde3ee, 0 0 36px #b0b8c8bb; }
+            100% { box-shadow: 0 0 8px #b0b8c8, 0 0 18px #c0c8d888; }
+        }
+        @keyframes sx-shine-bronze {
+            0%   { box-shadow: 0 0 8px #cd7f32, 0 0 18px #cd7f3288; }
+            50%  { box-shadow: 0 0 18px #e8a05a, 0 0 36px #cd7f32bb; }
+            100% { box-shadow: 0 0 8px #cd7f32, 0 0 18px #cd7f3288; }
+        }
+        @keyframes sx-pulse-icon {
+            0%,100% { transform: scale(1); }
+            50%      { transform: scale(1.18); }
+        }
+        @keyframes sx-text-glow-ouro {
+            0%,100% { text-shadow: 0 0 6px #ffd700, 0 0 14px #ffe06699; }
+            50%      { text-shadow: 0 0 12px #ffe066, 0 0 28px #ffd700cc; }
+        }
+        @keyframes sx-text-glow-prata {
+            0%,100% { text-shadow: 0 0 6px #b0b8c8, 0 0 14px #c0c8d899; }
+            50%      { text-shadow: 0 0 12px #dde3ee, 0 0 28px #b0b8c8cc; }
+        }
+        @keyframes sx-text-glow-bronze {
+            0%,100% { text-shadow: 0 0 6px #cd7f32, 0 0 14px #cd7f3299; }
+            50%      { text-shadow: 0 0 12px #e8a05a, 0 0 28px #cd7f32cc; }
+        }
+
+        /* Barrinha base */
+        .sx-medalha-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 10px;
+            padding: 9px 16px;
+            margin: 0 16px 12px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* OURO */
+        .sx-medalha-ouro {
+            background: linear-gradient(90deg, #3a2900 0%, #5c3d00 40%, #3a2900 100%);
+            border: 1.5px solid #ffd700;
+            animation: sx-shine-ouro 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-ouro .sx-med-icon {
+            font-size: 22px;
+            animation: sx-pulse-icon 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px #ffd700);
+        }
+        .sx-medalha-ouro .sx-med-texto {
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #ffe566;
+            text-transform: uppercase;
+            animation: sx-text-glow-ouro 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-ouro::before {
+            content: '';
+            position: absolute;
+            left: -60%;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.18), transparent);
+            animation: sx-sweep 3s linear infinite;
+        }
+
+        /* PRATA */
+        .sx-medalha-prata {
+            background: linear-gradient(90deg, #1a1e26 0%, #2a3040 40%, #1a1e26 100%);
+            border: 1.5px solid #b0b8c8;
+            animation: sx-shine-prata 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-prata .sx-med-icon {
+            font-size: 22px;
+            animation: sx-pulse-icon 2s ease-in-out infinite 0.3s;
+            filter: drop-shadow(0 0 6px #b0b8c8);
+        }
+        .sx-medalha-prata .sx-med-texto {
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #dde3ee;
+            text-transform: uppercase;
+            animation: sx-text-glow-prata 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-prata::before {
+            content: '';
+            position: absolute;
+            left: -60%;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(176,184,200,0.18), transparent);
+            animation: sx-sweep 3s linear infinite 0.8s;
+        }
+
+        /* BRONZE */
+        .sx-medalha-bronze {
+            background: linear-gradient(90deg, #2a1500 0%, #3d2000 40%, #2a1500 100%);
+            border: 1.5px solid #cd7f32;
+            animation: sx-shine-bronze 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-bronze .sx-med-icon {
+            font-size: 22px;
+            animation: sx-pulse-icon 2s ease-in-out infinite 0.6s;
+            filter: drop-shadow(0 0 6px #cd7f32);
+        }
+        .sx-medalha-bronze .sx-med-texto {
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #e8a05a;
+            text-transform: uppercase;
+            animation: sx-text-glow-bronze 2.4s ease-in-out infinite;
+        }
+        .sx-medalha-bronze::before {
+            content: '';
+            position: absolute;
+            left: -60%;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(205,127,50,0.18), transparent);
+            animation: sx-sweep 3s linear infinite 1.6s;
+        }
+
+        @keyframes sx-sweep {
+            0%   { left: -60%; }
+            100% { left: 120%; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ══ TV SX overlay ══ -->
     <div id="area-tvsx">
         <iframe id="tvsx-iframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
     <button id="btn-fechar-tvsx" onclick="fecharTVSX()">✕</button>
+    <!-- ══════════════════ -->
 
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
@@ -209,10 +320,12 @@
                 <span class="logo-s">S</span><span class="logo-x">X</span>
             </div>
             <div id="formulario-cadastro">
+                <!-- ══ MENSAGEM DE BOAS-VINDAS ══ -->
                 <div style="background: linear-gradient(135deg, #0a192f, #112240); border: 1px solid #ff0000; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; text-align: center;">
                     <p style="color: #ffffff; font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Seja bem vindo(a) a SX</p>
                     <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">Após colocar suas informações e clicar em <strong style="color: white;">SE CADASTRAR</strong>, espere por <strong style="color: #ffffff;">10 a 15 segundos</strong> sem sair da tela de cadastro que automaticamente você entrará na <strong style="color: white;">REDE SOCIAL SX</strong>.</p>
                 </div>
+                <!-- ════════════════════════════ -->
                 <div id="alerta-email-duplicado" class="alerta-email">
                     ⚠️ Este e-mail já está cadastrado.<br>
                     <span style="font-size:12px;color:#ffaaaa;">Cada e-mail só pode ter uma conta na SX.</span>
@@ -245,6 +358,7 @@
             <div id="perfil-status"></div>
         </header>
 
+        <!-- 5 botões — todos visíveis, sem overflow -->
         <div id="nav-feed-global" class="nav-rapida sticky top-[73px] z-40">
             <button onclick="voltarHome()" id="btn-nav-feed" class="btn-nav-item" style="border-color:#ff0000;color:#ff0000;">Postar</button>
             <button onclick="abrirVeiculos()" id="btn-nav-veiculos" class="btn-nav-item">Veículos</button>
@@ -394,6 +508,7 @@
         let clsArquivos=[], clsIsSubmitting=false;
         let isAdmin=false, anunciosAtivos=[], lokListaCarregada=false, intervaloVerificacao=null;
 
+        // ── Vídeos do feed ──
         const videoCache=new Set();
         let videoAtual=null;
 
@@ -445,6 +560,7 @@
             preloadObserver.observe(v); videoObserver.observe(v);
         }
 
+        // ── TV SX ──
         const TVSX_URL='https://sadministrador.github.io/tvsx/index10.html';
 
         window.abrirTVSX=()=>{
@@ -475,6 +591,7 @@
             document.getElementById('btn-nav-feed').style.color='#ff0000';
         };
 
+        // ── Restante original ──
         const MONITOR_URL='sx-monitor.html';
         const PV_URL='https://sadministrador.github.io/sx/sx.html?id=loja01';
 
@@ -640,6 +757,70 @@
             return`<div style="background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);"><div style="background:rgba(255,0,0,0.9);color:white;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin:10px 10px 0 10px;">Patrocinado</div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:#ff6060;text-transform:uppercase;">${ad.loja||''}</span></div><div style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px;">${ad.titulo||''}</div><div style="font-size:14px;color:#aac;line-height:1.5;">${ad.descricao||''}</div>${linkHtml}</div></div>`;
         }
 
+        // ══════════════════════════════════════════
+        // SISTEMA DE MEDALHAS SX
+        // ══════════════════════════════════════════
+        function gerarBarrinhaMedalha(posicao) {
+            // posicao: 1=ouro, 2=prata, 3=bronze
+            if (posicao === 1) {
+                return `<div class="sx-medalha-bar sx-medalha-ouro">
+                    <span class="sx-med-icon">🥇</span>
+                    <span class="sx-med-texto">VOCÊ ESTÁ GANHANDO R$50,00</span>
+                </div>`;
+            } else if (posicao === 2) {
+                return `<div class="sx-medalha-bar sx-medalha-prata">
+                    <span class="sx-med-icon">🥈</span>
+                    <span class="sx-med-texto">VOCÊ ESTÁ GANHANDO R$20,00</span>
+                </div>`;
+            } else if (posicao === 3) {
+                return `<div class="sx-medalha-bar sx-medalha-bronze">
+                    <span class="sx-med-icon">🥉</span>
+                    <span class="sx-med-texto">VOCÊ ESTÁ GANHANDO R$10,00</span>
+                </div>`;
+            }
+            return '';
+        }
+
+        function calcularMedalhas(posts) {
+            // Filtra apenas posts com mídia (vídeo ou foto)
+            // e conta apenas do mês atual
+            const agora = new Date();
+            const mesAtual = agora.getMonth();
+            const anoAtual = agora.getFullYear();
+
+            const postsMidia = posts.filter(p => {
+                if (!p.dados.midia) return false;
+                if (p.dados.tipo === 'classificado') return false;
+                // Verifica se é do mês atual
+                let dataPost = null;
+                if (p.dados.data && p.dados.data.toDate) {
+                    dataPost = p.dados.data.toDate();
+                } else if (p.dados.data && p.dados.data.seconds) {
+                    dataPost = new Date(p.dados.data.seconds * 1000);
+                } else if (p.dados.data instanceof Date) {
+                    dataPost = p.dados.data;
+                } else if (p.dados.data) {
+                    dataPost = new Date(p.dados.data);
+                }
+                if (!dataPost) return true; // inclui se não tem data
+                return dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual;
+            });
+
+            // Ordena por curtidas decrescente
+            postsMidia.sort((a, b) => (b.dados.curtidas || 0) - (a.dados.curtidas || 0));
+
+            // Monta mapa: id do post -> posição (1, 2, 3)
+            const medalhas = {};
+            for (let i = 0; i < Math.min(3, postsMidia.length); i++) {
+                const curtidas = postsMidia[i].dados.curtidas || 0;
+                // Só atribui medalha se tiver pelo menos 1 curtida
+                if (curtidas > 0) {
+                    medalhas[postsMidia[i].id] = i + 1;
+                }
+            }
+            return medalhas;
+        }
+
         function carregarFeed(filtroNome=null){
             let q=query(collection(fsdb,"posts"),orderBy("data","desc"));
             if(filtroNome)q=query(collection(fsdb,"posts"),where("nome","==",filtroNome),orderBy("data","desc"));
@@ -649,23 +830,8 @@
                 const postsValidos=[];
                 snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
 
-                // ── MEDALHAS: top 3 vídeos mais curtidos ──
-                const videoPosts=postsValidos.filter(x=>x.dados.tipo==='video');
-                videoPosts.sort((a,b)=>(b.dados.curtidas||0)-(a.dados.curtidas||0));
-                const medalhaMap={};
-                if(videoPosts.length>=1) medalhaMap[videoPosts[0].id]={
-                    bar:'linear-gradient(90deg,#f59e0b,#d97706)',
-                    icon:'🥇', premio:'Você está ganhando R$50,00', borda:'#f59e0b'
-                };
-                if(videoPosts.length>=2) medalhaMap[videoPosts[1].id]={
-                    bar:'linear-gradient(90deg,#94a3b8,#64748b)',
-                    icon:'🥈', premio:'Você está ganhando R$20,00', borda:'#94a3b8'
-                };
-                if(videoPosts.length>=3) medalhaMap[videoPosts[2].id]={
-                    bar:'linear-gradient(90deg,#b45309,#92400e)',
-                    icon:'🥉', premio:'Você está ganhando R$10,00', borda:'#b45309'
-                };
-                // ──────────────────────────────────────────
+                // ── Calcula medalhas antes de renderizar ──
+                const medalhas = calcularMedalhas(postsValidos);
 
                 let idxAd=0;
                 postsValidos.forEach((item,i)=>{
@@ -673,20 +839,18 @@
                     let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){
-                            const med=medalhaMap[id];
-                            const medalhaBarHtml=med
-                                ? `<div style="background:${med.bar};padding:9px 14px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:13px;color:#fff;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4);">${med.icon} <span>${med.premio}</span></div>`
-                                : '';
-                            midiaHtml=`<div class="video-wrapper" style="${med?'border:2px solid '+med.borda+';border-radius:0;overflow:hidden;':''}">`
-                                +`<div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>`
-                                +`<video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video>`
-                                +`</div>${medalhaBarHtml}`;
+                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;
                         } else {
                             midiaHtml=`<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
                         }
                     }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
+
+                    // ── Barrinha de medalha (aparece acima do footer, se houver) ──
+                    const posicaoMedalha = medalhas[id] || 0;
+                    const barrinhaMedalha = posicaoMedalha > 0 ? gerarBarrinhaMedalha(posicaoMedalha) : '';
+
+                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}${barrinhaMedalha}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
                 document.querySelectorAll('.video-feed').forEach(v=>{registrarVideo(v);});
@@ -757,6 +921,7 @@
             input.value="";
         };
 
+        // ── Classificados ──
         function clsIniciar(){
             clsUpdateStatus('✅ CONECTADO! Pode anunciar.','ok');
             document.getElementById('btnNovo').disabled=false;
@@ -835,6 +1000,7 @@
             document.getElementById('cls-btnPublicar').disabled=true;clsIsSubmitting=false;
         }
 
+        // ── Lojas Look ──
         window.mascaraCPF=(i)=>{
             let v=i.value;if(isNaN(v[v.length-1])){i.value=v.substring(0,v.length-1);return;}
             i.setAttribute("maxlength","14");
@@ -882,6 +1048,7 @@
     </script>
 
     <script>
+    // ── PWA SX Network ──
     (function() {
 
         function gerarIcone(cb) {
