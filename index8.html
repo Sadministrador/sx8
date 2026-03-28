@@ -29,6 +29,45 @@
         .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; }
         .hidden { display: none; }
 
+        /* ══ AGUARDANDO APROVAÇÃO ══ */
+        #tela-aguardando {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #050a14;
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        #tela-aguardando.show { display: flex; }
+
+        .spinner-sx {
+            width: 80px;
+            height: 80px;
+            border: 6px solid #1d2d50;
+            border-top: 6px solid #ff0000;
+            border-radius: 50%;
+            animation: spin-sx 0.8s linear infinite;
+            margin-bottom: 2rem;
+        }
+        @keyframes spin-sx { to { transform: rotate(360deg); } }
+
+        .dots-anim::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
+
+        /* ══ NAV ══ */
         .nav-rapida {
             display: flex;
             gap: 4px;
@@ -60,9 +99,120 @@
         .tvsx-s  { color: #ff0000; font-weight: 900; }
         .tvsx-x  { color: #ffffff; font-weight: 900; }
 
-        .btn-curtir { transition: transform 0.2s; cursor: pointer; color: #ff0000; }
+        /* ══ CORAÇÕES — MODIFICADO ══ */
+        .btn-curtir {
+            transition: transform 0.2s, filter 0.4s, color 0.4s;
+            cursor: pointer;
+            color: #ff0000;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
+            padding: 4px 6px;
+            border-radius: 8px;
+        }
         .btn-curtir:active { transform: scale(1.4); }
-        .num-curtidas { color: white !important; font-weight: bold; }
+        .num-curtidas {
+            color: white !important;
+            font-weight: 900;
+            font-size: 1.1rem;
+            min-width: 20px;
+            display: inline-block;
+        }
+        /* Medalhas — barras largas e luxuosas */
+        .heart-badge {
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px 8px 10px;
+            border-radius: 14px;
+            font-weight: 900;
+            white-space: nowrap;
+            line-height: 1.3;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        /* Fitas finas coloridas nas laterais */
+        .heart-badge::before,
+        .heart-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+        }
+        /* fita esquerda */
+        .heart-badge::before { left: 0; border-radius: 14px 0 0 14px; }
+        /* fita direita */
+        .heart-badge::after  { right: 0; border-radius: 0 14px 14px 0; }
+
+        /* brilho animado via pseudo-element num span interno */
+        .badge-shine {
+            position: absolute;
+            top: 0; left: -70%;
+            width: 35%;
+            height: 100%;
+            background: rgba(255,255,255,0.18);
+            transform: skewX(-20deg);
+            animation: badge-shine 3s infinite;
+            pointer-events: none;
+        }
+        @keyframes badge-shine {
+            0%   { left: -70%; }
+            55%  { left: 130%; }
+            100% { left: 130%; }
+        }
+
+        .heart-badge-ouro {
+            background: linear-gradient(110deg, #7a5200, #FFD700 40%, #ffe066 55%, #c8860a 75%, #7a5200);
+            border: 1.5px solid #ffe566;
+            box-shadow: 0 2px 16px rgba(255,210,0,0.55), inset 0 1px 0 rgba(255,255,220,0.3);
+            color: #3b2600 !important;
+        }
+        .heart-badge-ouro::before,
+        .heart-badge-ouro::after { background: linear-gradient(180deg, #fff7a0, #c8860a, #fff7a0); }
+
+        .heart-badge-prata {
+            background: linear-gradient(110deg, #555, #bbb 35%, #eee 55%, #999 75%, #555);
+            border: 1.5px solid #ddd;
+            box-shadow: 0 2px 16px rgba(180,180,180,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+            color: #1a1a1a !important;
+        }
+        .heart-badge-prata::before,
+        .heart-badge-prata::after { background: linear-gradient(180deg, #fff, #aaa, #fff); }
+
+        .heart-badge-bronze {
+            background: linear-gradient(110deg, #4a1e00, #CD7F32 35%, #e8a96a 55%, #a05a10 75%, #4a1e00);
+            border: 1.5px solid #e0a060;
+            box-shadow: 0 2px 16px rgba(180,100,30,0.5), inset 0 1px 0 rgba(255,220,160,0.25);
+            color: #2a0e00 !important;
+        }
+        .heart-badge-bronze::before,
+        .heart-badge-bronze::after { background: linear-gradient(180deg, #f0c080, #7a3d00, #f0c080); }
+
+        .badge-emoji { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+        .badge-texto { display: flex; flex-direction: column; gap: 1px; }
+        .badge-titulo { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; }
+        .badge-valor  { font-size: 1.1rem; font-weight: 900; letter-spacing: 0.5px; }
+
+        /* ══ ANIMAÇÃO CORAÇÕEZINHOS ══ */
+        .heart-pop {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1.4rem;
+            animation: heart-fly 1.1s ease-out forwards;
+            user-select: none;
+            line-height: 1;
+        }
+        @keyframes heart-fly {
+            0%   { transform: translateY(0) translateX(var(--x)) scale(0.5) rotate(var(--r));  opacity: 1; }
+            60%  { opacity: 1; }
+            100% { transform: translateY(-130px) translateX(var(--x2)) scale(1.3) rotate(var(--r2)); opacity: 0; }
+        }
+
         .comment-box { background: rgba(0,0,0,0.2); border: 1px solid #1d2d50; border-radius: 8px; color: white; }
         .btn-upload-elegant { background: linear-gradient(45deg, #112240, #1d2d50); border: 1px solid #ff0000; color: #fff; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; transition: all 0.3s; }
         #area-veiculos { display: none; }
@@ -108,15 +258,17 @@
         .alerta-email.visivel { display:block; }
         .input-erro { border-color:#ff0000 !important; }
         .post-card { background: #112240; border-radius: 16px; border: 1px solid #1d2d50; border-left: 4px solid #ff0000; margin-bottom: 24px; overflow: hidden; }
-        .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .post-card-header { padding: 16px 16px 0 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .post-card-header-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+        .post-card-header-badge { flex: 1; display: flex; justify-content: center; }
         .post-card-texto { padding: 0 16px 12px 16px; color: #e5e7eb; font-size: 1rem; }
         .post-card-footer { padding: 16px; border-top: 1px solid #1f2f4d; }
-        .video-feed { width: 100%; height: 100vh; background: black; object-fit: cover; display: block; }
         .video-wrapper { position: relative; width: 100vw; height: 100vh; background: #000; overflow: hidden; margin-left: calc(-50vw + 50%); }
         .video-skeleton { position: absolute; inset: 0; background: linear-gradient(90deg, #112240 25%, #1d2d50 50%, #112240 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; display: flex; align-items: center; justify-content: center; z-index: 1; }
         .video-skeleton svg { opacity: 0.4; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+        /* ══ TV SX ══ */
         #area-tvsx {
             display: none;
             position: fixed;
@@ -127,30 +279,13 @@
         #area-tvsx.show { display: block; }
 
         @media screen and (orientation: landscape) {
-            #area-tvsx.show {
-                width: 100vw;
-                height: 100vh;
-                transform: none;
-            }
+            #area-tvsx.show { width: 100vw; height: 100vh; transform: none; }
         }
-
         @media screen and (orientation: portrait) {
-            #area-tvsx.show {
-                width: 100vh;
-                height: 100vw;
-                top: 0;
-                left: 0;
-                transform-origin: top left;
-                transform: rotate(90deg) translateX(0%) translateY(-100%);
-            }
+            #area-tvsx.show { width: 100vh; height: 100vw; top: 0; left: 0; transform-origin: top left; transform: rotate(90deg) translateX(0%) translateY(-100%); }
         }
 
-        #tvsx-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
+        #tvsx-iframe { width: 100%; height: 100%; border: none; display: block; }
 
         #btn-fechar-tvsx {
             display: none;
@@ -180,6 +315,21 @@
 </head>
 <body>
 
+    <!-- ══ TELA DE AGUARDANDO APROVAÇÃO (nova) ══ -->
+    <div id="tela-aguardando">
+        <div class="spinner-sx"></div>
+        <div class="flex items-center mb-4">
+            <span class="logo-s" style="font-size:2.5rem;">S</span>
+            <span class="logo-x" style="font-size:2.5rem;">X</span>
+        </div>
+        <h2 style="font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:10px;">Cadastro enviado com sucesso! ✅</h2>
+        <p style="color:#94a3b8;font-size:0.95rem;line-height:1.7;max-width:320px;">
+            Você será liberado e entrará na <strong style="color:white;">SX Network</strong> automaticamente<span class="dots-anim"></span>
+        </p>
+        <p style="color:#475569;font-size:0.8rem;margin-top:24px;">Aguardando aprovação do monitor</p>
+    </div>
+
+    <!-- ══ TV SX overlay ══ -->
     <div id="area-tvsx">
         <iframe id="tvsx-iframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
@@ -203,6 +353,7 @@
         </div>
     </aside>
 
+    <!-- LOGIN / CADASTRO -->
     <div id="login-box" class="hidden min-h-screen flex items-center justify-center p-4">
         <div class="sx-card-cadastro p-8 w-full max-w-md shadow-2xl border-t-4 border-red-600">
             <div class="mb-6 flex justify-center items-center">
@@ -211,7 +362,7 @@
             <div id="formulario-cadastro">
                 <div style="background: linear-gradient(135deg, #0a192f, #112240); border: 1px solid #ff0000; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; text-align: center;">
                     <p style="color: #ffffff; font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Seja bem vindo(a) a SX</p>
-                    <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">Após colocar suas informações e clicar em <strong style="color: white;">SE CADASTRAR</strong>, espere por <strong style="color: #ffffff;">10 a 15 segundos</strong> sem sair da tela de cadastro que automaticamente você entrará na <strong style="color: white;">REDE SOCIAL SX</strong>.</p>
+                    <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">Preencha seus dados e clique em <strong style="color: white;">SE CADASTRAR</strong>. Você entrará na <strong style="color: white;">REDE SOCIAL SX</strong> automaticamente assim que for aprovado!</p>
                 </div>
                 <div id="alerta-email-duplicado" class="alerta-email">
                     ⚠️ Este e-mail já está cadastrado.<br>
@@ -228,14 +379,10 @@
                 </label>
                 <button onclick="cadastrar()" id="btn-cadastrar" class="w-full p-3 rounded font-bold transition" style="background:#ff0000;">CADASTRAR</button>
             </div>
-            <div id="sucesso-cadastro" class="hidden text-center py-10">
-                <div class="text-6xl mb-4">✅</div>
-                <h2 class="text-2xl font-bold text-green-500">Cadastro Enviado!</h2>
-                <p class="text-gray-400 mt-2">Suas informações foram enviadas ao monitor.<br>Você entrará automaticamente assim que for liberado.</p>
-            </div>
         </div>
     </div>
 
+    <!-- PLATAFORMA PRINCIPAL -->
     <div id="main-box" class="hidden">
         <header class="bg-[#112240] p-4 flex justify-between items-center border-b border-red-900 sticky top-0 z-50">
             <button onclick="toggleMenu()" class="text-3xl text-red-600">☰</button>
@@ -286,6 +433,7 @@
             <div id="feed"></div>
         </main>
 
+        <!-- VEÍCULOS -->
         <div id="area-veiculos">
             <div class="cls-header">Classificados <span style="color:red;">S</span><span style="color:white;">X</span> — Veículos</div>
             <div class="cls-container">
@@ -392,30 +540,12 @@
         let userLogado=null, idLogado=null, unsubFeed=null, arquivoCapaPendente=null;
         let curtidasNestaSessao=new Set();
         let clsArquivos=[], clsIsSubmitting=false;
-        let isAdmin=false, anunciosAtivos=[], lokListaCarregada=false, intervaloVerificacao=null;
+        let isAdmin=false, anunciosAtivos=[], lokListaCarregada=false;
+        let unsubAprovacao=null;
 
+        // ── Vídeos do feed ──
         const videoCache=new Set();
         let videoAtual=null;
-
-        // ── CONTROLE DE SOM: começa mutado, desbloqueia no primeiro toque ──
-        let somDesbloqueado = false;
-
-        function tentarDesbloquearSom() {
-            if (somDesbloqueado) return;
-            somDesbloqueado = true;
-            // Ativa áudio em todos os vídeos visíveis
-            document.querySelectorAll('video.video-feed').forEach(v => {
-                v.muted = false;
-                if (!v.paused) {
-                    v.play().catch(() => { v.muted = true; });
-                }
-            });
-        }
-
-        // Captura qualquer interação do usuário para desbloquear o som
-        ['click','touchstart','touchend','keydown','scroll','pointerdown'].forEach(evt => {
-            document.addEventListener(evt, tentarDesbloquearSom, { once: false, passive: true });
-        });
 
         const videoObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
@@ -425,12 +555,8 @@
                     document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();v.muted=true;} });
                     videoAtual=video;
                     if(video.readyState<2){video.preload='auto';video.load();}
-                    // Tenta com som; se o navegador bloquear, deixa mutado até o próximo toque
-                    video.muted = !somDesbloqueado;
-                    video.play().catch(()=>{
-                        video.muted=true;
-                        video.play().catch(()=>{});
-                    });
+                    video.muted=false;
+                    video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
                     const sk=video.parentElement?.querySelector('.video-skeleton');
                     if(sk){
                         const hide=()=>{sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},300);video.removeEventListener('canplay',hide);};
@@ -460,13 +586,17 @@
             });
         },{rootMargin:'1200px 0px',threshold:0});
 
+        const desbloqueioSom=()=>{ document.querySelectorAll('video.video-feed').forEach(v=>{v.muted=false;}); };
+        document.addEventListener('click',desbloqueioSom,{once:true});
+        document.addEventListener('touchstart',desbloqueioSom,{once:true});
+
         function registrarVideo(v){
             v.preload='none'; v.muted=true;
             preloadObserver.observe(v); videoObserver.observe(v);
         }
 
+        // ── TV SX ──
         const TVSX_URL='https://sadministrador.github.io/tvsx/index10.html';
-
         window.abrirTVSX=()=>{
             if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
             document.querySelectorAll('video.video-feed').forEach(v=>{v.pause();v.muted=true;});
@@ -482,7 +612,6 @@
             document.getElementById('btn-nav-tvsx').style.borderColor='#ff0000';
             document.getElementById('btn-nav-tvsx').style.color='#ff0000';
         };
-
         window.fecharTVSX=()=>{
             document.getElementById('tvsx-iframe').src='';
             document.getElementById('area-tvsx').classList.remove('show');
@@ -510,55 +639,49 @@
 
         async function inicializar(){
             const emailSalvo=localStorage.getItem('sx_email');
-            if(!emailSalvo){document.getElementById('login-box').classList.remove('hidden');return;}
+            if(!emailSalvo){
+                document.getElementById('login-box').classList.remove('hidden');
+                return;
+            }
             try{
                 const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",emailSalvo));
                 const snap=await getDocs(q);
                 if(!snap.empty){
-                    const dados=snap.docs[0].data();
-                    const liberado=dados.status==="aprovado"||dados.status==="ativo";
-                    if(liberado){idLogado=snap.docs[0].id;userLogado=dados;entrarNaPlataforma();}
-                    else{verificarAprovacao(emailSalvo);}
-                } else{localStorage.removeItem('sx_email');document.getElementById('login-box').classList.remove('hidden');}
-            }catch(e){document.getElementById('login-box').classList.remove('hidden');}
-        }
-
-        function verificarAprovacao(email){
-            if(intervaloVerificacao)clearInterval(intervaloVerificacao);
-            intervaloVerificacao=setInterval(async()=>{
-                try{
-                    const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",email));
-                    const snap=await getDocs(q);
-                    if(!snap.empty){
-                        const dados=snap.docs[0].data();
-                        if(dados.status==="aprovado"||dados.status==="ativo"){
-                            clearInterval(intervaloVerificacao);idLogado=snap.docs[0].id;userLogado=dados;entrarNaPlataforma();
-                        }
-                    }
-                }catch(e){}
-            },8000);
-        }
-
-        function entrarNaPlataforma(){
-            if(intervaloVerificacao)clearInterval(intervaloVerificacao);
-            isAdmin=(userLogado.email==="admin@sx.com");
-            document.getElementById('login-box').classList.add('hidden');
-            document.getElementById('main-box').classList.remove('hidden');
-            document.getElementById('perfil-status').innerHTML=`<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">`;
-            document.getElementById('mini-foto-post').innerHTML=`<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600">`;
-            document.getElementById('btn-me-perfil').onclick=()=>verPerfil(idLogado);
-            if(isAdmin)document.getElementById('btn-flutuante-admin').style.display='flex';
-            carregarUsuariosMenu();
-            carregarAnunciosAtivos().then(()=>carregarFeed());
-            try{signInAnonymously(auth);}catch(e){}
-            clsIniciar();
-            onSnapshot(doc(fsdb,"usuariosAprovados",idLogado),(snap)=>{
-                if(!snap.exists()||snap.data().status==="excluido"||snap.data().status==="bloqueado"){
+                    idLogado=snap.docs[0].id;
+                    userLogado=snap.docs[0].data();
+                    entrarNaPlataforma();
+                } else {
                     localStorage.removeItem('sx_email');
-                    document.getElementById('main-box').classList.add('hidden');
-                    document.getElementById('formulario-cadastro').classList.remove('hidden');
-                    document.getElementById('sucesso-cadastro').classList.add('hidden');
                     document.getElementById('login-box').classList.remove('hidden');
+                }
+            }catch(e){
+                document.getElementById('login-box').classList.remove('hidden');
+            }
+        }
+
+        function mostrarTelaAguardando(){
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('main-box').classList.add('hidden');
+            document.getElementById('tela-aguardando').classList.add('show');
+        }
+        function esconderTelaAguardando(){
+            document.getElementById('tela-aguardando').classList.remove('show');
+        }
+
+        function ouvirAprovacaoEmTempoReal(email){
+            if(unsubAprovacao) unsubAprovacao();
+            const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",email));
+            unsubAprovacao=onSnapshot(q, snap=>{
+                if(snap.empty) return;
+                const d=snap.docs[0];
+                const dados=d.data();
+                const liberado=dados.status==="aprovado"||dados.status==="ativo";
+                if(liberado){
+                    if(unsubAprovacao){ unsubAprovacao(); unsubAprovacao=null; }
+                    idLogado=d.id;
+                    userLogado=dados;
+                    esconderTelaAguardando();
+                    entrarNaPlataforma();
                 }
             });
         }
@@ -573,21 +696,55 @@
             if(!email)return alert("Digite seu e-mail!");
             if(!tel)return alert("Digite seu telefone!");
             if(!file)return alert("Por favor, suba sua foto de perfil!");
-            btn.disabled=true;btn.innerText="VERIFICANDO...";
+            btn.disabled=true; btn.innerText="VERIFICANDO...";
             try{
                 const qExiste=query(collection(fsdb,"usuariosAprovados"),where("email","==",email));
                 const snapExiste=await getDocs(qExiste);
-                if(!snapExiste.empty){mostrarErroEmail();btn.disabled=false;btn.innerText="ENVIAR PARA O MONITOR";return;}
+                if(!snapExiste.empty){
+                    mostrarErroEmail();
+                    btn.disabled=false; btn.innerText="CADASTRAR";
+                    return;
+                }
                 btn.innerText="ENVIANDO...";
                 const sRef=stRef(storage,'perfis/'+Date.now()+"_"+file.name);
-                await uploadBytes(sRef,file);const url=await getDownloadURL(sRef);
-                await addDoc(collection(fsdb,"usuariosAprovados"),{nome,email,tel,foto:url,status:"pendente"});
+                await uploadBytes(sRef,file);
+                const url=await getDownloadURL(sRef);
+                const docRef=await addDoc(collection(fsdb,"usuariosAprovados"),{
+                    nome, email, tel, foto:url, status:"aprovado"
+                });
                 localStorage.setItem('sx_email',email);
-                document.getElementById('formulario-cadastro').classList.add('hidden');
-                document.getElementById('sucesso-cadastro').classList.remove('hidden');
-                verificarAprovacao(email);
-            }catch(e){alert("Erro ao enviar cadastro.");btn.disabled=false;btn.innerText="ENVIAR PARA O MONITOR";}
+                idLogado=docRef.id;
+                userLogado={nome,email,tel,foto:url,status:"aprovado"};
+                entrarNaPlataforma();
+            }catch(e){
+                alert("Erro ao enviar cadastro.");
+                btn.disabled=false; btn.innerText="CADASTRAR";
+            }
         };
+
+        function entrarNaPlataforma(){
+            if(unsubAprovacao){ unsubAprovacao(); unsubAprovacao=null; }
+            isAdmin=(userLogado.email==="admin@sx.com");
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('tela-aguardando').classList.remove('show');
+            document.getElementById('main-box').classList.remove('hidden');
+            document.getElementById('perfil-status').innerHTML=`<img src="${userLogado.foto}" class="w-10 h-10 rounded-full object-cover border-2 border-red-600">`;
+            document.getElementById('mini-foto-post').innerHTML=`<img src="${userLogado.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600">`;
+            document.getElementById('btn-me-perfil').onclick=()=>verPerfil(idLogado);
+            if(isAdmin)document.getElementById('btn-flutuante-admin').style.display='flex';
+            carregarUsuariosMenu();
+            carregarAnunciosAtivos().then(()=>carregarFeed());
+            try{signInAnonymously(auth);}catch(e){}
+            clsIniciar();
+            onSnapshot(doc(fsdb,"usuariosAprovados",idLogado),(snap)=>{
+                if(!snap.exists()||snap.data().status==="excluido"||snap.data().status==="bloqueado"){
+                    localStorage.removeItem('sx_email');
+                    document.getElementById('main-box').classList.add('hidden');
+                    document.getElementById('formulario-cadastro').classList.remove('hidden');
+                    document.getElementById('login-box').classList.remove('hidden');
+                }
+            });
+        }
 
         function resetNav(){
             ['btn-nav-feed','btn-nav-veiculos','btn-nav-tvsx','btn-nav-vestir','btn-nav-lojas'].forEach(id=>{
@@ -660,6 +817,41 @@
             return`<div style="background:linear-gradient(135deg,#1a0a2e,#0d1f3c);border-radius:16px;border:2px solid #ff0000;margin-bottom:24px;overflow:hidden;box-shadow:0 0 20px rgba(255,0,0,0.2);"><div style="background:rgba(255,0,0,0.9);color:white;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin:10px 10px 0 10px;">Patrocinado</div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:#ff6060;text-transform:uppercase;">${ad.loja||''}</span></div><div style="font-size:18px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px;">${ad.titulo||''}</div><div style="font-size:14px;color:#aac;line-height:1.5;">${ad.descricao||''}</div>${linkHtml}</div></div>`;
         }
 
+        // ══ FUNÇÃO DE RANKING DE CORAÇÕES ══
+        function aplicarRankingCoracoes() {
+            const allBtns = document.querySelectorAll('.btn-curtir[data-post-id]');
+            const arr = [];
+            allBtns.forEach(btn => {
+                const count = parseInt(btn.querySelector('.num-curtidas')?.textContent || 0) || 0;
+                arr.push({ btn, count });
+            });
+            arr.sort((a, b) => b.count - a.count);
+            // Reset: limpa todos os slots centrais e garante coração vermelho
+            arr.forEach(item => {
+                item.btn.style.color = '#ff0000';
+                item.btn.style.filter = 'none';
+                const id = item.btn.getAttribute('data-post-id');
+                const slot = document.getElementById('badge-slot-' + id);
+                if (slot) slot.innerHTML = '';
+            });
+            const medalhas = [
+                { cls: 'heart-badge-ouro',   emoji: '🥇', titulo: 'Você está ganhando', valor: 'R$ 50,00' },
+                { cls: 'heart-badge-prata',  emoji: '🥈', titulo: 'Você está ganhando', valor: 'R$ 20,00' },
+                { cls: 'heart-badge-bronze', emoji: '🥉', titulo: 'Você está ganhando', valor: 'R$ 10,00' }
+            ];
+            arr.slice(0, 3).forEach((item, rank) => {
+                if (item.count <= 0) return;
+                const m = medalhas[rank];
+                const id = item.btn.getAttribute('data-post-id');
+                const slot = document.getElementById('badge-slot-' + id);
+                if (!slot) return;
+                const badge = document.createElement('span');
+                badge.className = `heart-badge ${m.cls}`;
+                badge.innerHTML = `<span class="badge-shine"></span><span class="badge-emoji">${m.emoji}</span><span class="badge-texto"><span class="badge-titulo">${m.titulo}</span><span class="badge-valor">${m.valor}</span></span>`;
+                slot.appendChild(badge);
+            });
+        }
+
         function carregarFeed(filtroNome=null){
             let q=query(collection(fsdb,"posts"),orderBy("data","desc"));
             if(filtroNome)q=query(collection(fsdb,"posts"),where("nome","==",filtroNome),orderBy("data","desc"));
@@ -668,49 +860,25 @@
                 const f=document.getElementById('feed');f.innerHTML="";
                 const postsValidos=[];
                 snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
-
-                // ── MEDALHAS: top 3 vídeos mais curtidos ──
-                const videoPosts=postsValidos.filter(x=>x.dados.tipo==='video');
-                videoPosts.sort((a,b)=>(b.dados.curtidas||0)-(a.dados.curtidas||0));
-                const medalhaMap={};
-                if(videoPosts.length>=1) medalhaMap[videoPosts[0].id]={
-                    bar:'linear-gradient(90deg,#f59e0b,#d97706)',
-                    icon:'🥇', premio:'Você está ganhando R$50,00', borda:'#f59e0b'
-                };
-                if(videoPosts.length>=2) medalhaMap[videoPosts[1].id]={
-                    bar:'linear-gradient(90deg,#94a3b8,#64748b)',
-                    icon:'🥈', premio:'Você está ganhando R$20,00', borda:'#94a3b8'
-                };
-                if(videoPosts.length>=3) medalhaMap[videoPosts[2].id]={
-                    bar:'linear-gradient(90deg,#b45309,#92400e)',
-                    icon:'🥉', premio:'Você está ganhando R$10,00', borda:'#b45309'
-                };
-                // ──────────────────────────────────────────
-
                 let idxAd=0;
                 postsValidos.forEach((item,i)=>{
                     const{id,dados:p}=item;
                     let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){
-                            const med=medalhaMap[id];
-                            const medalhaBarHtml=med
-                                ? `<div style="background:${med.bar};padding:9px 14px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:13px;color:#fff;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.4);">${med.icon} <span>${med.premio}</span></div>`
-                                : '';
-                            midiaHtml=`<div class="video-wrapper" style="${med?'border:2px solid '+med.borda+';border-radius:0;overflow:hidden;':''}">`
-                                +`<div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>`
-                                +`<video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video>`
-                                +`</div>${medalhaBarHtml}`;
+                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;
                         } else {
                             midiaHtml=`<img src="${p.midia}" loading="lazy" class="w-full rounded-xl mt-4 object-cover">`;
                         }
                     }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="flex items-center gap-3"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div onclick="curtirPost('${id}',this)" class="btn-curtir text-2xl">❤️ <span class="num-curtidas text-xs ml-1">${p.curtidas||0}</span></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
+                    f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="post-card-header-inner"><div class="flex items-center gap-3" style="flex-shrink:0;"><img src="${p.foto}" class="w-12 h-12 rounded-full object-cover border-2 border-red-600"><span class="font-black text-red-600 text-sm uppercase">${p.nome}</span></div><div class="post-card-header-badge" id="badge-slot-${id}"></div><div onclick="curtirPost('${id}',this)" class="btn-curtir" data-post-id="${id}" style="flex-shrink:0;">❤️ <span class="num-curtidas">${p.curtidas||0}</span></div></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
                 document.querySelectorAll('.video-feed').forEach(v=>{registrarVideo(v);});
                 document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{v.preload='none';preloadObserver.observe(v);});
+                // ── Aplica ranking ouro/prata/bronze ──
+                aplicarRankingCoracoes();
             });
         }
 
@@ -764,11 +932,44 @@
             document.getElementById('file-name').innerText="✨ ADICIONAR MÍDIA INCRÍVEL";btn.disabled=false;btn.innerText="Publicar";
         };
 
+        function dispararCoracoes(btn) {
+            const rect = btn.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const emojis = ['❤️'];
+            const qtd = 8;
+            for (let i = 0; i < qtd; i++) {
+                const el = document.createElement('span');
+                el.className = 'heart-pop';
+                el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                const xInicio = (Math.random() - 0.5) * 30;
+                const xFim   = (Math.random() - 0.5) * 80;
+                const r1 = (Math.random() - 0.5) * 30;
+                const r2 = (Math.random() - 0.5) * 60;
+                const size = 0.9 + Math.random() * 0.9;
+                el.style.cssText = `
+                    left:${cx + xInicio}px;
+                    top:${cy}px;
+                    font-size:${size}rem;
+                    --x:${xInicio}px;
+                    --x2:${xFim}px;
+                    --r:${r1}deg;
+                    --r2:${r2}deg;
+                    animation-delay:${i * 60}ms;
+                `;
+                document.body.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            }
+        }
+
         window.curtirPost=async(id,btn)=>{
             if(curtidasNestaSessao.has(id))return;
+            dispararCoracoes(btn);
             const refDoc=doc(fsdb,"posts",id),snap=await getDoc(refDoc),total=(snap.data().curtidas||0)+1;
             await updateDoc(refDoc,{curtidas:total});curtidasNestaSessao.add(id);
-            btn.innerHTML=`❤️ <span class="num-curtidas text-xs ml-1">${total}</span>`;
+            btn.innerHTML=`❤️ <span class="num-curtidas">${total}</span>`;
+            // Re-aplica ranking após curtir
+            aplicarRankingCoracoes();
         };
 
         window.salvarComentario=async(id)=>{
@@ -777,12 +978,12 @@
             input.value="";
         };
 
+        // ── Classificados ──
         function clsIniciar(){
             clsUpdateStatus('✅ CONECTADO! Pode anunciar.','ok');
             document.getElementById('btnNovo').disabled=false;
             const q=query(collection(fsdb,'posts'),where('publicado','==',true),where('tipo','==','classificado'),orderBy('data','desc'));
-            onSnapshot(q,snap=>{
-                const lista=document.getElementById('cls-listaAnuncios');
+            const renderLista=(snap,lista)=>{
                 lista.innerHTML=snap.empty?'<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>':'';
                 snap.forEach(ds=>{
                     const d=ds.data(),midias=d.midia||[];
@@ -790,16 +991,12 @@
                     const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
                     lista.innerHTML+=`<div class="anuncio-cls"><span class="badge-publicado">✅ PUBLICADO</span><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;margin-top:10px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>{const isVid=url.includes('.mp4')||url.includes('.mov')||url.includes('.webm')||url.includes('video');return isVid?`<video src="${url}" loop playsinline preload="none" style="max-width:140px;height:110px;border-radius:8px;cursor:pointer;" onclick="this.muted=!this.muted;this.paused?this.play():this.pause()"></video>`:`<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')" title="Clique para ampliar">`;}).join('')}</div></div>`;
                 });
+            };
+            onSnapshot(q,snap=>{
+                renderLista(snap,document.getElementById('cls-listaAnuncios'));
             },()=>{
                 onSnapshot(query(collection(fsdb,'posts'),where('publicado','==',true),where('tipo','==','classificado')),snap2=>{
-                    const lista=document.getElementById('cls-listaAnuncios');
-                    lista.innerHTML=snap2.empty?'<p style="text-align:center;color:#ccc;padding:20px;">Nenhum anúncio publicado ainda...</p>':'';
-                    snap2.forEach(ds=>{
-                        const d=ds.data(),midias=d.midia||[];
-                        const nomeVeiculo=(d.nome||'')+(d.ano?' '+d.ano:'')+(d.categoria?' ('+d.categoria+')':'');
-                        const msgVeiculo=encodeURIComponent('Olá! Vi seu anúncio no *SX Classificados*! 🚗\n*Veículo:* '+nomeVeiculo+'\n'+(d.preco?'*Preço:* R$ '+Number(d.preco).toLocaleString('pt-BR')+'\n':'')+([d.bairro,d.estado].filter(Boolean).length?'*Local:* '+[d.bairro,d.estado].filter(Boolean).join(', ')+'\n':'')+'\nO veículo ainda está disponível?');
-                        lista.innerHTML+=`<div class="anuncio-cls"><h3>🚗 ${d.nome||''} (${d.ano||''}) — ${d.categoria||''}</h3><p>${d.descricao||''}</p><p><b>📍 ${d.bairro||''}, ${d.estado||''}</b> | <b>💰 R$ ${Number(d.preco||0).toLocaleString('pt-br')}</b></p><a href="https://wa.me/55${d.whatsapp||''}?text=${msgVeiculo}" target="_blank"><button class="cls-btn" style="background:#25D366;padding:10px 20px;">📱 WhatsApp</button></a><div class="midia-grid-cls">${midias.map(url=>`<img src="${url}" loading="lazy" onclick="clsAbrirGaleria('${url}')">`).join('')}</div></div>`;
-                    });
+                    renderLista(snap2,document.getElementById('cls-listaAnuncios'));
                 });
             });
         }
@@ -855,6 +1052,7 @@
             document.getElementById('cls-btnPublicar').disabled=true;clsIsSubmitting=false;
         }
 
+        // ── Lojas Look ──
         window.mascaraCPF=(i)=>{
             let v=i.value;if(isNaN(v[v.length-1])){i.value=v.substring(0,v.length-1);return;}
             i.setAttribute("maxlength","14");
@@ -901,9 +1099,9 @@
         inicializar();
     </script>
 
+    <!-- ── PWA SX Network ── -->
     <script>
     (function() {
-
         function gerarIcone(cb) {
             var c = document.createElement('canvas');
             c.width = 512; c.height = 512;
@@ -929,16 +1127,10 @@
 
         gerarIcone(function(ICON) {
             document.getElementById('apple-touch-icon').href = ICON;
-
             var manifest = {
-                name: "SX Network",
-                short_name: "SX",
-                description: "SX - Network Social",
-                start_url: "./",
-                display: "standalone",
-                background_color: "#050a14",
-                theme_color: "#ff0000",
-                orientation: "portrait",
+                name: "SX Network", short_name: "SX", description: "SX - Network Social",
+                start_url: "./", display: "standalone", background_color: "#050a14",
+                theme_color: "#ff0000", orientation: "portrait",
                 icons: [
                     {src: ICON, sizes: "192x192", type: "image/png", purpose: "any maskable"},
                     {src: ICON, sizes: "512x512", type: "image/png", purpose: "any maskable"}
@@ -948,15 +1140,8 @@
             document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
 
             if ('serviceWorker' in navigator) {
-                var sw = [
-                    'self.addEventListener("install",function(e){self.skipWaiting();});',
-                    'self.addEventListener("activate",function(e){e.waitUntil(clients.claim());});',
-                    'self.addEventListener("fetch",function(e){});'
-                ].join('');
-                navigator.serviceWorker.register(
-                    URL.createObjectURL(new Blob([sw], {type: 'application/javascript'})),
-                    {scope: './'}
-                ).catch(function(){});
+                var sw = ['self.addEventListener("install",function(e){self.skipWaiting();});','self.addEventListener("activate",function(e){e.waitUntil(clients.claim());});','self.addEventListener("fetch",function(e){});'].join('');
+                navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw], {type: 'application/javascript'})), {scope: './'}).catch(function(){});
             }
 
             var dp = null;
@@ -974,8 +1159,7 @@
             mctx.beginPath(); mctx.roundRect(0,0,36,36,6); mctx.fill();
             mctx.strokeStyle='#ff0000'; mctx.lineWidth=2;
             mctx.beginPath(); mctx.roundRect(1,1,34,34,5); mctx.stroke();
-            mctx.font='bold 20px Arial Black,Arial';
-            mctx.textAlign='center'; mctx.textBaseline='middle';
+            mctx.font='bold 20px Arial Black,Arial'; mctx.textAlign='center'; mctx.textBaseline='middle';
             mctx.fillStyle='#ff0000'; mctx.fillText('S',10,19);
             mctx.fillStyle='#ffffff'; mctx.fillText('X',26,19);
             var miniIcon = miniCanvas.toDataURL('image/png');
@@ -988,10 +1172,7 @@
                 if (dp) {
                     dp.prompt();
                     dp.userChoice.then(function(r) {
-                        if (r.outcome === 'accepted') {
-                            localStorage.setItem('sx_pwa_instalado','1');
-                            b.remove();
-                        }
+                        if (r.outcome === 'accepted') { localStorage.setItem('sx_pwa_instalado','1'); b.remove(); }
                         dp = null;
                     });
                 } else {
@@ -999,18 +1180,9 @@
                 }
             };
             document.body.appendChild(b);
-
-            window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                dp = e;
-            });
-
-            window.addEventListener('appinstalled', function() {
-                localStorage.setItem('sx_pwa_instalado','1');
-                b.remove();
-            });
+            window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); dp = e; });
+            window.addEventListener('appinstalled', function() { localStorage.setItem('sx_pwa_instalado','1'); b.remove(); });
         });
-
     })();
     </script>
 </body>
