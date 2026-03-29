@@ -386,7 +386,7 @@
             somDesbloqueado = true;
             document.querySelectorAll('video.video-feed').forEach(v => {
                 v.muted = false;
-                if (!v.paused) v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); });
+                if (!v.paused) v.play().catch(() => {});
             });
         }
         document.addEventListener('click',     desbloquearSom, { passive: true });
@@ -399,7 +399,7 @@
                 const video=entry.target;
                 if(document.getElementById('area-tvsx').classList.contains('show')) return;
                 if(entry.isIntersecting){
-                    document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();v.muted=true;} });
+                    document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();} });
                     videoAtual=video;
                     if(video.readyState<2){video.preload='auto';video.load();}
                     video.muted = false;
@@ -410,7 +410,7 @@
                         video.readyState>=2?hide():video.addEventListener('canplay',hide);
                     }
                 } else {
-                    video.pause(); video.muted=true;
+                    video.pause();
                     const sk=video.parentElement?.querySelector('.video-skeleton');
                     if(sk&&video.readyState<1){sk.style.display='flex';sk.style.opacity='1';}
                 }
@@ -437,7 +437,7 @@
         },{rootMargin:'2000px 0px',threshold:0});
 
         function registrarVideo(v){
-            v.preload='none'; v.muted=true;
+            v.preload='none'; v.muted=false;
             preloadObserver.observe(v); videoObserver.observe(v);
         }
 
