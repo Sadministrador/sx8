@@ -809,7 +809,9 @@
             dispararCoracoes(btn);
             const refDoc=doc(fsdb,"posts",id),snap=await getDoc(refDoc),total=(snap.data().curtidas||0)+1;
             await updateDoc(refDoc,{curtidas:total});curtidasNestaSessao.add(id);
-            btn.innerHTML=`❤️ <span class="num-curtidas">${total}</span>`;
+            // ══ CORREÇÃO: atualiza só o número, sem reescrever o innerHTML do botão ══
+            const numEl=btn.querySelector('.num-curtidas');
+            if(numEl) numEl.textContent=total;
             aplicarRankingCoracoes();
         };
 
