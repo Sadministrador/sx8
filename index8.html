@@ -402,7 +402,7 @@
                     document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();v.muted=true;} });
                     videoAtual=video;
                     if(video.readyState<2){video.preload='auto';video.load();}
-                    video.muted = !somDesbloqueado;
+                    video.muted = false;
                     video.play().catch(()=>{ video.muted=true; video.play().catch(()=>{}); });
                     const sk=video.parentElement?.querySelector('.video-skeleton');
                     if(sk){
