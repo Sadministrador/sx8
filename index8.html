@@ -352,6 +352,33 @@
         const videoCache=new Set();
         let videoAtual=null;
 
+        // ══ PERSISTÊNCIA: salva email de forma robusta em múltiplas chaves ══
+        function salvarEmailLocal(email) {
+            try {
+                localStorage.setItem('sx_email', email);
+                localStorage.setItem('sx_email_backup', email);
+                localStorage.setItem('sx_logado', '1');
+                // sessionStorage como camada extra durante a sessão
+                sessionStorage.setItem('sx_email', email);
+            } catch(e) {}
+        }
+        function lerEmailLocal() {
+            try {
+                return localStorage.getItem('sx_email')
+                    || localStorage.getItem('sx_email_backup')
+                    || sessionStorage.getItem('sx_email')
+                    || null;
+            } catch(e) { return null; }
+        }
+        function limparEmailLocal() {
+            try {
+                localStorage.removeItem('sx_email');
+                localStorage.removeItem('sx_email_backup');
+                localStorage.removeItem('sx_logado');
+                sessionStorage.removeItem('sx_email');
+            } catch(e) {}
+        }
+
         // ══ SOM: desbloqueia silenciosamente na 1ª interação, sem botão visível ══
         let somDesbloqueado = false;
         function desbloquearSom() {
@@ -447,15 +474,28 @@
         }
 
         async function inicializar(){
-            const emailSalvo=localStorage.getItem('sx_email');
+            // ══ CORREÇÃO PRINCIPAL: usa função robusta de leitura ══
+            const emailSalvo = lerEmailLocal();
             if(!emailSalvo){ document.getElementById('login-box').classList.remove('hidden'); return; }
             try{
                 const q=query(collection(fsdb,"usuariosAprovados"),where("email","==",emailSalvo));
                 const snap=await getDocs(q);
                 if(!snap.empty){
-                    idLogado=snap.docs[0].id; userLogado=snap.docs[0].data(); entrarNaPlataforma();
+                    const dados = snap.docs[0].data();
+                    const liberado = dados.status==="aprovado" || dados.status==="ativo";
+                    if(liberado){
+                        idLogado=snap.docs[0].id;
+                        userLogado=dados;
+                        // ══ Re-salva sempre que logar com sucesso para garantir persistência ══
+                        salvarEmailLocal(emailSalvo);
+                        entrarNaPlataforma();
+                    } else {
+                        // Conta existe mas não está ativa ainda
+                        mostrarTelaAguardando();
+                        ouvirAprovacaoEmTempoReal(emailSalvo);
+                    }
                 } else {
-                    localStorage.removeItem('sx_email');
+                    limparEmailLocal();
                     document.getElementById('login-box').classList.remove('hidden');
                 }
             }catch(e){ document.getElementById('login-box').classList.remove('hidden'); }
@@ -478,6 +518,8 @@
                 if(liberado){
                     if(unsubAprovacao){unsubAprovacao();unsubAprovacao=null;}
                     idLogado=d.id; userLogado=dados;
+                    // ══ CORREÇÃO: salva o email ao ser aprovado em tempo real ══
+                    salvarEmailLocal(email);
                     esconderTelaAguardando(); entrarNaPlataforma();
                 }
             });
@@ -505,7 +547,8 @@
                 const docRef=await addDoc(collection(fsdb,"usuariosAprovados"),{
                     nome, email, tel, foto:url, status:"aprovado"
                 });
-                localStorage.setItem('sx_email',email);
+                // ══ CORREÇÃO: salva com função robusta ANTES de entrar ══
+                salvarEmailLocal(email);
                 idLogado=docRef.id;
                 userLogado={nome,email,tel,foto:url,status:"aprovado"};
                 entrarNaPlataforma();
@@ -529,9 +572,10 @@
             carregarAnunciosAtivos().then(()=>carregarFeed());
             try{signInAnonymously(auth);}catch(e){}
             clsIniciar();
+            // ══ Monitora bloqueio/exclusão da conta ══
             onSnapshot(doc(fsdb,"usuariosAprovados",idLogado),(snap)=>{
                 if(!snap.exists()||snap.data().status==="excluido"||snap.data().status==="bloqueado"){
-                    localStorage.removeItem('sx_email');
+                    limparEmailLocal();
                     document.getElementById('main-box').classList.add('hidden');
                     document.getElementById('formulario-cadastro').classList.remove('hidden');
                     document.getElementById('login-box').classList.remove('hidden');
