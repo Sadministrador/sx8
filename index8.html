@@ -116,74 +116,55 @@
         @media screen and (orientation:landscape){#btn-fechar-tvsx.show{top:12px;right:12px;bottom:auto;left:auto;}}
         @media screen and (orientation:portrait){#btn-fechar-tvsx.show{bottom:12px;right:12px;top:auto;left:auto;}}
 
-        /* ╔══════════════════════════════════════════════════════════════╗
-           ║      SISTEMA TURBO MAX DE ANIMAÇÃO DOS BANNERS SX           ║
-           ╚══════════════════════════════════════════════════════════════╝ */
-
-        /* Borda elétrica girando */
         @keyframes ad-spin{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-        /* Explosão de brilho externo */
         @keyframes ad-explode{
             0%  {box-shadow:0 0 0 0 rgba(255,0,0,0),0 0 18px 2px rgba(255,0,0,0.25);}
             35% {box-shadow:0 0 40px 10px rgba(255,40,0,0.7),0 0 70px 20px rgba(255,120,0,0.35);}
             65% {box-shadow:0 0 20px 4px rgba(255,0,0,0.4),0 0 40px 8px rgba(255,60,0,0.2);}
             100%{box-shadow:0 0 0 0 rgba(255,0,0,0),0 0 18px 2px rgba(255,0,0,0.25);}
         }
-
-        /* Shimmer rápido branco */
         @keyframes ad-sh1{
             0%  {transform:translateX(-130%) skewX(-18deg);opacity:0;}
             8%  {opacity:1;}
             92% {opacity:1;}
             100%{transform:translateX(330%) skewX(-18deg);opacity:0;}
         }
-        /* Shimmer lento dourado contra-diagonal */
         @keyframes ad-sh2{
             0%  {transform:translateX(330%) skewX(14deg);opacity:0;}
             8%  {opacity:0.7;}
             92% {opacity:0.7;}
             100%{transform:translateX(-130%) skewX(14deg);opacity:0;}
         }
-        /* Shimmer extra — fino vermelho */
         @keyframes ad-sh3{
             0%  {transform:translateX(-130%) skewX(-10deg);opacity:0;}
             5%  {opacity:0.5;}
             95% {opacity:0.5;}
             100%{transform:translateX(330%) skewX(-10deg);opacity:0;}
         }
-
-        /* Scan verde descendo */
         @keyframes ad-scan-dn{
             0%  {top:-4px;opacity:0;}
             4%  {opacity:1;}
             88% {opacity:0.9;}
             100%{top:102%;opacity:0;}
         }
-        /* Scan vermelho subindo */
         @keyframes ad-scan-up{
             0%  {bottom:-4px;opacity:0;}
             4%  {opacity:0.7;}
             88% {opacity:0.6;}
             100%{bottom:102%;opacity:0;}
         }
-        /* Scan azul transversal */
         @keyframes ad-scan-cross{
             0%  {left:-4px;opacity:0;}
             4%  {opacity:0.55;}
             88% {opacity:0.5;}
             100%{left:102%;opacity:0;}
         }
-
-        /* Zoom respiração da imagem */
         @keyframes ad-zoom{
             0%  {transform:scale(1) translateY(0);}
             28% {transform:scale(1.055) translateY(-5px);}
             60% {transform:scale(1.02) translateY(3px);}
             100%{transform:scale(1) translateY(0);}
         }
-
-        /* Glitch RGB */
         @keyframes ad-glitch{
             0%,90%,100%{clip-path:none;transform:translate(0,0);filter:none;}
             91%{clip-path:inset(15% 0 65% 0);transform:translate(-5px,1px);filter:hue-rotate(90deg) saturate(2);}
@@ -192,190 +173,64 @@
             94%{clip-path:inset(30% 0 50% 0);transform:translate(3px,-1px);}
             95%{clip-path:none;transform:translate(0,0);filter:none;}
         }
-
-        /* Partícula flutuante */
         @keyframes ad-particle{
             0%  {transform:translateY(0) translateX(0) scale(0) rotate(0deg);opacity:0;}
             12% {opacity:1;}
             88% {opacity:0.85;}
             100%{transform:translateY(var(--py)) translateX(var(--px)) scale(var(--ps)) rotate(var(--pr));opacity:0;}
         }
-
-        /* Badge pulsando com expansão */
         @keyframes ad-badge{
             0%,100%{transform:scale(1);letter-spacing:1px;box-shadow:0 0 0 0 rgba(255,0,0,0.5);}
             50%    {transform:scale(1.12);letter-spacing:2.5px;box-shadow:0 0 16px 5px rgba(255,80,0,0.75);}
         }
-
-        /* Logo flip 3D */
         @keyframes ad-logo{
             0%,40%   {transform:rotateY(0deg);}
             50%,90%  {transform:rotateY(180deg);}
             100%     {transform:rotateY(360deg);}
         }
-
-        /* Título neon */
         @keyframes ad-title{
             0%,100%{text-shadow:0 0 0 rgba(255,100,0,0);color:#ffffff;}
             50%    {text-shadow:0 0 20px rgba(255,100,0,1),0 0 40px rgba(255,0,0,0.6),0 0 60px rgba(255,60,0,0.3);color:#fff5dd;}
         }
-
-        /* CTA onda de cor */
         @keyframes ad-cta-wave{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-        /* CTA shine */
         @keyframes ad-cta-sh{
             0%  {left:-110%;opacity:0;}
             8%  {opacity:1;}
             92% {opacity:1;}
             100%{left:150%;opacity:0;}
         }
-        /* CTA brilho externo */
         @keyframes ad-cta-glow{
             0%,100%{box-shadow:0 0 8px 1px rgba(255,60,0,0.4),inset 0 0 8px rgba(255,0,0,0.08);}
             50%    {box-shadow:0 0 28px 8px rgba(255,0,0,0.9),inset 0 0 18px rgba(255,80,0,0.3);}
         }
-
-        /* Vinheta pulsante sobre a imagem */
         @keyframes ad-vig{
             0%,100%{opacity:0.5;}
             50%    {opacity:0.85;}
         }
-
-        /* ── CARD WRAPPER ── */
-        .sx-ad-card{
-            position:relative;border-radius:22px;
-            margin:0 2px 32px 2px;
-            overflow:visible;
-            animation:ad-explode 2.6s ease-in-out infinite;
-        }
-        /* Borda elétrica girando */
-        .sx-ad-card::before{
-            content:'';position:absolute;inset:-3px;border-radius:25px;
-            background:linear-gradient(60deg,#ff0000,#ff7700,#ffdd00,#ff0000,#cc0000,#ff5500,#ff0000,#ff7700);
-            background-size:400% 400%;
-            animation:ad-spin 1.8s linear infinite;
-            z-index:0;
-        }
-        /* Inner escuro */
-        .sx-ad-inner{
-            position:relative;z-index:1;border-radius:19px;overflow:hidden;
-            background:linear-gradient(145deg,#1a0a2e 0%,#0d1f3c 50%,#080d18 100%);
-        }
-
-        /* ── BADGE PATROCINADO ── */
-        .sx-ad-badge{
-            display:inline-block;
-            background:linear-gradient(90deg,#ff0000,#cc2200,#ff0000);
-            background-size:200% 100%;
-            color:#fff;font-size:10px;font-weight:900;
-            padding:4px 14px;border-radius:20px;
-            text-transform:uppercase;letter-spacing:1px;
-            margin:12px 12px 0 12px;
-            animation:ad-badge 1.7s ease-in-out infinite,ad-spin 3s linear infinite;
-        }
-
-        /* ── THUMB DA IMAGEM ── */
+        .sx-ad-card{position:relative;border-radius:22px;margin:0 2px 32px 2px;overflow:visible;animation:ad-explode 2.6s ease-in-out infinite;}
+        .sx-ad-card::before{content:'';position:absolute;inset:-3px;border-radius:25px;background:linear-gradient(60deg,#ff0000,#ff7700,#ffdd00,#ff0000,#cc0000,#ff5500,#ff0000,#ff7700);background-size:400% 400%;animation:ad-spin 1.8s linear infinite;z-index:0;}
+        .sx-ad-inner{position:relative;z-index:1;border-radius:19px;overflow:hidden;background:linear-gradient(145deg,#1a0a2e 0%,#0d1f3c 50%,#080d18 100%);}
+        .sx-ad-badge{display:inline-block;background:linear-gradient(90deg,#ff0000,#cc2200,#ff0000);background-size:200% 100%;color:#fff;font-size:10px;font-weight:900;padding:4px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;margin:12px 12px 0 12px;animation:ad-badge 1.7s ease-in-out infinite,ad-spin 3s linear infinite;}
         .sx-ad-thumb{position:relative;overflow:hidden;width:100%;}
-
-        /* Mídia — zoom + glitch */
-        .sx-ad-thumb img,.sx-ad-thumb video{
-            width:100%;height:230px;object-fit:cover;display:block;
-            animation:ad-zoom 4.2s ease-in-out infinite,ad-glitch 8s linear infinite;
-        }
-
-        /* Shimmer 1 branco rápido */
-        .sx-ad-thumb .sh1{
-            position:absolute;inset:0;pointer-events:none;z-index:3;
-            background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.25) 45%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.25) 55%,transparent 100%);
-            animation:ad-sh1 2.2s ease-in-out infinite;
-        }
-        /* Shimmer 2 dourado lento contra-diagonal */
-        .sx-ad-thumb .sh2{
-            position:absolute;inset:0;pointer-events:none;z-index:3;
-            background:linear-gradient(90deg,transparent 0%,rgba(255,160,0,0.2) 45%,rgba(255,220,0,0.32) 50%,rgba(255,160,0,0.2) 55%,transparent 100%);
-            animation:ad-sh2 3.4s ease-in-out infinite 1.1s;
-        }
-        /* Shimmer 3 vermelho fino */
-        .sx-ad-thumb .sh3{
-            position:absolute;inset:0;pointer-events:none;z-index:3;
-            background:linear-gradient(90deg,transparent 0%,rgba(255,60,60,0.15) 48%,rgba(255,100,100,0.25) 50%,rgba(255,60,60,0.15) 52%,transparent 100%);
-            animation:ad-sh3 4.8s ease-in-out infinite 0.6s;
-        }
-
-        /* Scan verde descendo */
-        .sx-ad-thumb .sc-dn{
-            position:absolute;left:0;right:0;height:3px;top:-4px;z-index:4;pointer-events:none;
-            background:linear-gradient(90deg,transparent 0%,rgba(0,255,130,0.9) 25%,rgba(0,255,210,1) 50%,rgba(0,255,130,0.9) 75%,transparent 100%);
-            animation:ad-scan-dn 2s linear infinite;
-            filter:blur(0.4px);
-        }
-        /* Scan vermelho subindo */
-        .sx-ad-thumb .sc-up{
-            position:absolute;left:0;right:0;height:2px;bottom:-4px;z-index:4;pointer-events:none;
-            background:linear-gradient(90deg,transparent 0%,rgba(255,50,50,0.8) 25%,rgba(255,140,50,1) 50%,rgba(255,50,50,0.8) 75%,transparent 100%);
-            animation:ad-scan-up 3s linear infinite 1s;
-        }
-        /* Scan azul transversal */
-        .sx-ad-thumb .sc-cr{
-            position:absolute;top:0;bottom:0;width:2px;left:-4px;z-index:4;pointer-events:none;
-            background:linear-gradient(180deg,transparent 0%,rgba(80,180,255,0.7) 25%,rgba(140,220,255,1) 50%,rgba(80,180,255,0.7) 75%,transparent 100%);
-            animation:ad-scan-cross 4.5s linear infinite 0.5s;
-        }
-
-        /* Vinheta pulsante */
-        .sx-ad-thumb .vig{
-            position:absolute;inset:0;z-index:2;pointer-events:none;
-            background:radial-gradient(ellipse at center,transparent 45%,rgba(160,0,0,0.55) 100%);
-            animation:ad-vig 3s ease-in-out infinite;
-        }
-
-        /* Partículas */
-        .sx-ad-particle{
-            position:absolute;border-radius:50%;pointer-events:none;z-index:5;
-            animation:ad-particle var(--pd) ease-out infinite var(--delay);
-        }
-
-        /* ── CORPO ── */
+        .sx-ad-thumb img,.sx-ad-thumb video{width:100%;height:230px;object-fit:cover;display:block;animation:ad-zoom 4.2s ease-in-out infinite,ad-glitch 8s linear infinite;}
+        .sx-ad-thumb .sh1{position:absolute;inset:0;pointer-events:none;z-index:3;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.25) 45%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.25) 55%,transparent 100%);animation:ad-sh1 2.2s ease-in-out infinite;}
+        .sx-ad-thumb .sh2{position:absolute;inset:0;pointer-events:none;z-index:3;background:linear-gradient(90deg,transparent 0%,rgba(255,160,0,0.2) 45%,rgba(255,220,0,0.32) 50%,rgba(255,160,0,0.2) 55%,transparent 100%);animation:ad-sh2 3.4s ease-in-out infinite 1.1s;}
+        .sx-ad-thumb .sh3{position:absolute;inset:0;pointer-events:none;z-index:3;background:linear-gradient(90deg,transparent 0%,rgba(255,60,60,0.15) 48%,rgba(255,100,100,0.25) 50%,rgba(255,60,60,0.15) 52%,transparent 100%);animation:ad-sh3 4.8s ease-in-out infinite 0.6s;}
+        .sx-ad-thumb .sc-dn{position:absolute;left:0;right:0;height:3px;top:-4px;z-index:4;pointer-events:none;background:linear-gradient(90deg,transparent 0%,rgba(0,255,130,0.9) 25%,rgba(0,255,210,1) 50%,rgba(0,255,130,0.9) 75%,transparent 100%);animation:ad-scan-dn 2s linear infinite;filter:blur(0.4px);}
+        .sx-ad-thumb .sc-up{position:absolute;left:0;right:0;height:2px;bottom:-4px;z-index:4;pointer-events:none;background:linear-gradient(90deg,transparent 0%,rgba(255,50,50,0.8) 25%,rgba(255,140,50,1) 50%,rgba(255,50,50,0.8) 75%,transparent 100%);animation:ad-scan-up 3s linear infinite 1s;}
+        .sx-ad-thumb .sc-cr{position:absolute;top:0;bottom:0;width:2px;left:-4px;z-index:4;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(80,180,255,0.7) 25%,rgba(140,220,255,1) 50%,rgba(80,180,255,0.7) 75%,transparent 100%);animation:ad-scan-cross 4.5s linear infinite 0.5s;}
+        .sx-ad-thumb .vig{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(160,0,0,0.55) 100%);animation:ad-vig 3s ease-in-out infinite;}
+        .sx-ad-particle{position:absolute;border-radius:50%;pointer-events:none;z-index:5;animation:ad-particle var(--pd) ease-out infinite var(--delay);}
         .sx-ad-body{padding:14px 16px 18px;}
         .sx-ad-loja-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-        .sx-ad-logo-wrap{
-            width:46px;height:46px;border-radius:50%;border:2px solid #ff0000;
-            flex-shrink:0;overflow:hidden;
-            animation:ad-logo 5.5s ease-in-out infinite;
-            box-shadow:0 0 14px rgba(255,0,0,0.7);
-        }
+        .sx-ad-logo-wrap{width:46px;height:46px;border-radius:50%;border:2px solid #ff0000;flex-shrink:0;overflow:hidden;animation:ad-logo 5.5s ease-in-out infinite;box-shadow:0 0 14px rgba(255,0,0,0.7);}
         .sx-ad-logo-wrap img{width:100%;height:100%;object-fit:cover;}
-        .sx-ad-logo-fallback{
-            width:46px;height:46px;border-radius:50%;
-            background:linear-gradient(135deg,#ff0000,#880000);
-            display:flex;align-items:center;justify-content:center;
-            font-weight:900;font-size:20px;flex-shrink:0;
-            animation:ad-logo 5.5s ease-in-out infinite;
-            box-shadow:0 0 14px rgba(255,0,0,0.7);
-        }
+        .sx-ad-logo-fallback{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ff0000,#880000);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;flex-shrink:0;animation:ad-logo 5.5s ease-in-out infinite;box-shadow:0 0 14px rgba(255,0,0,0.7);}
         .sx-ad-loja-nome{font-size:12px;font-weight:900;color:#ff7060;text-transform:uppercase;letter-spacing:1.5px;}
         .sx-ad-titulo{font-size:18px;font-weight:900;color:#ffffff;text-transform:uppercase;margin-bottom:6px;line-height:1.2;animation:ad-title 3.2s ease-in-out infinite;}
         .sx-ad-desc{font-size:13px;color:#aabbcc;line-height:1.6;}
-
-        /* ── CTA NEON ── */
-        .sx-ad-cta{
-            display:block;width:100%;position:relative;overflow:hidden;
-            background:linear-gradient(90deg,#ff0000,#cc2200,#ff4400,#ff8800,#ff0000);
-            background-size:400% 100%;
-            color:white;font-weight:900;font-size:15px;
-            padding:14px;border-radius:13px;
-            text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:2px;
-            margin-top:14px;border:none;cursor:pointer;
-            animation:ad-cta-wave 1.8s linear infinite,ad-cta-glow 1.6s ease-in-out infinite;
-        }
-        .sx-ad-cta .csh{
-            position:absolute;top:-10%;left:-110%;width:40%;height:120%;pointer-events:none;
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.38),rgba(255,255,255,0.6),rgba(255,255,255,0.38),transparent);
-            transform:skewX(-20deg);
-            animation:ad-cta-sh 1.6s ease-in-out infinite;
-        }
-
-        /* Hover lift */
+        .sx-ad-cta{display:block;width:100%;position:relative;overflow:hidden;background:linear-gradient(90deg,#ff0000,#cc2200,#ff4400,#ff8800,#ff0000);background-size:400% 100%;color:white;font-weight:900;font-size:15px;padding:14px;border-radius:13px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:2px;margin-top:14px;border:none;cursor:pointer;animation:ad-cta-wave 1.8s linear infinite,ad-cta-glow 1.6s ease-in-out infinite;}
+        .sx-ad-cta .csh{position:absolute;top:-10%;left:-110%;width:40%;height:120%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.38),rgba(255,255,255,0.6),rgba(255,255,255,0.38),transparent);transform:skewX(-20deg);animation:ad-cta-sh 1.6s ease-in-out infinite;}
         .sx-ad-card:hover .sx-ad-inner{transform:scale(1.012);transition:transform 0.3s ease;}
     </style>
 </head>
@@ -591,7 +446,80 @@
         let userLogado=null,idLogado=null,unsubFeed=null,arquivoCapaPendente=null;
         let curtidasNestaSessao=new Set(),clsArquivos=[],clsIsSubmitting=false;
         let isAdmin=false,anunciosAtivos=[],lokListaCarregada=false,unsubAprovacao=null;
-        const videoCache=new Set();let videoAtual=null;
+        const videoCache=new Set();
+        let videoAtual=null;
+
+        /* ══════════════════════════════════════════════════════
+           SOM — Única coisa que mudou aqui.
+           Browser mobile NUNCA permite autoplay com som sem
+           interação do usuário. Solução:
+           1. Vídeo começa muted (obrigatório pelo browser)
+           2. No primeiro toque/clique do usuário em qualquer
+              lugar da tela, ativa o som do vídeo atual
+           3. Funciona igual TikTok/Instagram Reels no celular
+        ══════════════════════════════════════════════════════ */
+        let somAtivado=false;
+
+        function ativarSomPrimeiraVez(){
+            if(somAtivado)return;
+            somAtivado=true;
+            if(videoAtual){
+                videoAtual.muted=false;
+                videoAtual.play().catch(()=>{videoAtual.muted=true;});
+            }
+        }
+        // Qualquer toque/clique ativa o som — igual ao comportamento do TikTok
+        document.addEventListener('touchstart',ativarSomPrimeiraVez,{passive:true});
+        document.addEventListener('click',ativarSomPrimeiraVez,{passive:true});
+
+        /* ══════════════════════════════════════════════════════
+           VÍDEO — Única outra coisa que mudou.
+           Problema: preloadObserver com rootMargin:'2000px'
+           carregava muitos vídeos ao mesmo tempo -> travamento.
+           Fix: preload só quando está a 400px de distância,
+           e só carrega metadata primeiro (não o vídeo inteiro).
+           O observer principal ficou igual ao original.
+        ══════════════════════════════════════════════════════ */
+        const videoObserver=new IntersectionObserver(entries=>{
+            entries.forEach(entry=>{
+                const video=entry.target;
+                if(document.getElementById('area-tvsx').classList.contains('show'))return;
+                if(entry.isIntersecting){
+                    document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video)v.pause();});
+                    videoAtual=video;
+                    if(video.readyState<2){video.preload='auto';video.load();}
+                    // Som: se usuário já tocou na tela, toca com som; senão muted
+                    video.muted=!somAtivado;
+                    video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
+                    const sk=video.parentElement?.querySelector('.video-skeleton');
+                    if(sk){const hide=()=>{sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},300);video.removeEventListener('canplay',hide);};video.readyState>=2?hide():video.addEventListener('canplay',hide);}
+                }else{
+                    video.pause();
+                    const sk=video.parentElement?.querySelector('.video-skeleton');
+                    if(sk&&video.readyState<1){sk.style.display='flex';sk.style.opacity='1';}
+                }
+            });
+        },{threshold:0.4});
+
+        // CORRIGIDO: rootMargin era 2000px — carregava tudo de uma vez e travava.
+        // Agora 400px: só precarrega o próximo vídeo, não todos.
+        const preloadObserver=new IntersectionObserver(entries=>{
+            entries.forEach(entry=>{
+                if(entry.isIntersecting){
+                    const v=entry.target;
+                    // Só metadata primeiro — muito mais leve que preload='auto'
+                    if(v.preload==='none'){v.preload='metadata';v.load();}
+                    preloadObserver.unobserve(v);
+                }
+            });
+        },{rootMargin:'400px 0px',threshold:0});
+
+        function registrarVideo(v){
+            v.preload='none';
+            v.muted=true; // sempre começa muted (regra do browser)
+            preloadObserver.observe(v);
+            videoObserver.observe(v);
+        }
 
         function setCookie(n,v,d){try{const x=new Date();x.setTime(x.getTime()+(d*864e5));document.cookie=n+'='+encodeURIComponent(v)+';expires='+x.toUTCString()+';path=/;SameSite=Lax';}catch(e){}}
         function getCookie(n){try{const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}catch(e){return null;}}
@@ -599,38 +527,6 @@
         function salvarEmailLocal(e){try{localStorage.setItem('sx_email',e);localStorage.setItem('sx_email_backup',e);localStorage.setItem('sx_logado','1');sessionStorage.setItem('sx_email',e);setCookie('sx_email',e,3650);setCookie('sx_email_bk',e,3650);}catch(x){}}
         function lerEmailLocal(){try{return localStorage.getItem('sx_email')||localStorage.getItem('sx_email_backup')||sessionStorage.getItem('sx_email')||getCookie('sx_email')||getCookie('sx_email_bk')||null;}catch(e){return null;}}
         function limparEmailLocal(){try{localStorage.removeItem('sx_email');localStorage.removeItem('sx_email_backup');localStorage.removeItem('sx_logado');sessionStorage.removeItem('sx_email');deleteCookie('sx_email');deleteCookie('sx_email_bk');}catch(e){}}
-
-        let somDesbloqueado=false;
-        function desbloquearSom(){if(somDesbloqueado)return;somDesbloqueado=true;document.querySelectorAll('video.video-feed').forEach(v=>{v.muted=false;if(!v.paused)v.play().catch(()=>{});});}
-        ['click','touchstart','touchend','scroll'].forEach(ev=>document.addEventListener(ev,desbloquearSom,{passive:true}));
-
-        const videoObserver=new IntersectionObserver(entries=>{
-            entries.forEach(entry=>{
-                const video=entry.target;
-                if(document.getElementById('area-tvsx').classList.contains('show'))return;
-                if(entry.isIntersecting){
-                    document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video)v.pause();});
-                    videoAtual=video;if(video.readyState<2){video.preload='auto';video.load();}
-                    video.muted=false;video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
-                    const sk=video.parentElement?.querySelector('.video-skeleton');
-                    if(sk){const hide=()=>{sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},300);video.removeEventListener('canplay',hide);};video.readyState>=2?hide():video.addEventListener('canplay',hide);}
-                }else{video.pause();const sk=video.parentElement?.querySelector('.video-skeleton');if(sk&&video.readyState<1){sk.style.display='flex';sk.style.opacity='1';}}
-            });
-        },{threshold:0.4});
-
-        const preloadObserver=new IntersectionObserver(entries=>{
-            entries.forEach(entry=>{
-                if(entry.isIntersecting){
-                    const v=entry.target;v.preload='metadata';v.load();
-                    if(!videoCache.has(v.src)){videoCache.add(v.src);const l=document.createElement('link');l.rel='preload';l.as='video';l.href=v.src;document.head.appendChild(l);}
-                    preloadObserver.unobserve(v);
-                    const near=new IntersectionObserver(en=>{if(en[0].isIntersecting){v.preload='auto';near.disconnect();}},{rootMargin:'500px 0px',threshold:0});
-                    near.observe(v);
-                }
-            });
-        },{rootMargin:'2000px 0px',threshold:0});
-
-        function registrarVideo(v){v.preload='none';v.muted=false;preloadObserver.observe(v);videoObserver.observe(v);}
 
         const TVSX_URL='https://sadministrador.github.io/tvsx/index10.html';
         window.abrirTVSX=()=>{if(document.getElementById('sidebar').classList.contains('open'))toggleMenu();document.querySelectorAll('video.video-feed').forEach(v=>{v.pause();v.muted=true;});videoAtual=null;const iframe=document.getElementById('tvsx-iframe');if(iframe.src!==TVSX_URL)iframe.src=TVSX_URL;document.getElementById('area-tvsx').classList.add('show');document.getElementById('btn-fechar-tvsx').classList.add('show');if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});resetNav();document.getElementById('btn-nav-tvsx').style.borderColor='#ff0000';document.getElementById('btn-nav-tvsx').style.color='#ff0000';};
@@ -707,24 +603,14 @@
             });
         }
 
-        /* ════════════════════════════════════════════════════════════
-           gerarHtmlAnuncio — TURBO MAX
-           Efeitos CSS: borda elétrica 360°, pulso explosivo externo,
-           3x shimmer (branco/dourado/vermelho), scan verde+vermelho+azul,
-           zoom breath, glitch RGB, vinheta pulsante
-           Efeitos JS: 12 partículas flutuantes coloridas
-           Logo: flip 3D | Título: neon pulsante | CTA: onda RGB + shine
-           ════════════════════════════════════════════════════════════ */
         function gerarHtmlAnuncio(ad){
             if(!ad)return"";
             const bannerUrl=ad.imagemUrl||ad.imagem||"";
             const isVideo=ad.isVideo||false;
             const adId='ad-'+(ad.id||Math.random().toString(36).slice(2));
-
             const logoHtml=ad.logoUrl
                 ?`<div class="sx-ad-logo-wrap"><img src="${ad.logoUrl}" alt="${ad.loja||''}"></div>`
                 :`<div class="sx-ad-logo-fallback">${(ad.loja||'?')[0]}</div>`;
-
             let bannerHtml="";
             if(bannerUrl){
                 const mediaTag=isVideo
@@ -742,11 +628,9 @@
                     <div class="vig"></div>
                 </div>`;
             }
-
             const ctaHtml=ad.link
                 ?`<a href="${ad.link}" target="_blank" rel="noopener" class="sx-ad-cta"><span class="csh"></span>${ad.cta||'SAIBA MAIS'}</a>`
                 :"";
-
             return`
             <div class="sx-ad-card" id="${adId}">
                 <div class="sx-ad-inner">
@@ -765,7 +649,6 @@
             </div>`;
         }
 
-        /* Injeta 12 partículas JS por thumb */
         function injetarParticulas(){
             document.querySelectorAll('.sx-ad-thumb:not([data-p])').forEach(thumb=>{
                 thumb.dataset.p='1';
