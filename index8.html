@@ -446,103 +446,156 @@
         let userLogado=null,idLogado=null,unsubFeed=null,arquivoCapaPendente=null;
         let curtidasNestaSessao=new Set(),clsArquivos=[],clsIsSubmitting=false;
         let isAdmin=false,anunciosAtivos=[],lokListaCarregada=false,unsubAprovacao=null;
-        const videoCache=new Set();
         let videoAtual=null;
 
         /* ══════════════════════════════════════════════════════
-           SOM — Autoplay com som direto, sem precisar clicar.
-           Estratégia:
-           1. Tenta tocar COM som imediatamente (alguns browsers permitem)
-           2. Se browser bloquear, cai para muted e toca normalmente
-           3. Qualquer interação do usuário (toque/clique) ativa som
-              no vídeo atual caso ainda esteja muted
-           Isso garante som automático sempre que o browser permitir,
-           e ativa no primeiro toque caso não permita de cara.
+           SOM AUTOMÁTICO NO CELULAR — Estratégia robusta:
+           1. AudioContext desbloqueado assim que a página carrega
+              (iOS/Android exigem um gesto do usuário para AudioContext,
+               mas DOMContentLoaded com um toque na tela já basta)
+           2. Ao entrar no feed, tentamos play COM som imediatamente.
+           3. Se bloqueado, ficamos muted e escutamos qualquer evento
+              de interação (touchstart/touchend/click/scroll) para
+              ativar o som — funciona no primeiro toque em qualquer
+              lugar da tela, sem precisar clicar no vídeo.
+           4. Flag global somDesbloqueado garante que não tentamos
+              desbloquear duas vezes.
         ══════════════════════════════════════════════════════ */
-        let somAtivado=false;
+        let somDesbloqueado = false;
+        let audioCtx = null;
 
-        async function tentarPlayComSom(video){
-            // Tenta primeiro COM som
-            video.muted=false;
-            try{
+        function criarAudioContext() {
+            if (audioCtx) return audioCtx;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch(e) {}
+            return audioCtx;
+        }
+
+        async function desbloquearSom() {
+            if (somDesbloqueado) return;
+            somDesbloqueado = true;
+            // Resume AudioContext (necessário no iOS)
+            const ctx = criarAudioContext();
+            if (ctx && ctx.state === 'suspended') {
+                try { await ctx.resume(); } catch(e) {}
+            }
+            // Tenta ativar som no vídeo atual
+            if (videoAtual) {
+                videoAtual.muted = false;
+                try {
+                    await videoAtual.play();
+                } catch(e) {
+                    videoAtual.muted = true;
+                    try { await videoAtual.play(); } catch(e2) {}
+                }
+            }
+        }
+
+        // Captura o PRIMEIRO gesto do usuário em qualquer lugar
+        const gestosDesbloqueio = ['touchstart','touchend','click','pointerdown','keydown'];
+        function aoGestoUsuario(e) {
+            desbloquearSom();
+            // Remove listeners após primeiro gesto
+            gestosDesbloqueio.forEach(ev => document.removeEventListener(ev, aoGestoUsuario));
+        }
+        gestosDesbloqueio.forEach(ev => document.addEventListener(ev, aoGestoUsuario, {once: false, passive: true}));
+
+        async function tentarPlayComSom(video) {
+            // Tenta com som primeiro
+            video.muted = false;
+            try {
                 await video.play();
-                somAtivado=true;
+                somDesbloqueado = true;
                 return true;
-            }catch(e){
-                // Browser bloqueou — toca muted (autoplay muted sempre funciona)
-                video.muted=true;
-                try{await video.play();}catch(e2){}
+            } catch(e) {
+                // Fallback: muted (sempre funciona)
+                video.muted = true;
+                try { await video.play(); } catch(e2) {}
                 return false;
             }
         }
 
-        function ativarSomNaInteracao(){
-            if(somAtivado)return;
-            somAtivado=true;
-            if(videoAtual&&videoAtual.muted){
-                videoAtual.muted=false;
-                videoAtual.play().catch(()=>{videoAtual.muted=true;});
-            }
-        }
-        document.addEventListener('touchstart',ativarSomNaInteracao,{passive:true});
-        document.addEventListener('click',ativarSomNaInteracao,{passive:true});
-
         /* ══════════════════════════════════════════════════════
-           VÍDEO — Carregamento mais rápido.
-           - preload='auto' no observer principal para buffering imediato
-           - preloadObserver com rootMargin 600px: começa a baixar
-             o próximo vídeo antes de chegar nele
-           - Skeleton some assim que canplay (não espera canplaythrough)
-           - fetchpriority="high" via atributo no elemento
+           VÍDEOS DO FEED — Carregamento rápido:
+           - preloadObserver com 800px de antecedência para buffering
+           - Skeleton some no evento 'canplay' (mais rápido que canplaythrough)
+           - videoObserver threshold 0.5: ativa quando metade visível
+           - Pausa outros vídeos imediatamente ao trocar
         ══════════════════════════════════════════════════════ */
-        const videoObserver=new IntersectionObserver(entries=>{
-            entries.forEach(entry=>{
-                const video=entry.target;
-                if(document.getElementById('area-tvsx').classList.contains('show'))return;
-                if(entry.isIntersecting){
-                    document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video){v.pause();}});
-                    videoAtual=video;
-                    // Força carregamento imediato e completo
-                    video.preload='auto';
-                    if(video.readyState<2)video.load();
-                    // Esconde skeleton assim que pode reproduzir (mais rápido que canplaythrough)
-                    const sk=video.parentElement?.querySelector('.video-skeleton');
-                    const hideSkeletonNow=()=>{if(sk){sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},200);}};
-                    if(video.readyState>=2){
-                        hideSkeletonNow();
-                    }else{
-                        video.addEventListener('canplay',hideSkeletonNow,{once:true});
+        const videoObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (document.getElementById('area-tvsx').classList.contains('show')) return;
+                if (entry.isIntersecting) {
+                    // Para todos os outros vídeos imediatamente
+                    document.querySelectorAll('video.video-feed').forEach(v => {
+                        if (v !== video) { v.pause(); v.muted = true; }
+                    });
+                    videoAtual = video;
+                    // Força load completo
+                    if (video.preload !== 'auto') {
+                        video.preload = 'auto';
+                        video.load();
                     }
-                    // Tenta com som primeiro, muted como fallback
+                    // Esconde skeleton logo que pode reproduzir
+                    const sk = video.parentElement?.querySelector('.video-skeleton');
+                    const hideNow = () => {
+                        if (sk) { sk.style.opacity = '0'; setTimeout(() => { if(sk) sk.style.display = 'none'; }, 150); }
+                    };
+                    if (video.readyState >= 2) {
+                        hideNow();
+                    } else {
+                        video.addEventListener('canplay', hideNow, { once: true });
+                    }
+                    // Tenta com som; fallback muted
                     tentarPlayComSom(video);
-                }else{
+                } else {
                     video.pause();
-                    const sk=video.parentElement?.querySelector('.video-skeleton');
-                    if(sk&&video.readyState<1){sk.style.display='flex';sk.style.opacity='1';}
+                    // Só mostra skeleton se não carregou nada ainda
+                    const sk = video.parentElement?.querySelector('.video-skeleton');
+                    if (sk && video.readyState < 1) { sk.style.display = 'flex'; sk.style.opacity = '1'; }
                 }
             });
-        },{threshold:0.4});
+        }, { threshold: 0.5 });
 
-        // Precarrega vídeos próximos com 600px de antecedência
-        const preloadObserver=new IntersectionObserver(entries=>{
-            entries.forEach(entry=>{
-                if(entry.isIntersecting){
-                    const v=entry.target;
-                    if(v.preload==='none'){
-                        v.preload='auto'; // baixa logo, não só metadata
-                        v.load();
-                    }
+        // Pré-carrega com 800px de antecedência (mais rápido que 600px original)
+        const preloadObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const v = entry.target;
+                    v.preload = 'auto';
+                    v.load();
                     preloadObserver.unobserve(v);
                 }
             });
-        },{rootMargin:'600px 0px',threshold:0});
+        }, { rootMargin: '800px 0px', threshold: 0 });
 
-        function registrarVideo(v){
-            v.preload='none';
-            v.muted=true;
+        function registrarVideo(v) {
+            // Começa com metadata para saber duração sem baixar tudo
+            v.preload = 'metadata';
+            v.muted = true;
             preloadObserver.observe(v);
             videoObserver.observe(v);
         }
+
+        /* ══════════════════════════════════════════════════════
+           BANNERS DE ANÚNCIO — Mais leves e rápidos:
+           - Vídeos de anúncio: muted + autoplay + playsinline + preload auto
+           - IntersectionObserver com threshold 0.1 (começa a carregar cedo)
+           - Observer global reutilizado (não cria novo a cada feed)
+           - Imagens: loading="eager" + fetchpriority="high"
+        ══════════════════════════════════════════════════════ */
+        const adVideoObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const v = entry.target;
+                if (entry.isIntersecting) {
+                    if (v.paused) v.play().catch(() => {});
+                } else {
+                    v.pause();
+                }
+            });
+        }, { rootMargin: '200px 0px', threshold: 0.1 });
 
         function setCookie(n,v,d){try{const x=new Date();x.setTime(x.getTime()+(d*864e5));document.cookie=n+'='+encodeURIComponent(v)+';expires='+x.toUTCString()+';path=/;SameSite=Lax';}catch(e){}}
         function getCookie(n){try{const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}catch(e){return null;}}
@@ -632,14 +685,14 @@
             const isVideo=ad.isVideo||false;
             const adId='ad-'+(ad.id||Math.random().toString(36).slice(2));
             const logoHtml=ad.logoUrl
-                ?`<div class="sx-ad-logo-wrap"><img src="${ad.logoUrl}" alt="${ad.loja||''}" loading="eager"></div>`
+                ?`<div class="sx-ad-logo-wrap"><img src="${ad.logoUrl}" alt="${ad.loja||''}" loading="eager" decoding="async"></div>`
                 :`<div class="sx-ad-logo-fallback">${(ad.loja||'?')[0]}</div>`;
             let bannerHtml="";
             if(bannerUrl){
-                // Vídeos de anúncio: autoplay muted loop com som ao tocar
-                // Imagens de anúncio: loading="eager" para aparecer imediatamente
+                // Vídeos de anúncio: muted obrigatório para autoplay funcionar no mobile
+                // Imagens: eager + fetchpriority high para carregar imediatamente
                 const mediaTag=isVideo
-                    ?`<video src="${bannerUrl}" muted loop autoplay playsinline preload="auto" data-anuncio="true" style="width:100%;height:230px;object-fit:cover;display:block;" onclick="this.muted=!this.muted"></video>`
+                    ?`<video src="${bannerUrl}" muted loop playsinline preload="auto" data-anuncio="true" style="width:100%;height:230px;object-fit:cover;display:block;" onclick="this.muted=!this.muted"></video>`
                     :`<img src="${bannerUrl}" loading="eager" decoding="async" fetchpriority="high" alt="${ad.titulo||''}" style="width:100%;height:230px;object-fit:cover;display:block;">`;
                 bannerHtml=`
                 <div class="sx-ad-thumb" id="${adId}-thumb">
@@ -692,9 +745,10 @@
                     p.style.cssText=`width:${size}px;height:${size}px;background:${cor};left:${Math.random()*100}%;top:${55+Math.random()*45}%;--px:${px};--py:${py};--ps:${ps};--pr:${pr};--pd:${dur};--delay:${delay};box-shadow:0 0 ${size*2.5}px ${cor};`;
                     thumb.appendChild(p);
                 }
-                // Inicia autoplay de vídeos de anúncio após injetar
+                // Inicia autoplay dos vídeos de anúncio via observer global
                 thumb.querySelectorAll('video[data-anuncio]').forEach(v=>{
-                    v.play().catch(()=>{});
+                    v.preload='auto';
+                    adVideoObserver.observe(v);
                 });
             });
         }
@@ -724,10 +778,10 @@
                     let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){
-                            // Vídeos do feed: preload none (registrarVideo cuida disso), skeleton visível
+                            // Vídeo do feed: skeleton visível, preload none (registrarVideo cuida do resto)
                             midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;"></video></div>`;
                         }else{
-                            // Imagens: eager loading para aparecer rápido
+                            // Imagens: eager para aparecer rápido
                             midiaHtml=`<img src="${p.midia}" loading="eager" decoding="async" style="width:100%;display:block;object-fit:cover;" class="mt-2">`;
                         }
                     }
@@ -735,25 +789,16 @@
                     f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="post-card-header-inner"><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;"><img src="${p.foto}" class="w-11 h-11 rounded-full object-cover border-2 border-red-600" style="flex-shrink:0;"><span style="font-weight:900;color:#ff0000;font-size:11px;text-transform:uppercase;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nome}</span></div><div class="post-card-header-badge" id="badge-slot-${id}"></div><div onclick="curtirPost('${id}',this,event)" class="btn-curtir" data-post-id="${id}">❤️ <span class="num-curtidas">${p.curtidas||0}</span></div></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
+                // Registra vídeos do feed
                 document.querySelectorAll('video.video-feed').forEach(v=>registrarVideo(v));
-                // Vídeos de anúncio: autoplay imediato com IntersectionObserver
-                const adVideoObserver=new IntersectionObserver(entries=>{
-                    entries.forEach(entry=>{
-                        const v=entry.target;
-                        if(entry.isIntersecting){
-                            v.preload='auto';
-                            v.play().catch(()=>{});
-                        }else{
-                            v.pause();
-                        }
-                    });
-                },{threshold:0.1});
+                // Registra vídeos de anúncio no observer global (reutiliza, não cria novo)
                 document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{
                     v.preload='auto';
                     adVideoObserver.observe(v);
                 });
                 aplicarRankingCoracoes();
-                setTimeout(injetarParticulas,60);
+                // Partículas com delay para não travar o render do feed
+                setTimeout(injetarParticulas, 100);
             });
         }
 
