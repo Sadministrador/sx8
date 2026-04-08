@@ -450,49 +450,71 @@
         let videoAtual=null;
 
         /* ══════════════════════════════════════════════════════
-           SOM — Única coisa que mudou aqui.
-           Browser mobile NUNCA permite autoplay com som sem
-           interação do usuário. Solução:
-           1. Vídeo começa muted (obrigatório pelo browser)
-           2. No primeiro toque/clique do usuário em qualquer
-              lugar da tela, ativa o som do vídeo atual
-           3. Funciona igual TikTok/Instagram Reels no celular
+           SOM — Autoplay com som direto, sem precisar clicar.
+           Estratégia:
+           1. Tenta tocar COM som imediatamente (alguns browsers permitem)
+           2. Se browser bloquear, cai para muted e toca normalmente
+           3. Qualquer interação do usuário (toque/clique) ativa som
+              no vídeo atual caso ainda esteja muted
+           Isso garante som automático sempre que o browser permitir,
+           e ativa no primeiro toque caso não permita de cara.
         ══════════════════════════════════════════════════════ */
         let somAtivado=false;
 
-        function ativarSomPrimeiraVez(){
+        async function tentarPlayComSom(video){
+            // Tenta primeiro COM som
+            video.muted=false;
+            try{
+                await video.play();
+                somAtivado=true;
+                return true;
+            }catch(e){
+                // Browser bloqueou — toca muted (autoplay muted sempre funciona)
+                video.muted=true;
+                try{await video.play();}catch(e2){}
+                return false;
+            }
+        }
+
+        function ativarSomNaInteracao(){
             if(somAtivado)return;
             somAtivado=true;
-            if(videoAtual){
+            if(videoAtual&&videoAtual.muted){
                 videoAtual.muted=false;
                 videoAtual.play().catch(()=>{videoAtual.muted=true;});
             }
         }
-        // Qualquer toque/clique ativa o som — igual ao comportamento do TikTok
-        document.addEventListener('touchstart',ativarSomPrimeiraVez,{passive:true});
-        document.addEventListener('click',ativarSomPrimeiraVez,{passive:true});
+        document.addEventListener('touchstart',ativarSomNaInteracao,{passive:true});
+        document.addEventListener('click',ativarSomNaInteracao,{passive:true});
 
         /* ══════════════════════════════════════════════════════
-           VÍDEO — Única outra coisa que mudou.
-           Problema: preloadObserver com rootMargin:'2000px'
-           carregava muitos vídeos ao mesmo tempo -> travamento.
-           Fix: preload só quando está a 400px de distância,
-           e só carrega metadata primeiro (não o vídeo inteiro).
-           O observer principal ficou igual ao original.
+           VÍDEO — Carregamento mais rápido.
+           - preload='auto' no observer principal para buffering imediato
+           - preloadObserver com rootMargin 600px: começa a baixar
+             o próximo vídeo antes de chegar nele
+           - Skeleton some assim que canplay (não espera canplaythrough)
+           - fetchpriority="high" via atributo no elemento
         ══════════════════════════════════════════════════════ */
         const videoObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 const video=entry.target;
                 if(document.getElementById('area-tvsx').classList.contains('show'))return;
                 if(entry.isIntersecting){
-                    document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video)v.pause();});
+                    document.querySelectorAll('video.video-feed').forEach(v=>{if(v!==video){v.pause();}});
                     videoAtual=video;
-                    if(video.readyState<2){video.preload='auto';video.load();}
-                    // Som: se usuário já tocou na tela, toca com som; senão muted
-                    video.muted=!somAtivado;
-                    video.play().catch(()=>{video.muted=true;video.play().catch(()=>{});});
+                    // Força carregamento imediato e completo
+                    video.preload='auto';
+                    if(video.readyState<2)video.load();
+                    // Esconde skeleton assim que pode reproduzir (mais rápido que canplaythrough)
                     const sk=video.parentElement?.querySelector('.video-skeleton');
-                    if(sk){const hide=()=>{sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},300);video.removeEventListener('canplay',hide);};video.readyState>=2?hide():video.addEventListener('canplay',hide);}
+                    const hideSkeletonNow=()=>{if(sk){sk.style.opacity='0';setTimeout(()=>{if(sk)sk.style.display='none';},200);}};
+                    if(video.readyState>=2){
+                        hideSkeletonNow();
+                    }else{
+                        video.addEventListener('canplay',hideSkeletonNow,{once:true});
+                    }
+                    // Tenta com som primeiro, muted como fallback
+                    tentarPlayComSom(video);
                 }else{
                     video.pause();
                     const sk=video.parentElement?.querySelector('.video-skeleton');
@@ -501,22 +523,23 @@
             });
         },{threshold:0.4});
 
-        // CORRIGIDO: rootMargin era 2000px — carregava tudo de uma vez e travava.
-        // Agora 400px: só precarrega o próximo vídeo, não todos.
+        // Precarrega vídeos próximos com 600px de antecedência
         const preloadObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 if(entry.isIntersecting){
                     const v=entry.target;
-                    // Só metadata primeiro — muito mais leve que preload='auto'
-                    if(v.preload==='none'){v.preload='metadata';v.load();}
+                    if(v.preload==='none'){
+                        v.preload='auto'; // baixa logo, não só metadata
+                        v.load();
+                    }
                     preloadObserver.unobserve(v);
                 }
             });
-        },{rootMargin:'400px 0px',threshold:0});
+        },{rootMargin:'600px 0px',threshold:0});
 
         function registrarVideo(v){
             v.preload='none';
-            v.muted=true; // sempre começa muted (regra do browser)
+            v.muted=true;
             preloadObserver.observe(v);
             videoObserver.observe(v);
         }
@@ -609,13 +632,15 @@
             const isVideo=ad.isVideo||false;
             const adId='ad-'+(ad.id||Math.random().toString(36).slice(2));
             const logoHtml=ad.logoUrl
-                ?`<div class="sx-ad-logo-wrap"><img src="${ad.logoUrl}" alt="${ad.loja||''}"></div>`
+                ?`<div class="sx-ad-logo-wrap"><img src="${ad.logoUrl}" alt="${ad.loja||''}" loading="eager"></div>`
                 :`<div class="sx-ad-logo-fallback">${(ad.loja||'?')[0]}</div>`;
             let bannerHtml="";
             if(bannerUrl){
+                // Vídeos de anúncio: autoplay muted loop com som ao tocar
+                // Imagens de anúncio: loading="eager" para aparecer imediatamente
                 const mediaTag=isVideo
-                    ?`<video src="${bannerUrl}" muted loop playsinline preload="none" data-anuncio="true" onclick="this.muted=!this.muted"></video>`
-                    :`<img src="${bannerUrl}" loading="lazy" alt="${ad.titulo||''}">`;
+                    ?`<video src="${bannerUrl}" muted loop autoplay playsinline preload="auto" data-anuncio="true" style="width:100%;height:230px;object-fit:cover;display:block;" onclick="this.muted=!this.muted"></video>`
+                    :`<img src="${bannerUrl}" loading="eager" decoding="async" fetchpriority="high" alt="${ad.titulo||''}" style="width:100%;height:230px;object-fit:cover;display:block;">`;
                 bannerHtml=`
                 <div class="sx-ad-thumb" id="${adId}-thumb">
                     ${mediaTag}
@@ -667,6 +692,10 @@
                     p.style.cssText=`width:${size}px;height:${size}px;background:${cor};left:${Math.random()*100}%;top:${55+Math.random()*45}%;--px:${px};--py:${py};--ps:${ps};--pr:${pr};--pd:${dur};--delay:${delay};box-shadow:0 0 ${size*2.5}px ${cor};`;
                     thumb.appendChild(p);
                 }
+                // Inicia autoplay de vídeos de anúncio após injetar
+                thumb.querySelectorAll('video[data-anuncio]').forEach(v=>{
+                    v.play().catch(()=>{});
+                });
             });
         }
 
@@ -693,13 +722,36 @@
                 posts.forEach((item,i)=>{
                     const{id,dados:p}=item;
                     let midiaHtml="";
-                    if(p.midia){if(p.tipo==='video'){midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;}else{midiaHtml=`<img src="${p.midia}" loading="lazy" style="width:100%;display:block;object-fit:cover;" class="mt-2">`;}}
+                    if(p.midia){
+                        if(p.tipo==='video'){
+                            // Vídeos do feed: preload none (registrarVideo cuida disso), skeleton visível
+                            midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;"></video></div>`;
+                        }else{
+                            // Imagens: eager loading para aparecer rápido
+                            midiaHtml=`<img src="${p.midia}" loading="eager" decoding="async" style="width:100%;display:block;object-fit:cover;" class="mt-2">`;
+                        }
+                    }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
                     f.innerHTML+=`<div class="post-card"><div class="post-card-header"><div class="post-card-header-inner"><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;"><img src="${p.foto}" class="w-11 h-11 rounded-full object-cover border-2 border-red-600" style="flex-shrink:0;"><span style="font-weight:900;color:#ff0000;font-size:11px;text-transform:uppercase;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nome}</span></div><div class="post-card-header-badge" id="badge-slot-${id}"></div><div onclick="curtirPost('${id}',this,event)" class="btn-curtir" data-post-id="${id}">❤️ <span class="num-curtidas">${p.curtidas||0}</span></div></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
                     if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
                 });
                 document.querySelectorAll('video.video-feed').forEach(v=>registrarVideo(v));
-                document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{v.preload='none';preloadObserver.observe(v);});
+                // Vídeos de anúncio: autoplay imediato com IntersectionObserver
+                const adVideoObserver=new IntersectionObserver(entries=>{
+                    entries.forEach(entry=>{
+                        const v=entry.target;
+                        if(entry.isIntersecting){
+                            v.preload='auto';
+                            v.play().catch(()=>{});
+                        }else{
+                            v.pause();
+                        }
+                    });
+                },{threshold:0.1});
+                document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{
+                    v.preload='auto';
+                    adVideoObserver.observe(v);
+                });
                 aplicarRankingCoracoes();
                 setTimeout(injetarParticulas,60);
             });
