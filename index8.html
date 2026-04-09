@@ -304,10 +304,8 @@
             <button onclick="abrirTVSX()" id="btn-nav-tvsx" class="btn-nav-item">
                 <span class="tvsx-tv">TV </span><span class="tvsx-s">S</span><span class="tvsx-x">X</span>
             </button>
-            <!-- BOTÃO VITRINE: nome trocado por ícone de carrinho colorido -->
-            <button onclick="abrirVestir()" id="btn-nav-vestir" class="btn-nav-item">
-                <span style="font-size:18px;">🛒</span>
-            </button>
+            <!-- ✅ ALTERAÇÃO 1: ícone 🛒 substituído pela palavra Compras -->
+            <button onclick="abrirVestir()" id="btn-nav-vestir" class="btn-nav-item">Compras</button>
             <button onclick="abrirLojasLook()" id="btn-nav-lojas" class="btn-nav-item">Domicílio</button>
         </div>
 
@@ -368,7 +366,7 @@
             </div>
         </div>
 
-        <!-- ÁREA DA CALCULADORA DE COMPRAS (substituiu Vestir/Vitrine) -->
+        <!-- ÁREA DA CALCULADORA DE COMPRAS -->
         <div id="area-vestir">
             <div class="calc-wrapper">
                 <div class="calc-header">
@@ -481,7 +479,6 @@
             document.getElementById("calc-total").innerText =
                 "TOTAL: R$ " + calcTotal.toFixed(2).replace(".", ",");
             document.getElementById("calc-count").innerText = calcItens.length;
-            // Atualiza lista visual
             let listaEl = document.getElementById("calc-lista");
             let item = document.createElement("div");
             item.style.cssText = "padding:6px 0;border-bottom:1px solid #1d2d50;color:#e5e7eb;font-size:15px;";
@@ -599,7 +596,8 @@
                 if(entry.isIntersecting){
                     document.querySelectorAll('video.video-feed').forEach(v=>{ if(v!==video){v.pause();} });
                     videoAtual=video;
-                    if(video.readyState<2){video.preload='auto';video.load();}
+                    // ✅ ALTERAÇÃO 2a: readyState<4 para forçar load sempre que não estiver 100% pronto
+                    if(video.readyState<4){video.preload='auto';video.load();}
                     video.muted = false;
                     video.play().catch(()=>{ video.muted=true; video.play().catch(()=>{}); });
                     const sk=video.parentElement?.querySelector('.video-skeleton');
@@ -615,24 +613,21 @@
             });
         },{threshold:0.4});
 
+        // ✅ ALTERAÇÃO 2b: margem 3000px (era 2000px) + preload='auto' direto (era 'metadata' + nearObserver)
         const preloadObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 if(entry.isIntersecting){
                     const v=entry.target;
-                    v.preload='metadata'; v.load();
+                    v.preload='auto'; v.load();
                     if(!videoCache.has(v.src)){
                         videoCache.add(v.src);
                         const l=document.createElement('link'); l.rel='preload';l.as='video';l.href=v.src;
                         document.head.appendChild(l);
                     }
                     preloadObserver.unobserve(v);
-                    const nearObserver=new IntersectionObserver(en=>{
-                        if(en[0].isIntersecting){v.preload='auto';nearObserver.disconnect();}
-                    },{rootMargin:'500px 0px',threshold:0});
-                    nearObserver.observe(v);
                 }
             });
-        },{rootMargin:'2000px 0px',threshold:0});
+        },{rootMargin:'3000px 0px',threshold:0});
 
         function registrarVideo(v){
             v.preload='none'; v.muted=false;
