@@ -413,9 +413,11 @@
         window._adNext = function(uid) { const s = _adSlides[uid]; if (!s) return; _adGoSlide(uid, (s.idx + 1) % s.srcs.length); };
 
         function iniciarSlideshowAd(uid, srcs, intervalo) {
-            if (_adSlides[uid]) clearInterval(_adSlides[uid].timer);
+            if (_adSlides[uid] && _adSlides[uid].timer) clearInterval(_adSlides[uid].timer);
+            if (!document.getElementById('adtrack-' + uid)) return;
             const timer = setInterval(() => _adNext(uid), intervalo || 3000);
             _adSlides[uid] = { idx: 0, srcs, timer };
+            _adGoSlide(uid, 0);
         }
     </script>
 
@@ -492,6 +494,18 @@
                 }
             });
         },{rootMargin:'3000px 0px',threshold:0});
+
+        // ── Observer para vídeos de anúncio (autoplay mudo ao entrar na tela) ──
+        const adVideoObserver=new IntersectionObserver(entries=>{
+            entries.forEach(entry=>{
+                const v=entry.target;
+                if(entry.isIntersecting){
+                    v.play().catch(()=>{});
+                } else {
+                    v.pause();
+                }
+            });
+        },{threshold:0.3});
 
         function registrarVideo(v){v.preload='none';v.muted=false;preloadObserver.observe(v);videoObserver.observe(v);}
 
@@ -625,11 +639,9 @@
         }
 
         // ══════════════════════════════════════════════════════════════════
-        // ÚNICA FUNÇÃO MODIFICADA: gerarHtmlAnuncio
-        // Suporta: slideshow (imagensSlide), GIF/imagem única, vídeo
-        // Suporta: corDescFundo e corDescTexto para a caixa de descrição
+        // gerarHtmlAnuncio
         // ══════════════════════════════════════════════════════════════════
-        function gerarHtmlAnuncio(ad) {
+        function gerarHtmlAnuncio(ad, slideshowsPendentes) {
             if (!ad) return "";
             const corFundo     = ad.corFundo     || '#1a0a2e';
             const corTexto     = ad.corTexto     || '#ffffff';
@@ -649,27 +661,32 @@
             // ── BANNER HTML ──
             let bannerHtml = '';
             if (tipoMidia === 'slide' && imagensSlide && imagensSlide.length > 1) {
-                // Slideshow com setas e bolinhas
+                // SLIDESHOW — sem loading="lazy" para garantir animação imediata
                 const dots  = imagensSlide.map((_,i) => `<div class="ad-slide-dot ${i===0?'active':''}" onclick="_adGoSlide('${uid}',${i})"></div>`).join('');
-                const imgs  = imagensSlide.map(src => `<img src="${src}" loading="lazy" style="width:100%;height:220px;flex-shrink:0;">`).join('');
+                const imgs  = imagensSlide.map(src => `<img src="${src}" style="width:100%;height:320px;flex-shrink:0;object-fit:cover;">`).join('');
                 const navs  = imagensSlide.length > 1
                     ? `<button class="ad-slide-nav prev" onclick="_adPrev('${uid}')">&#8249;</button><button class="ad-slide-nav next" onclick="_adNext('${uid}')">&#8250;</button>`
                     : '';
                 bannerHtml = `
-                <div class="ad-slideshow" style="height:220px;">
-                    <div class="ad-slideshow-track" id="adtrack-${uid}" style="height:220px;">${imgs}</div>
+                <div class="ad-slideshow" style="height:320px;">
+                    <div class="ad-slideshow-track" id="adtrack-${uid}" style="height:320px;">${imgs}</div>
                     ${navs}
                     <div class="ad-slide-dots" id="addots-${uid}">${dots}</div>
                 </div>`;
+                if (slideshowsPendentes) {
+                    slideshowsPendentes.push({ uid, srcs: imagensSlide, intervalo });
+                }
             } else if (tipoMidia === 'slide' && imagensSlide && imagensSlide.length === 1) {
-                bannerHtml = `<img src="${imagensSlide[0]}" loading="lazy" style="width:100%;height:220px;object-fit:cover;display:block;" alt="">`;
+                // Slide com 1 imagem — sem loading="lazy"
+                bannerHtml = `<img src="${imagensSlide[0]}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="">`;
             } else if (isVideo && bannerUrl) {
-                bannerHtml = `<video src="${bannerUrl}" muted loop playsinline preload="none" data-anuncio="true" style="width:100%;height:220px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>`;
+                // ── FIX VÍDEO: autoplay + muted + loop + playsinline + observer ──
+                bannerHtml = `<video src="${bannerUrl}" autoplay muted loop playsinline preload="auto" data-ad-video="true" style="width:100%;height:320px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>`;
             } else if (bannerUrl) {
-                bannerHtml = `<img src="${bannerUrl}" loading="lazy" style="width:100%;height:220px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`;
+                // Imagem única ou GIF — sem loading="lazy" para garantir animação do GIF
+                bannerHtml = `<img src="${bannerUrl}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`;
             }
 
-            // ── DESCRIÇÃO com cores personalizadas ──
             const descHtml = ad.descricao
                 ? `<div style="font-size:15px;font-weight:700;color:${corDescTexto};background:${corDescFundo};line-height:1.5;border-radius:6px;padding:${corDescFundo==='transparent'?'0':'8px 10px'};margin-top:6px;">${ad.descricao}</div>`
                 : '';
@@ -678,7 +695,7 @@
                 ? `<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:rgba(255,255,255,0.18);color:${corTexto};font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;border:1px solid rgba(255,255,255,0.25);">${ad.cta||'SAIBA MAIS'}</a>`
                 : '';
 
-            const html = `
+            return `
             <div style="background:${corFundo};border-radius:16px;border:2px solid rgba(255,255,255,0.12);margin-bottom:24px;overflow:hidden;box-shadow:0 0 24px rgba(0,0,0,0.4);">
                 <div style="padding:8px 12px 0 12px;">
                     <span style="background:rgba(255,255,255,0.15);color:${corTexto};font-size:12px;font-weight:900;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:2px;display:inline-block;">Patrocinador</span>
@@ -694,13 +711,6 @@
                     ${linkHtml}
                 </div>
             </div>`;
-
-            // Inicia slideshow após inserção no DOM
-            if (tipoMidia === 'slide' && imagensSlide && imagensSlide.length > 1) {
-                setTimeout(() => iniciarSlideshowAd(uid, imagensSlide, intervalo), 100);
-            }
-
-            return html;
         }
         // ══════════════════════════════════════════════════════════════════
 
@@ -721,18 +731,23 @@
             if(filtroNome)q=query(collection(fsdb,"posts"),where("nome","==",filtroNome),orderBy("data","desc"));
             if(unsubFeed)unsubFeed();
             unsubFeed=onSnapshot(q,snap=>{
-                const f=document.getElementById('feed');f.innerHTML="";
-                const postsValidos=[];snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
-                let idxAd=0;
-                postsValidos.forEach((item,i)=>{
-                    const{id,dados:p}=item;
-                    let midiaHtml="";
+                const f=document.getElementById('feed');
+                const postsValidos=[];
+                snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
+
+                let htmlCompleto = '';
+                const slideshowsPendentes = [];
+                let idxAd = 0;
+
+                postsValidos.forEach((item, i) => {
+                    const {id, dados: p} = item;
+                    let midiaHtml = "";
                     if(p.midia){
                         if(p.tipo==='video'){midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;}
                         else{midiaHtml=`<img src="${p.midia}" loading="lazy" style="width:100%;display:block;object-fit:cover;" class="mt-2">`;}
                     }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    f.innerHTML+=`
+                    htmlCompleto += `
                     <div class="post-card">
                         <div class="post-card-header">
                             <div class="post-card-header-inner">
@@ -754,10 +769,28 @@
                             </div>
                         </div>
                     </div>`;
-                    if((i+1)%5===0&&anunciosAtivos.length>0){f.innerHTML+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length]);idxAd++;}
+
+                    if((i+1)%5===0 && anunciosAtivos.length>0){
+                        htmlCompleto += gerarHtmlAnuncio(anunciosAtivos[idxAd % anunciosAtivos.length], slideshowsPendentes);
+                        idxAd++;
+                    }
                 });
-                document.querySelectorAll('video.video-feed').forEach(v=>{registrarVideo(v);});
-                document.querySelectorAll('video[data-anuncio="true"]').forEach(v=>{v.preload='none';preloadObserver.observe(v);});
+
+                f.innerHTML = htmlCompleto;
+
+                // Iniciar slideshows após DOM pronto
+                slideshowsPendentes.forEach(({ uid, srcs, intervalo }) => {
+                    iniciarSlideshowAd(uid, srcs, intervalo);
+                });
+
+                // Registrar vídeos dos posts
+                f.querySelectorAll('video.video-feed').forEach(v=>{registrarVideo(v);});
+
+                // ── FIX VÍDEO DE ANÚNCIO: registrar no adVideoObserver ──
+                f.querySelectorAll('video[data-ad-video="true"]').forEach(v=>{
+                    adVideoObserver.observe(v);
+                });
+
                 aplicarRankingCoracoes();
             });
         }
