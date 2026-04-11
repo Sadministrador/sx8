@@ -495,17 +495,26 @@
             });
         },{rootMargin:'3000px 0px',threshold:0});
 
-        // ── Observer para vídeos de anúncio (autoplay mudo ao entrar na tela) ──
+        // ── Observer para vídeos de anúncio (autoplay mudo — compatível mobile) ──
         const adVideoObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 const v=entry.target;
                 if(entry.isIntersecting){
-                    v.play().catch(()=>{});
+                    // Garante muted antes do play (obrigatório iOS Safari e Android Chrome)
+                    v.muted=true;
+                    v.playsInline=true;
+                    if(v.readyState===0){v.load();}
+                    const tentarPlay=()=>{
+                        const p=v.play();
+                        if(p!==undefined){p.catch(()=>{v.muted=true;v.play().catch(()=>{});});}
+                    };
+                    if(v.readyState>=2){tentarPlay();}
+                    else{v.addEventListener('canplay',tentarPlay,{once:true});}
                 } else {
                     v.pause();
                 }
             });
-        },{threshold:0.3});
+        },{threshold:0.2,rootMargin:'100px 0px'});
 
         function registrarVideo(v){v.preload='none';v.muted=false;preloadObserver.observe(v);videoObserver.observe(v);}
 
@@ -680,8 +689,8 @@
                 // Slide com 1 imagem — sem loading="lazy"
                 bannerHtml = `<img src="${imagensSlide[0]}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="">`;
             } else if (isVideo && bannerUrl) {
-                // ── FIX VÍDEO: autoplay + muted + loop + playsinline + observer ──
-                bannerHtml = `<video src="${bannerUrl}" autoplay muted loop playsinline preload="auto" data-ad-video="true" style="width:100%;height:320px;object-fit:cover;display:block;cursor:pointer;" onclick="this.muted=!this.muted"></video>`;
+                // ── FIX VÍDEO: autoplay muted loop playsinline — compatível mobile ──
+                bannerHtml = `<video src="${bannerUrl}" autoplay muted loop playsinline preload="auto" data-ad-video="true" webkit-playsinline x-webkit-airplay="allow" style="width:100%;height:320px;object-fit:cover;display:block;cursor:pointer;" onclick="if(this.muted){this.muted=false;}else{this.muted=true;}"></video>`;
             } else if (bannerUrl) {
                 // Imagem única ou GIF — sem loading="lazy" para garantir animação do GIF
                 bannerHtml = `<img src="${bannerUrl}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`;
@@ -786,8 +795,13 @@
                 // Registrar vídeos dos posts
                 f.querySelectorAll('video.video-feed').forEach(v=>{registrarVideo(v);});
 
-                // ── FIX VÍDEO DE ANÚNCIO: registrar no adVideoObserver ──
+                // ── FIX VÍDEO DE ANÚNCIO: registrar no adVideoObserver (mobile compatível) ──
                 f.querySelectorAll('video[data-ad-video="true"]').forEach(v=>{
+                    v.muted=true;
+                    v.setAttribute('muted','');
+                    v.setAttribute('playsinline','');
+                    v.setAttribute('webkit-playsinline','');
+                    v.load();
                     adVideoObserver.observe(v);
                 });
 
