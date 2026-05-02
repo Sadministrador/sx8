@@ -136,8 +136,6 @@
         #btn-fechar-tvsx.show { display: flex; }
         @media screen and (orientation: landscape) { #btn-fechar-tvsx.show { top: 12px; right: 12px; bottom: auto; left: auto; } }
         @media screen and (orientation: portrait) { #btn-fechar-tvsx.show { bottom: 12px; right: 12px; top: auto; left: auto; } }
-
-        /* ── SLIDESHOW DO ANÚNCIO NO FEED ── */
         .ad-slideshow { position: relative; width: 100%; overflow: hidden; }
         .ad-slideshow-track { display: flex; transition: transform 0.5s ease; }
         .ad-slideshow-track img { width: 100%; flex-shrink: 0; object-fit: cover; display: block; }
@@ -293,27 +291,17 @@
 
         <div id="area-vestir">
             <div class="calc-wrapper">
-                <div class="calc-header">
-                    <h1>🛒 Calculadora de Compras</h1>
-                </div>
+                <div class="calc-header"><h1>🛒 Calculadora de Compras</h1></div>
                 <div class="calc-main">
                     <div class="calc-display">
                         <div class="calc-display-label">VALOR DIGITADO</div>
                         <div class="calc-display-valor" id="calc-display">R$ 0,00</div>
                     </div>
                     <div class="calc-numpad">
-                        <button onclick="calcDigitar('1')">1</button>
-                        <button onclick="calcDigitar('2')">2</button>
-                        <button onclick="calcDigitar('3')">3</button>
-                        <button onclick="calcDigitar('4')">4</button>
-                        <button onclick="calcDigitar('5')">5</button>
-                        <button onclick="calcDigitar('6')">6</button>
-                        <button onclick="calcDigitar('7')">7</button>
-                        <button onclick="calcDigitar('8')">8</button>
-                        <button onclick="calcDigitar('9')">9</button>
-                        <button onclick="calcDigitar('00')">00</button>
-                        <button onclick="calcDigitar('0')">0</button>
-                        <button onclick="calcApagarUltimo()">⌫</button>
+                        <button onclick="calcDigitar('1')">1</button><button onclick="calcDigitar('2')">2</button><button onclick="calcDigitar('3')">3</button>
+                        <button onclick="calcDigitar('4')">4</button><button onclick="calcDigitar('5')">5</button><button onclick="calcDigitar('6')">6</button>
+                        <button onclick="calcDigitar('7')">7</button><button onclick="calcDigitar('8')">8</button><button onclick="calcDigitar('9')">9</button>
+                        <button onclick="calcDigitar('00')">00</button><button onclick="calcDigitar('0')">0</button><button onclick="calcApagarUltimo()">⌫</button>
                     </div>
                     <button class="calc-btn-limpar" onclick="calcLimparTudo()">🗑️ LIMPAR TUDO</button>
                     <button class="calc-btn-adicionar" onclick="calcAdicionarPreco()">✓ ADICIONAR</button>
@@ -378,6 +366,26 @@
     <button id="btn-flutuante-admin" onclick="abrirMonitorAnuncios()">📢 Anúncios</button>
 
     <script>
+        // ══════════════════════════════════════════════════════
+        // ✅ CLOUDINARY CONFIG
+        // ══════════════════════════════════════════════════════
+        const CLOUDINARY_CLOUD_NAME = "dxqobkits";
+        const CLOUDINARY_UPLOAD_PRESET = "sx_videos";
+
+        async function uploadParaCloudinary(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            const tipo = file.type.startsWith("video") ? "video" : "image";
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${tipo}/upload`,
+                { method: "POST", body: formData }
+            );
+            const data = await response.json();
+            if (data.error) throw new Error(data.error.message);
+            return data.secure_url;
+        }
+
         let calcValorAtual = "", calcTotal = 0, calcItens = [];
         function calcDigitar(n) { calcValorAtual += n; calcAtualizar(); }
         function calcApagarUltimo() { calcValorAtual = calcValorAtual.slice(0, -1); calcAtualizar(); }
@@ -398,27 +406,11 @@
             document.getElementById("calc-lista").innerHTML = "";
         }
 
-        // ── SLIDESHOW DOS ANÚNCIOS NO FEED ──
-        const _adSlides = {}; // { uid: { idx, srcs, timer } }
-
-        window._adGoSlide = function(uid, i) {
-            const s = _adSlides[uid]; if (!s) return;
-            s.idx = i;
-            const track = document.getElementById('adtrack-' + uid);
-            if (track) track.style.transform = 'translateX(-' + (i * 100) + '%)';
-            const dots = document.querySelectorAll('#addots-' + uid + ' .ad-slide-dot');
-            dots.forEach((d, j) => d.classList.toggle('active', j === i));
-        };
+        const _adSlides = {};
+        window._adGoSlide = function(uid, i) { const s = _adSlides[uid]; if (!s) return; s.idx = i; const track = document.getElementById('adtrack-' + uid); if (track) track.style.transform = 'translateX(-' + (i * 100) + '%)'; const dots = document.querySelectorAll('#addots-' + uid + ' .ad-slide-dot'); dots.forEach((d, j) => d.classList.toggle('active', j === i)); };
         window._adPrev = function(uid) { const s = _adSlides[uid]; if (!s) return; _adGoSlide(uid, (s.idx - 1 + s.srcs.length) % s.srcs.length); };
         window._adNext = function(uid) { const s = _adSlides[uid]; if (!s) return; _adGoSlide(uid, (s.idx + 1) % s.srcs.length); };
-
-        function iniciarSlideshowAd(uid, srcs, intervalo) {
-            if (_adSlides[uid] && _adSlides[uid].timer) clearInterval(_adSlides[uid].timer);
-            if (!document.getElementById('adtrack-' + uid)) return;
-            const timer = setInterval(() => _adNext(uid), intervalo || 3000);
-            _adSlides[uid] = { idx: 0, srcs, timer };
-            _adGoSlide(uid, 0);
-        }
+        function iniciarSlideshowAd(uid, srcs, intervalo) { if (_adSlides[uid] && _adSlides[uid].timer) clearInterval(_adSlides[uid].timer); if (!document.getElementById('adtrack-' + uid)) return; const timer = setInterval(() => _adNext(uid), intervalo || 3000); _adSlides[uid] = { idx: 0, srcs, timer }; _adGoSlide(uid, 0); }
     </script>
 
     <script type="module">
@@ -427,8 +419,6 @@
         import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot,
                  orderBy, doc, updateDoc, getDoc, arrayUnion, serverTimestamp }
                  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref as stRef, uploadBytes, getDownloadURL }
-                 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCXTQ932v0Amnbtha01BzFsUfUZKnwYQIA",
@@ -440,7 +430,6 @@
         };
         const app = initializeApp(firebaseConfig);
         const fsdb = getFirestore(app, "cadastro");
-        const storage = getStorage(app);
         const auth = getAuth(app);
 
         let userLogado=null, idLogado=null, unsubFeed=null, arquivoCapaPendente=null;
@@ -450,6 +439,45 @@
         let unsubAprovacao=null;
         const videoCache=new Set();
         let videoAtual=null;
+
+        // ══════════════════════════════════════════════════════════════════
+        // MOTOR DE ÁUDIO
+        // ══════════════════════════════════════════════════════════════════
+        let _audioCtx = null;
+        function getAudioCtx() { if (!_audioCtx || _audioCtx.state === 'closed') { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } return _audioCtx; }
+
+        async function tocarSomAnuncio(id) {
+            if (!id || id === 'nenhum') return;
+            try {
+                const ctx = getAudioCtx(); if (ctx.state === 'suspended') await ctx.resume();
+                const now = ctx.currentTime; const master = ctx.createGain(); master.gain.value = 1.5;
+                const compressor = ctx.createDynamicsCompressor(); compressor.threshold.value = -6; compressor.knee.value = 3; compressor.ratio.value = 4; compressor.attack.value = 0.001; compressor.release.value = 0.1;
+                master.connect(compressor); compressor.connect(ctx.destination);
+                function osc(freq, type, startT, dur, vol, freqEnd) { const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(master); o.type = type || 'sine'; o.frequency.setValueAtTime(freq, startT); if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, startT + dur); g.gain.setValueAtTime(0, startT); g.gain.linearRampToValueAtTime(vol, startT + 0.02); g.gain.exponentialRampToValueAtTime(0.001, startT + dur); o.start(startT); o.stop(startT + dur + 0.05); }
+                function noise(startT, dur, freq, q, vol, freqEnd) { const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate); const data = buf.getChannelData(0); for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1); const src = ctx.createBufferSource(), filt = ctx.createBiquadFilter(), g = ctx.createGain(); src.buffer = buf; filt.type = 'bandpass'; filt.frequency.setValueAtTime(freq, startT); if (freqEnd) filt.frequency.exponentialRampToValueAtTime(freqEnd, startT + dur); filt.Q.value = q || 1; g.gain.setValueAtTime(0, startT); g.gain.linearRampToValueAtTime(vol, startT + 0.03); g.gain.exponentialRampToValueAtTime(0.001, startT + dur); src.connect(filt); filt.connect(g); g.connect(master); src.start(startT); src.stop(startT + dur + 0.05); }
+                const plays = {
+                    crystal: () => { [523,1047,1568,2093,2637].forEach((f,i) => osc(f,'sine',now+i*0.08,2.0-i*0.2,0.4-i*0.06)); [3136,4186].forEach((f,i) => osc(f,'sine',now+i*0.05,1.2,0.12)); },
+                    fanfarra: () => { const mel=[392,523,659,784,659,784,1047],ts=[0,0.12,0.24,0.36,0.52,0.62,0.74],ds=[0.2,0.2,0.2,0.28,0.18,0.18,0.9]; mel.forEach((f,i) => { osc(f,'sawtooth',now+ts[i],ds[i],0.35); osc(f*1.5,'sine',now+ts[i],ds[i],0.12); }); osc(80,'sine',now,0.3,0.6,30); noise(now,0.15,2000,0.5,0.25); },
+                    cash: () => { const cf=[1800,2200,1600,2000,2400,1900,2100],ct=[0,0.07,0.14,0.21,0.3,0.38,0.47]; cf.forEach((f,i) => { osc(f,'square',now+ct[i],0.25,0.28); osc(f*0.5,'sine',now+ct[i],0.3,0.15); }); osc(2637,'sine',now+0.58,1.0,0.4); osc(3136,'sine',now+0.58,0.8,0.2); },
+                    magic: () => { osc(300,'sine',now,0.8,0.5,2400); osc(600,'sine',now+0.1,0.7,0.3,1800); for(let i=0;i<8;i++) osc(1000+Math.random()*3000,'sine',now+Math.random()*0.7,0.3,0.15); osc(2637,'sine',now+0.8,1.2,0.45); osc(3136,'sine',now+0.85,1.0,0.25); },
+                    arcade: () => { const notes=[262,330,392,523,784,659,784,1047],ts=[0,0.08,0.16,0.24,0.32,0.44,0.52,0.60]; notes.forEach((f,i) => { osc(f,'square',now+ts[i],0.12,0.3); osc(f*2,'square',now+ts[i],0.1,0.08); }); [523,659,784].forEach(f => osc(f,'square',now+0.75,0.5,0.2)); },
+                    notification: () => { osc(880,'sine',now,0.18,0.5); osc(1320,'sine',now,0.18,0.25); osc(1047,'sine',now+0.22,0.28,0.55); osc(1568,'sine',now+0.22,0.28,0.3); osc(1047,'sine',now+0.55,0.8,0.2); osc(1568,'sine',now+0.55,0.7,0.1); },
+                    harp: () => { [261,329,392,523,659,784,1047,1318].forEach((f,i) => osc(f,'sine',now+i*0.09,2.2-i*0.15,0.38-i*0.03)); },
+                    tribal: () => { [0,0.25,0.5,0.75].forEach(t => { osc(80,'sine',now+t,0.22,0.6,35); noise(now+t,0.15,150,0.5,0.3); }); [0.125,0.375,0.625].forEach(t => { noise(now+t,0.1,3000,0.3,0.4); osc(200,'triangle',now+t,0.1,0.3); }); [0,0.0625,0.125,0.1875,0.25,0.3125,0.375,0.4375,0.5,0.5625,0.625,0.6875,0.75,0.8125].forEach(t => noise(now+t,0.05,8000,0.5,0.15)); },
+                    woosh_up: () => { noise(now,1.2,200,0.3,0.5,6000); osc(100,'sawtooth',now,1.0,0.4,1200); osc(150,'sine',now+0.2,0.8,0.3,800); [523,659,784,1047].forEach((f,i) => osc(f,'triangle',now+1.0+i*0.08,0.6,0.35)); },
+                    piano_jingle: () => { [261,329,392].forEach(f => osc(f,'triangle',now,0.5,0.35)); [392,494,587].forEach(f => osc(f,'triangle',now+0.5,0.5,0.35)); [440,523,659].forEach(f => osc(f,'triangle',now+1.0,0.5,0.35)); [523,659,784].forEach(f => osc(f,'triangle',now+1.5,1.0,0.3)); },
+                    synth_chord: () => { [196,247,294,392,494].forEach((f,i) => { osc(f,'sawtooth',now+i*0.04,1.5,0.28); osc(f*2,'sine',now+i*0.04,1.3,0.1); }); const lfo=ctx.createOscillator(),lg=ctx.createGain(); lfo.frequency.value=6; lg.gain.value=0.15; lfo.connect(lg); lg.connect(master.gain); lfo.start(now); lfo.stop(now+1.5); },
+                };
+                (plays[id] || (() => {}))();
+            } catch(e) {}
+        }
+
+        let _adSomObserver = null;
+        function registrarObserverSomAnuncios() {
+            if (_adSomObserver) _adSomObserver.disconnect();
+            _adSomObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { const somId = entry.target.getAttribute('data-som'); if (somId && somId !== 'nenhum') tocarSomAnuncio(somId); } }); }, { threshold: 0.4 });
+            document.querySelectorAll('[data-ad-card="true"]').forEach(card => _adSomObserver.observe(card));
+        }
 
         function setCookie(name, value, days) { try { const d = new Date(); d.setTime(d.getTime() + (days*24*60*60*1000)); document.cookie = name+'='+encodeURIComponent(value)+';expires='+d.toUTCString()+';path=/;SameSite=Lax'; } catch(e) {} }
         function getCookie(name) { try { const match = document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)')); return match ? decodeURIComponent(match[1]) : null; } catch(e) { return null; } }
@@ -495,24 +523,15 @@
             });
         },{rootMargin:'3000px 0px',threshold:0});
 
-        // ── Observer para vídeos de anúncio (autoplay mudo — compatível mobile) ──
         const adVideoObserver=new IntersectionObserver(entries=>{
             entries.forEach(entry=>{
                 const v=entry.target;
                 if(entry.isIntersecting){
-                    // Garante muted antes do play (obrigatório iOS Safari e Android Chrome)
-                    v.muted=true;
-                    v.playsInline=true;
+                    v.muted=true; v.playsInline=true;
                     if(v.readyState===0){v.load();}
-                    const tentarPlay=()=>{
-                        const p=v.play();
-                        if(p!==undefined){p.catch(()=>{v.muted=true;v.play().catch(()=>{});});}
-                    };
-                    if(v.readyState>=2){tentarPlay();}
-                    else{v.addEventListener('canplay',tentarPlay,{once:true});}
-                } else {
-                    v.pause();
-                }
+                    const tentarPlay=()=>{const p=v.play();if(p!==undefined){p.catch(()=>{v.muted=true;v.play().catch(()=>{});});}};
+                    if(v.readyState>=2){tentarPlay();}else{v.addEventListener('canplay',tentarPlay,{once:true});}
+                } else { v.pause(); }
             });
         },{threshold:0.2,rootMargin:'100px 0px'});
 
@@ -534,7 +553,6 @@
         };
 
         const MONITOR_URL='sx-monitor.html';
-
         window.limparErroEmail=()=>{ document.getElementById('alerta-email-duplicado').classList.remove('visivel'); document.getElementById('e').classList.remove('input-erro'); };
         function mostrarErroEmail(){ document.getElementById('alerta-email-duplicado').classList.add('visivel'); document.getElementById('e').classList.add('input-erro'); document.getElementById('e').focus(); }
 
@@ -582,6 +600,7 @@
             });
         }
 
+        // ✅ CADASTRO — foto de perfil via Cloudinary
         window.cadastrar=async()=>{
             const nome=document.getElementById('n').value.trim(),email=document.getElementById('e').value.trim().toLowerCase(),tel=document.getElementById('t').value.trim(),file=document.getElementById('f').files[0],btn=document.getElementById('btn-cadastrar');
             if(!nome)return alert("Digite seu nome completo!");if(!email)return alert("Digite seu e-mail!");if(!tel)return alert("Digite seu telefone!");if(!file)return alert("Por favor, suba sua foto de perfil!");
@@ -589,10 +608,11 @@
             try{
                 const [snapExiste,fotoComprimida]=await Promise.all([getDocs(query(collection(fsdb,"usuariosAprovados"),where("email","==",email))),comprimirFoto(file)]);
                 if(!snapExiste.empty){mostrarErroEmail();btn.disabled=false;btn.innerText="CADASTRAR";return;}
-                const sRef=stRef(storage,'perfis/'+Date.now()+'.jpg');await uploadBytes(sRef,fotoComprimida);const url=await getDownloadURL(sRef);
+                // ✅ Upload foto de perfil via Cloudinary
+                const url = await uploadParaCloudinary(new File([fotoComprimida], 'perfil.jpg', {type:'image/jpeg'}));
                 const docRef=await addDoc(collection(fsdb,"usuariosAprovados"),{nome,email,tel,foto:url,status:"aprovado"});
                 salvarEmailLocal(email);idLogado=docRef.id;userLogado={nome,email,tel,foto:url,status:"aprovado"};entrarNaPlataforma();
-            }catch(e){alert("Erro ao enviar cadastro.");btn.disabled=false;btn.innerText="CADASTRAR";}
+            }catch(e){alert("Erro ao enviar cadastro: "+e.message);btn.disabled=false;btn.innerText="CADASTRAR";}
         };
 
         function entrarNaPlataforma(){
@@ -647,92 +667,25 @@
             });
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        // gerarHtmlAnuncio
-        // ══════════════════════════════════════════════════════════════════
         function gerarHtmlAnuncio(ad, slideshowsPendentes) {
             if (!ad) return "";
-            const corFundo     = ad.corFundo     || '#1a0a2e';
-            const corTexto     = ad.corTexto     || '#ffffff';
-            const corDescFundo = ad.corDescFundo || 'transparent';
-            const corDescTexto = ad.corDescTexto || corTexto;
-            const tipoMidia    = ad.tipoMidia    || 'unico';
-            const imagensSlide = ad.imagensSlide && ad.imagensSlide.length > 0 ? ad.imagensSlide : null;
-            const bannerUrl    = ad.imagemUrl    || ad.imagem || "";
-            const isVideo      = ad.isVideo      || false;
-            const intervalo    = ad.intervaloSlide || 3000;
-            const uid          = 'ad_' + ad.id;
-
-            const logoHtml = ad.logoUrl
-                ? `<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;">`
-                : `<div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;color:${corTexto};">${(ad.loja||'?')[0]}</div>`;
-
-            // ── BANNER HTML ──
-            let bannerHtml = '';
-            if (tipoMidia === 'slide' && imagensSlide && imagensSlide.length > 1) {
-                // SLIDESHOW — sem loading="lazy" para garantir animação imediata
-                const dots  = imagensSlide.map((_,i) => `<div class="ad-slide-dot ${i===0?'active':''}" onclick="_adGoSlide('${uid}',${i})"></div>`).join('');
-                const imgs  = imagensSlide.map(src => `<img src="${src}" style="width:100%;height:320px;flex-shrink:0;object-fit:cover;">`).join('');
-                const navs  = imagensSlide.length > 1
-                    ? `<button class="ad-slide-nav prev" onclick="_adPrev('${uid}')">&#8249;</button><button class="ad-slide-nav next" onclick="_adNext('${uid}')">&#8250;</button>`
-                    : '';
-                bannerHtml = `
-                <div class="ad-slideshow" style="height:320px;">
-                    <div class="ad-slideshow-track" id="adtrack-${uid}" style="height:320px;">${imgs}</div>
-                    ${navs}
-                    <div class="ad-slide-dots" id="addots-${uid}">${dots}</div>
-                </div>`;
-                if (slideshowsPendentes) {
-                    slideshowsPendentes.push({ uid, srcs: imagensSlide, intervalo });
-                }
-            } else if (tipoMidia === 'slide' && imagensSlide && imagensSlide.length === 1) {
-                // Slide com 1 imagem — sem loading="lazy"
-                bannerHtml = `<img src="${imagensSlide[0]}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="">`;
-            } else if (isVideo && bannerUrl) {
-                // ── FIX VÍDEO: autoplay muted loop playsinline — compatível mobile ──
-                bannerHtml = `<video src="${bannerUrl}" autoplay muted loop playsinline preload="auto" data-ad-video="true" webkit-playsinline x-webkit-airplay="allow" style="width:100%;height:320px;object-fit:cover;display:block;cursor:pointer;" onclick="if(this.muted){this.muted=false;}else{this.muted=true;}"></video>`;
-            } else if (bannerUrl) {
-                // Imagem única ou GIF — sem loading="lazy" para garantir animação do GIF
-                bannerHtml = `<img src="${bannerUrl}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`;
-            }
-
-            const descHtml = ad.descricao
-                ? `<div style="font-size:15px;font-weight:700;color:${corDescTexto};background:${corDescFundo};line-height:1.5;border-radius:6px;padding:${corDescFundo==='transparent'?'0':'8px 10px'};margin-top:6px;">${ad.descricao}</div>`
-                : '';
-
-            const linkHtml = ad.link
-                ? `<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:rgba(255,255,255,0.18);color:${corTexto};font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;border:1px solid rgba(255,255,255,0.25);">${ad.cta||'SAIBA MAIS'}</a>`
-                : '';
-
-            return `
-            <div style="background:${corFundo};border-radius:16px;border:2px solid rgba(255,255,255,0.12);margin-bottom:24px;overflow:hidden;box-shadow:0 0 24px rgba(0,0,0,0.4);">
-                <div style="padding:8px 12px 0 12px;">
-                    <span style="background:rgba(255,255,255,0.15);color:${corTexto};font-size:12px;font-weight:900;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:2px;display:inline-block;">Patrocinador</span>
-                </div>
-                ${bannerHtml}
-                <div style="padding:16px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        ${logoHtml}
-                        <span style="font-size:13px;font-weight:900;color:${corTexto};text-transform:uppercase;opacity:0.8;">${ad.loja||''}</span>
-                    </div>
-                    <div style="font-size:20px;font-weight:900;color:${corTexto};text-transform:uppercase;margin-bottom:4px;">${ad.titulo||''}</div>
-                    ${descHtml}
-                    ${linkHtml}
-                </div>
-            </div>`;
+            const corFundo=ad.corFundo||'#1a0a2e',corTexto=ad.corTexto||'#ffffff',corDescFundo=ad.corDescFundo||'transparent',corDescTexto=ad.corDescTexto||corTexto,tipoMidia=ad.tipoMidia||'unico',imagensSlide=ad.imagensSlide&&ad.imagensSlide.length>0?ad.imagensSlide:null,bannerUrl=ad.imagemUrl||ad.imagem||"",isVideo=ad.isVideo||false,intervalo=ad.intervaloSlide||3000,uid='ad_'+ad.id,somId=ad.somAnuncio||'nenhum';
+            const logoHtml=ad.logoUrl?`<img src="${ad.logoUrl}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);flex-shrink:0;">`:`<div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;color:${corTexto};">${(ad.loja||'?')[0]}</div>`;
+            let bannerHtml='';
+            if(tipoMidia==='slide'&&imagensSlide&&imagensSlide.length>1){const dots=imagensSlide.map((_,i)=>`<div class="ad-slide-dot ${i===0?'active':''}" onclick="_adGoSlide('${uid}',${i})"></div>`).join('');const imgs=imagensSlide.map(src=>`<img src="${src}" style="width:100%;height:320px;flex-shrink:0;object-fit:cover;">`).join('');const navs=imagensSlide.length>1?`<button class="ad-slide-nav prev" onclick="_adPrev('${uid}')">&#8249;</button><button class="ad-slide-nav next" onclick="_adNext('${uid}')">&#8250;</button>`:'';bannerHtml=`<div class="ad-slideshow" style="height:320px;"><div class="ad-slideshow-track" id="adtrack-${uid}" style="height:320px;">${imgs}</div>${navs}<div class="ad-slide-dots" id="addots-${uid}">${dots}</div></div>`;if(slideshowsPendentes)slideshowsPendentes.push({uid,srcs:imagensSlide,intervalo});}
+            else if(tipoMidia==='slide'&&imagensSlide&&imagensSlide.length===1){bannerHtml=`<img src="${imagensSlide[0]}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="">`;}
+            else if(isVideo&&bannerUrl){bannerHtml=`<video src="${bannerUrl}" autoplay muted loop playsinline preload="auto" data-ad-video="true" webkit-playsinline style="width:100%;height:320px;object-fit:cover;display:block;cursor:pointer;" onclick="if(this.muted){this.muted=false;}else{this.muted=true;}"></video>`;}
+            else if(bannerUrl){bannerHtml=`<img src="${bannerUrl}" style="width:100%;height:320px;object-fit:cover;display:block;" alt="${ad.titulo||''}">`;}
+            const descHtml=ad.descricao?`<div style="font-size:15px;font-weight:700;color:${corDescTexto};background:${corDescFundo};line-height:1.5;border-radius:6px;padding:${corDescFundo==='transparent'?'0':'8px 10px'};margin-top:6px;">${ad.descricao}</div>`:'';
+            const linkHtml=ad.link?`<a href="${ad.link}" target="_blank" rel="noopener" style="display:block;width:100%;background:rgba(255,255,255,0.18);color:${corTexto};font-weight:900;font-size:15px;padding:13px;border-radius:10px;text-align:center;text-decoration:none;text-transform:uppercase;letter-spacing:1px;margin-top:12px;border:1px solid rgba(255,255,255,0.25);">${ad.cta||'SAIBA MAIS'}</a>`:'';
+            return `<div data-ad-card="true" data-som="${somId}" style="background:${corFundo};border-radius:16px;border:2px solid rgba(255,255,255,0.12);margin-bottom:24px;overflow:hidden;box-shadow:0 0 24px rgba(0,0,0,0.4);"><div style="padding:8px 12px 0 12px;"><span style="background:rgba(255,255,255,0.15);color:${corTexto};font-size:12px;font-weight:900;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:2px;display:inline-block;">Patrocinador</span></div>${bannerHtml}<div style="padding:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">${logoHtml}<span style="font-size:13px;font-weight:900;color:${corTexto};text-transform:uppercase;opacity:0.8;">${ad.loja||''}</span></div><div style="font-size:20px;font-weight:900;color:${corTexto};text-transform:uppercase;margin-bottom:4px;">${ad.titulo||''}</div>${descHtml}${linkHtml}</div></div>`;
         }
-        // ══════════════════════════════════════════════════════════════════
 
         function aplicarRankingCoracoes(){
-            const allBtns=document.querySelectorAll('.btn-curtir[data-post-id]');
-            const arr=[];allBtns.forEach(btn=>{const count=parseInt(btn.querySelector('.num-curtidas')?.textContent||0)||0;arr.push({btn,count});});
-            arr.sort((a,b)=>b.count-a.count);
+            const allBtns=document.querySelectorAll('.btn-curtir[data-post-id]');const arr=[];allBtns.forEach(btn=>{const count=parseInt(btn.querySelector('.num-curtidas')?.textContent||0)||0;arr.push({btn,count});});arr.sort((a,b)=>b.count-a.count);
             arr.forEach(item=>{item.btn.style.color='#ff0000';const id=item.btn.getAttribute('data-post-id');const slot=document.getElementById('badge-slot-'+id);if(slot)slot.innerHTML='';});
             const medalhas=[{cls:'heart-badge-ouro',emoji:'🥇',valor:'R$ 50'},{cls:'heart-badge-prata',emoji:'🥈',valor:'R$ 20'},{cls:'heart-badge-bronze',emoji:'🥉',valor:'R$ 10'}];
-            arr.slice(0,3).forEach((item,rank)=>{
-                if(item.count<=0)return;const m=medalhas[rank];const id=item.btn.getAttribute('data-post-id');const slot=document.getElementById('badge-slot-'+id);if(!slot)return;
-                const badge=document.createElement('span');badge.className=`heart-badge ${m.cls}`;badge.innerHTML=`<span class="badge-shine"></span><span class="badge-emoji">${m.emoji}</span><span class="badge-valor">${m.valor}</span>`;slot.appendChild(badge);
-            });
+            arr.slice(0,3).forEach((item,rank)=>{if(item.count<=0)return;const m=medalhas[rank];const id=item.btn.getAttribute('data-post-id');const slot=document.getElementById('badge-slot-'+id);if(!slot)return;const badge=document.createElement('span');badge.className=`heart-badge ${m.cls}`;badge.innerHTML=`<span class="badge-shine"></span><span class="badge-emoji">${m.emoji}</span><span class="badge-valor">${m.valor}</span>`;slot.appendChild(badge);});
         }
 
         function carregarFeed(filtroNome=null){
@@ -740,72 +693,24 @@
             if(filtroNome)q=query(collection(fsdb,"posts"),where("nome","==",filtroNome),orderBy("data","desc"));
             if(unsubFeed)unsubFeed();
             unsubFeed=onSnapshot(q,snap=>{
-                const f=document.getElementById('feed');
-                const postsValidos=[];
+                const f=document.getElementById('feed');const postsValidos=[];
                 snap.forEach(d=>{const p=d.data();if(p.tipo!=='classificado')postsValidos.push({id:d.id,dados:p});});
-
-                let htmlCompleto = '';
-                const slideshowsPendentes = [];
-                let idxAd = 0;
-
-                postsValidos.forEach((item, i) => {
-                    const {id, dados: p} = item;
-                    let midiaHtml = "";
+                let htmlCompleto='';const slideshowsPendentes=[];let idxAd=0;
+                postsValidos.forEach((item,i)=>{
+                    const {id,dados:p}=item;let midiaHtml="";
                     if(p.midia){
                         if(p.tipo==='video'){midiaHtml=`<div class="video-wrapper"><div class="video-skeleton"><svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div><video src="${p.midia}" loop playsinline preload="none" class="video-feed" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;" oncanplay="this.previousElementSibling.style.opacity='0';setTimeout(()=>this.previousElementSibling.style.display='none',300);"></video></div>`;}
                         else{midiaHtml=`<img src="${p.midia}" loading="lazy" style="width:100%;display:block;object-fit:cover;" class="mt-2">`;}
                     }
                     const comentsHtml=(p.comentarios||[]).map(c=>`<div class="text-xs bg-black/30 p-2 rounded mb-1"><b class="text-red-500">${c.autor}:</b> ${c.texto}</div>`).join("");
-                    htmlCompleto += `
-                    <div class="post-card">
-                        <div class="post-card-header">
-                            <div class="post-card-header-inner">
-                                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                                    <img src="${p.foto}" class="w-11 h-11 rounded-full object-cover border-2 border-red-600" style="flex-shrink:0;">
-                                    <span style="font-weight:900;color:#ff0000;font-size:11px;text-transform:uppercase;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nome}</span>
-                                </div>
-                                <div class="post-card-header-badge" id="badge-slot-${id}"></div>
-                                <div onclick="curtirPost('${id}',this,event)" class="btn-curtir" data-post-id="${id}">❤️ <span class="num-curtidas">${p.curtidas||0}</span></div>
-                            </div>
-                        </div>
-                        ${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}
-                        ${midiaHtml}
-                        <div class="post-card-footer">
-                            <div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div>
-                            <div class="flex gap-2">
-                                <input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600">
-                                <button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button>
-                            </div>
-                        </div>
-                    </div>`;
-
-                    if((i+1)%5===0 && anunciosAtivos.length>0){
-                        htmlCompleto += gerarHtmlAnuncio(anunciosAtivos[idxAd % anunciosAtivos.length], slideshowsPendentes);
-                        idxAd++;
-                    }
+                    htmlCompleto+=`<div class="post-card"><div class="post-card-header"><div class="post-card-header-inner"><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;"><img src="${p.foto}" class="w-11 h-11 rounded-full object-cover border-2 border-red-600" style="flex-shrink:0;"><span style="font-weight:900;color:#ff0000;font-size:11px;text-transform:uppercase;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nome}</span></div><div class="post-card-header-badge" id="badge-slot-${id}"></div><div onclick="curtirPost('${id}',this,event)" class="btn-curtir" data-post-id="${id}">❤️ <span class="num-curtidas">${p.curtidas||0}</span></div></div></div>${p.texto?`<p class="post-card-texto">${p.texto}</p>`:''}${midiaHtml}<div class="post-card-footer"><div class="max-h-32 overflow-y-auto mb-3">${comentsHtml}</div><div class="flex gap-2"><input id="input-coment-${id}" placeholder="Escreva algo para este post..." class="flex-1 comment-box p-2 text-sm outline-none focus:border-red-600"><button onclick="salvarComentario('${id}')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-all">Salvar</button></div></div></div>`;
+                    if((i+1)%5===0&&anunciosAtivos.length>0){htmlCompleto+=gerarHtmlAnuncio(anunciosAtivos[idxAd%anunciosAtivos.length],slideshowsPendentes);idxAd++;}
                 });
-
-                f.innerHTML = htmlCompleto;
-
-                // Iniciar slideshows após DOM pronto
-                slideshowsPendentes.forEach(({ uid, srcs, intervalo }) => {
-                    iniciarSlideshowAd(uid, srcs, intervalo);
-                });
-
-                // Registrar vídeos dos posts
+                f.innerHTML=htmlCompleto;
+                slideshowsPendentes.forEach(({uid,srcs,intervalo})=>iniciarSlideshowAd(uid,srcs,intervalo));
                 f.querySelectorAll('video.video-feed').forEach(v=>{registrarVideo(v);});
-
-                // ── FIX VÍDEO DE ANÚNCIO: registrar no adVideoObserver (mobile compatível) ──
-                f.querySelectorAll('video[data-ad-video="true"]').forEach(v=>{
-                    v.muted=true;
-                    v.setAttribute('muted','');
-                    v.setAttribute('playsinline','');
-                    v.setAttribute('webkit-playsinline','');
-                    v.load();
-                    adVideoObserver.observe(v);
-                });
-
-                aplicarRankingCoracoes();
+                f.querySelectorAll('video[data-ad-video="true"]').forEach(v=>{v.muted=true;v.setAttribute('muted','');v.setAttribute('playsinline','');v.load();adVideoObserver.observe(v);});
+                registrarObserverSomAnuncios();aplicarRankingCoracoes();
             });
         }
 
@@ -827,26 +732,40 @@
             }
         };
 
-        window.previaCapa=(input)=>{const file=input.files[0];if(!file)return;arquivoCapaPendente=file;const reader=new FileReader();reader.onload=e=>{document.getElementById('img-capa-view').src=e.target.result;document.getElementById('btn-confirmar-capa').classList.remove('hidden');};reader.readAsDataURL(file);};
-        window.confirmarUploadCapa=async()=>{const btn=document.getElementById('btn-confirmar-capa');btn.innerText="SALVANDO...";try{const sr=stRef(storage,'capas/'+idLogado);await uploadBytes(sr,arquivoCapaPendente);const url=await getDownloadURL(sr);await updateDoc(doc(fsdb,"usuariosAprovados",idLogado),{capa:url});alert("SUCESSO! SUA CAPA AGORA É VISÍVEL PARA TODOS.");btn.classList.add('hidden');btn.innerText="✅ SALVAR PARA TODOS";}catch(err){alert("Erro ao salvar.");}};
+        window.previaCapa=(input)=>{
+            const file=input.files[0];if(!file)return;arquivoCapaPendente=file;
+            const reader=new FileReader();reader.onload=e=>{document.getElementById('img-capa-view').src=e.target.result;document.getElementById('btn-confirmar-capa').classList.remove('hidden');};reader.readAsDataURL(file);
+        };
 
+        // ✅ CAPA — upload via Cloudinary
+        window.confirmarUploadCapa=async()=>{
+            const btn=document.getElementById('btn-confirmar-capa');btn.innerText="SALVANDO...";
+            try{
+                const url = await uploadParaCloudinary(arquivoCapaPendente);
+                await updateDoc(doc(fsdb,"usuariosAprovados",idLogado),{capa:url});
+                alert("SUCESSO! SUA CAPA AGORA É VISÍVEL PARA TODOS.");btn.classList.add('hidden');btn.innerText="✅ SALVAR PARA TODOS";
+            }catch(err){alert("Erro ao salvar: "+err.message);}
+        };
+
+        // ✅ POSTAR — upload de mídia via Cloudinary
         window.postar=async()=>{
             const txt=document.getElementById('txt').value,file=document.getElementById('midia').files[0],btn=document.getElementById('btn-post');
             if(!txt&&!file)return;btn.disabled=true;btn.innerText="POSTANDO...";
             let url="",tipo="";
-            if(file){const sr=stRef(storage,'posts/'+Date.now());await uploadBytes(sr,file);url=await getDownloadURL(sr);tipo=file.type.includes('video')?'video':'foto';}
-            await addDoc(collection(fsdb,"posts"),{nome:userLogado.nome,foto:userLogado.foto,texto:txt,midia:url,tipo:tipo,data:new Date(),curtidas:0,comentarios:[]});
-            document.getElementById('txt').value="";document.getElementById('midia').value="";document.getElementById('file-name').innerText="✨ ADICIONAR MÍDIA INCRÍVEL";btn.disabled=false;btn.innerText="Publicar";
+            try{
+                if(file){
+                    url = await uploadParaCloudinary(file);
+                    tipo=file.type.includes('video')?'video':'foto';
+                }
+                await addDoc(collection(fsdb,"posts"),{nome:userLogado.nome,foto:userLogado.foto,texto:txt,midia:url,tipo:tipo,data:new Date(),curtidas:0,comentarios:[]});
+                document.getElementById('txt').value="";document.getElementById('midia').value="";document.getElementById('file-name').innerText="✨ ADICIONAR MÍDIA INCRÍVEL";
+            }catch(e){alert("Erro ao postar: "+e.message);}
+            btn.disabled=false;btn.innerText="Publicar";
         };
 
         function dispararCoracoes(btn){
             const rect=btn.getBoundingClientRect();const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
-            for(let i=0;i<8;i++){
-                const el=document.createElement('span');el.className='heart-pop';el.textContent='❤️';
-                const xInicio=(Math.random()-0.5)*30,xFim=(Math.random()-0.5)*80,r1=(Math.random()-0.5)*30,r2=(Math.random()-0.5)*60,size=0.9+Math.random()*0.9;
-                el.style.cssText=`left:${cx+xInicio}px;top:${cy}px;font-size:${size}rem;--x:${xInicio}px;--x2:${xFim}px;--r:${r1}deg;--r2:${r2}deg;animation-delay:${i*60}ms;`;
-                document.body.appendChild(el);el.addEventListener('animationend',()=>el.remove());
-            }
+            for(let i=0;i<8;i++){const el=document.createElement('span');el.className='heart-pop';el.textContent='❤️';const xInicio=(Math.random()-0.5)*30,xFim=(Math.random()-0.5)*80,r1=(Math.random()-0.5)*30,r2=(Math.random()-0.5)*60,size=0.9+Math.random()*0.9;el.style.cssText=`left:${cx+xInicio}px;top:${cy}px;font-size:${size}rem;--x:${xInicio}px;--x2:${xFim}px;--r:${r1}deg;--r2:${r2}deg;animation-delay:${i*60}ms;`;document.body.appendChild(el);el.addEventListener('animationend',()=>el.remove());}
         }
 
         window.curtirPost=async(id,btn,evento)=>{
@@ -877,25 +796,42 @@
         document.getElementById('cls-midia').addEventListener('change',e=>{const novos=Array.from(e.target.files);if(clsArquivos.length+novos.length>6)return alert('Máximo 6 arquivos!');clsArquivos=[...clsArquivos,...novos];clsShowPreview();document.getElementById('cls-contador').textContent=clsArquivos.length+'/6 arquivos';document.getElementById('cls-btnPublicar').disabled=false;e.target.value='';});
         function clsShowPreview(){const preview=document.getElementById('cls-preview');preview.innerHTML='';clsArquivos.forEach((file,i)=>{const reader=new FileReader();reader.onload=e=>{const isVideo=file.type.startsWith('video/');preview.innerHTML+=`<div style="position:relative;">${isVideo?`<video src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;"></video>`:`<img src="${e.target.result}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;">`}<button onclick="clsRemoverArquivo(${i})" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;">×</button></div>`;};reader.readAsDataURL(file);});}
         window.clsRemoverArquivo=index=>{clsArquivos.splice(index,1);clsShowPreview();document.getElementById('cls-contador').textContent=clsArquivos.length+'/6 arquivos';document.getElementById('cls-btnPublicar').disabled=clsArquivos.length===0;};
+
+        // ✅ CLASSIFICADOS — upload via Cloudinary
         window.clsAnunciar=async()=>{
             if(clsIsSubmitting)return;clsIsSubmitting=true;const btn=document.getElementById('cls-btnPublicar');btn.textContent='⏳ Enviando...';btn.disabled=true;
             const dados={categoria:document.getElementById('cls-categoria').value,nome:document.getElementById('cls-nome').value.trim(),ano:document.getElementById('cls-ano').value,bairro:document.getElementById('cls-bairro').value.trim(),estado:document.getElementById('cls-estado').value.trim(),preco:document.getElementById('cls-preco').value,whatsapp:document.getElementById('cls-whatsapp').value.trim(),descricao:document.getElementById('cls-descricao').value.trim()};
             if(!dados.categoria||!dados.nome||clsArquivos.length===0){alert('❌ Preencha categoria, nome e adicione pelo menos 1 foto!');clsIsSubmitting=false;btn.textContent='🚀 PUBLICAR ANÚNCIO';btn.disabled=false;return;}
-            try{const urls=[];for(let i=0;i<clsArquivos.length;i++){const file=clsArquivos[i];const sr=stRef(storage,`anuncios/${Date.now()}_${i}_${file.name}`);await uploadBytes(sr,file);urls.push(await getDownloadURL(sr));}await addDoc(collection(fsdb,'posts'),{...dados,midia:urls,tipo:'classificado',publicado:false,data:serverTimestamp()});alert('✅ ANÚNCIO ENVIADO! Aguarde aprovação.');clsFecharForm();}
-            catch(e){alert('❌ Erro: '+e.message);}finally{clsIsSubmitting=false;btn.textContent='🚀 PUBLICAR ANÚNCIO';btn.disabled=false;}
+            try{
+                const urls=[];
+                for(let i=0;i<clsArquivos.length;i++){
+                    urls.push(await uploadParaCloudinary(clsArquivos[i]));
+                }
+                await addDoc(collection(fsdb,'posts'),{...dados,midia:urls,tipo:'classificado',publicado:false,data:serverTimestamp()});
+                alert('✅ ANÚNCIO ENVIADO! Aguarde aprovação.');clsFecharForm();
+            }
+            catch(e){alert('❌ Erro: '+e.message);}
+            finally{clsIsSubmitting=false;btn.textContent='🚀 PUBLICAR ANÚNCIO';btn.disabled=false;}
         };
         function clsFecharForm(){document.getElementById('cls-formulario').style.display='none';['cls-nome','cls-ano','cls-bairro','cls-estado','cls-preco','cls-whatsapp','cls-descricao'].forEach(id=>document.getElementById(id).value='');document.getElementById('cls-categoria').value='';clsArquivos=[];document.getElementById('cls-preview').innerHTML='';document.getElementById('cls-contador').textContent='0/6 arquivos';document.getElementById('cls-btnPublicar').disabled=true;clsIsSubmitting=false;}
 
         window.mascaraCPF=(i)=>{let v=i.value;if(isNaN(v[v.length-1])){i.value=v.substring(0,v.length-1);return;}i.setAttribute("maxlength","14");if(v.length==3||v.length==7)i.value+=".";if(v.length==11)i.value+="-";};
         window.toggleCadastroLok=()=>{const caixa=document.getElementById('caixa-cadastro-lok');caixa.classList.toggle('hidden');if(!caixa.classList.contains('hidden'))caixa.scrollIntoView({behavior:'smooth'});};
         window.fecharSucessoLok=()=>{document.getElementById('sucesso-lok').classList.add('hidden');document.getElementById('formulario-lok').classList.remove('hidden');document.getElementById('caixa-cadastro-lok').classList.add('hidden');};
+
+        // ✅ PROFISSIONAIS — upload via Cloudinary
         window.cadastrarLok=async()=>{
             const btn=document.getElementById('lok-btn'),file=document.getElementById('lok-f').files[0];
             if(!file)return alert("📸 Escolha sua foto!");if(!document.getElementById('lok-p').value)return alert("🔧 Selecione sua profissão!");
             btn.disabled=true;btn.innerText="⏳ PROCESSANDO...";
-            try{const sRef=stRef(storage,'profissionais/'+Date.now()+"_"+file.name);await uploadBytes(sRef,file);const url=await getDownloadURL(sRef);await addDoc(collection(fsdb,"usuariosPendentes"),{nome:document.getElementById('lok-n').value,cpf:document.getElementById('lok-cpf').value,tel:document.getElementById('lok-t').value,endereco:document.getElementById('lok-end').value,profissao:document.getElementById('lok-p').value,foto:url,status:"pendente",dataCadastro:new Date()});document.getElementById('formulario-lok').classList.add('hidden');document.getElementById('sucesso-lok').classList.remove('hidden');}
+            try{
+                const url = await uploadParaCloudinary(file);
+                await addDoc(collection(fsdb,"usuariosPendentes"),{nome:document.getElementById('lok-n').value,cpf:document.getElementById('lok-cpf').value,tel:document.getElementById('lok-t').value,endereco:document.getElementById('lok-end').value,profissao:document.getElementById('lok-p').value,foto:url,status:"pendente",dataCadastro:new Date()});
+                document.getElementById('formulario-lok').classList.add('hidden');document.getElementById('sucesso-lok').classList.remove('hidden');
+            }
             catch(e){alert("❌ Erro: "+e.message);btn.disabled=false;btn.innerText="TENTAR NOVAMENTE";}
         };
+
         function lokCarregarProfissionais(){
             const listaEl=document.getElementById('lok-listaAprovados'),totalEl=document.getElementById('lok-totalAprovados');
             onSnapshot(collection(fsdb,"usuariosAprovados"),(snapshot)=>{
